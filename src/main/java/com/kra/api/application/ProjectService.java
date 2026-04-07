@@ -49,8 +49,8 @@ public class ProjectService {
     }
 
     public void deleteProject(String id) {
-        projectRepository.findById(ProjectId.of(id))
+        Project found = projectRepository.findById(ProjectId.of(id))
                 .orElseThrow(() -> new ProjectNotFoundException(id));
-        projectRepository.deleteById(ProjectId.of(id));
+        projectRepository.deleteById(found.getId());
     }
 }
