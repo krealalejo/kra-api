@@ -1,7 +1,10 @@
 package com.kra.api.infrastructure.web.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class UpdateProjectRequest {
 
+    @NotBlank(message = "title is required")
     private String title;
     private String description;
     private String url;
