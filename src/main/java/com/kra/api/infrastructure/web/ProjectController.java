@@ -33,7 +33,7 @@ public class ProjectController {
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> list(
             @RequestParam(defaultValue = "50") int limit) {
-        int cap = Math.min(limit, 100);
+        int cap = Math.min(Math.max(limit, 0), 100);
         List<ProjectResponse> projects = projectService.getAllProjects(cap).stream()
                 .map(ProjectResponse::from)
                 .toList();
