@@ -4,6 +4,7 @@ import com.kra.api.application.ProjectNotFoundException;
 import com.kra.api.application.ProjectService;
 import com.kra.api.domain.model.Project;
 import com.kra.api.domain.model.ProjectId;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -151,5 +152,57 @@ class ProjectControllerTest {
         mockMvc.perform(delete("/projects/missing"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"));
+    }
+
+    // -----------------------------------------------------------------------
+    // Auth tests — stubs added in Task 0, activated in Task 2 once
+    // SecurityConfig.java exists and @Import(SecurityConfig.class) is added.
+    // TODO: enable after Task 2 (remove @Disabled, wiring is done there)
+    // -----------------------------------------------------------------------
+
+    @Test
+    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
+    void createProject_noToken_returns401() throws Exception {
+        mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"My Project\",\"description\":\"desc\",\"url\":\"https://url.com\",\"content\":\"content\"}"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
+    void createProject_withValidJwt_returns201() throws Exception {
+        // jwt() post-processor is added by Task 2 when spring-security-test import is available
+        mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"My Project\",\"description\":\"desc\",\"url\":\"https://url.com\",\"content\":\"content\"}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNotEmpty());
+    }
+
+    @Test
+    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
+    void listProjects_noToken_returns200() throws Exception {
+        when(projectService.getAllProjects(50)).thenReturn(List.of());
+
+        mockMvc.perform(get("/projects"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
+    void updateProject_noToken_returns401() throws Exception {
+        mockMvc.perform(put("/projects/abc-123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"Updated\"}"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
+    void deleteProject_noToken_returns401() throws Exception {
+        mockMvc.perform(delete("/projects/abc-123"))
+            .andExpect(status().isUnauthorized());
     }
 }
