@@ -4,10 +4,13 @@ import com.kra.api.application.ProjectNotFoundException;
 import com.kra.api.application.ProjectService;
 import com.kra.api.domain.model.Project;
 import com.kra.api.domain.model.ProjectId;
-import org.junit.jupiter.api.Disabled;
+import com.kra.api.infrastructure.config.SecurityConfig;
+import com.kra.api.infrastructure.security.CustomAccessDeniedHandler;
+import com.kra.api.infrastructure.security.CustomAuthenticationEntryPoint;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,10 +22,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProjectController.class)
+@Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class, CustomAccessDeniedHandler.class})
 class ProjectControllerTest {
 
     @Autowired
@@ -40,6 +45,7 @@ class ProjectControllerTest {
         when(projectService.createProject(any(), any(), any(), any())).thenReturn(fakeProject);
 
         mockMvc.perform(post("/projects")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"My Project\",\"description\":\"desc\",\"url\":\"https://url.com\",\"content\":\"content\"}"))
                 .andExpect(status().isCreated())
@@ -50,6 +56,7 @@ class ProjectControllerTest {
     @Test
     void createProject_blankTitle_returns400() throws Exception {
         mockMvc.perform(post("/projects")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"\",\"description\":\"desc\"}"))
                 .andExpect(status().isBadRequest())
@@ -59,6 +66,7 @@ class ProjectControllerTest {
     @Test
     void createProject_missingTitle_returns400() throws Exception {
         mockMvc.perform(post("/projects")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"description\":\"only desc\"}"))
                 .andExpect(status().isBadRequest())
@@ -118,6 +126,7 @@ class ProjectControllerTest {
         when(projectService.updateProject(eq("abc-123"), any(), any(), any(), any())).thenReturn(updated);
 
         mockMvc.perform(put("/projects/abc-123")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Updated\",\"description\":\"new desc\"}"))
                 .andExpect(status().isOk())
@@ -130,6 +139,7 @@ class ProjectControllerTest {
                 .thenThrow(new ProjectNotFoundException("missing"));
 
         mockMvc.perform(put("/projects/missing")
+                        .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"T\",\"description\":\"D\"}"))
                 .andExpect(status().isNotFound())
@@ -140,7 +150,8 @@ class ProjectControllerTest {
 
     @Test
     void deleteProject_found_returns204() throws Exception {
-        mockMvc.perform(delete("/projects/abc-123"))
+        mockMvc.perform(delete("/projects/abc-123")
+                        .with(jwt()))
                 .andExpect(status().isNoContent());
     }
 
@@ -149,19 +160,17 @@ class ProjectControllerTest {
         doThrow(new ProjectNotFoundException("missing"))
                 .when(projectService).deleteProject("missing");
 
-        mockMvc.perform(delete("/projects/missing"))
+        mockMvc.perform(delete("/projects/missing")
+                        .with(jwt()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"));
     }
 
     // -----------------------------------------------------------------------
-    // Auth tests — stubs added in Task 0, activated in Task 2 once
-    // SecurityConfig.java exists and @Import(SecurityConfig.class) is added.
-    // TODO: enable after Task 2 (remove @Disabled, wiring is done there)
+    // Auth tests — enabled in Task 2 after SecurityConfig.java was created
     // -----------------------------------------------------------------------
 
     @Test
-    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
     void createProject_noToken_returns401() throws Exception {
         mockMvc.perform(post("/projects")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -170,18 +179,26 @@ class ProjectControllerTest {
     }
 
     @Test
-    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
     void createProject_withValidJwt_returns201() throws Exception {
-        // jwt() post-processor is added by Task 2 when spring-security-test import is available
+        Project fakeProject = new Project(ProjectId.of("abc-123"),
+                "My Project", "desc", "https://url.com", "content");
+        when(projectService.createProject(any(), any(), any(), any())).thenReturn(fakeProject);
+
         mockMvc.perform(post("/projects")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"title\":\"My Project\",\"description\":\"desc\",\"url\":\"https://url.com\",\"content\":\"content\"}"))
+                .content("{\"title\":\"My Project\",\"description\":\"desc\",\"url\":\"https://url.com\",\"content\":\"content\"}")
+                .with(jwt()
+                    .jwt(jwt -> jwt
+                        .claim("sub", "cognito-user-id-12345")
+                        .claim("email", "user@example.com")
+                    )
+                )
+            )
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").isNotEmpty());
+            .andExpect(jsonPath("$.id").value("abc-123"));
     }
 
     @Test
-    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
     void listProjects_noToken_returns200() throws Exception {
         when(projectService.getAllProjects(50)).thenReturn(List.of());
 
@@ -191,7 +208,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
     void updateProject_noToken_returns401() throws Exception {
         mockMvc.perform(put("/projects/abc-123")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -200,7 +216,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @Disabled("TODO: enable after Task 2 — SecurityConfig.java must exist first")
     void deleteProject_noToken_returns401() throws Exception {
         mockMvc.perform(delete("/projects/abc-123"))
             .andExpect(status().isUnauthorized());
