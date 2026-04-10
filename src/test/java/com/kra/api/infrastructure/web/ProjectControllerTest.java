@@ -175,7 +175,10 @@ class ProjectControllerTest {
         mockMvc.perform(post("/projects")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\":\"My Project\",\"description\":\"desc\",\"url\":\"https://url.com\",\"content\":\"content\"}"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.error").value("UNAUTHORIZED"))
+            .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
     @Test
@@ -212,12 +215,18 @@ class ProjectControllerTest {
         mockMvc.perform(put("/projects/abc-123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\":\"Updated\"}"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.error").value("UNAUTHORIZED"))
+            .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
     @Test
     void deleteProject_noToken_returns401() throws Exception {
         mockMvc.perform(delete("/projects/abc-123"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isUnauthorized())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.error").value("UNAUTHORIZED"))
+            .andExpect(jsonPath("$.message").isNotEmpty());
     }
 }
