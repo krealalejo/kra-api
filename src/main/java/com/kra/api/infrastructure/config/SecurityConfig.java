@@ -51,6 +51,8 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorize) -> authorize
                 // GET requests: public, no authentication required
                 .requestMatchers(HttpMethod.GET, "/projects/**").permitAll()
+                // Actuator health: permit for load balancer / liveness probes
+                .requestMatchers("/actuator/health").permitAll()
                 // Write operations: require valid OAuth2 JWT
                 .requestMatchers(HttpMethod.POST, "/projects/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/projects/**").authenticated()
