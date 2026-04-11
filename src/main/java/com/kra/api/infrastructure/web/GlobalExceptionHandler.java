@@ -1,6 +1,8 @@
 package com.kra.api.infrastructure.web;
 
+import com.kra.api.application.BlogPostNotFoundException;
 import com.kra.api.application.ProjectNotFoundException;
+import com.kra.api.infrastructure.github.GitHubApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(ProjectNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(BlogPostNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBlogNotFound(BlogPostNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleBadArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("BAD_REQUEST", ex.getMessage()));
+    }
+
+    @ExceptionHandler(GitHubApiException.class)
+    public ResponseEntity<ErrorResponse> handleGitHub(GitHubApiException ex) {
+        HttpStatus status = ex.getHttpStatus() == 404 ? HttpStatus.NOT_FOUND : HttpStatus.BAD_GATEWAY;
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse("GITHUB_ERROR", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

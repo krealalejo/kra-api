@@ -36,8 +36,6 @@ class ProjectControllerTest {
     @MockitoBean
     private ProjectService projectService;
 
-    // --- POST /projects ---
-
     @Test
     void createProject_validRequest_returns201() throws Exception {
         Project fakeProject = new Project(ProjectId.of("abc-123"),
@@ -73,8 +71,6 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
     }
 
-    // --- GET /projects ---
-
     @Test
     void listProjects_returns200AndArray() throws Exception {
         when(projectService.getAllProjects(50)).thenReturn(List.of());
@@ -94,8 +90,6 @@ class ProjectControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
     }
-
-    // --- GET /projects/{id} ---
 
     @Test
     void getById_found_returns200() throws Exception {
@@ -117,8 +111,6 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Project not found: missing"));
     }
-
-    // --- PUT /projects/{id} ---
 
     @Test
     void updateProject_found_returns200() throws Exception {
@@ -146,8 +138,6 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"));
     }
 
-    // --- DELETE /projects/{id} ---
-
     @Test
     void deleteProject_found_returns204() throws Exception {
         mockMvc.perform(delete("/projects/abc-123")
@@ -165,10 +155,6 @@ class ProjectControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"));
     }
-
-    // -----------------------------------------------------------------------
-    // Auth tests — enabled in Task 2 after SecurityConfig.java was created
-    // -----------------------------------------------------------------------
 
     @Test
     void createProject_noToken_returns401() throws Exception {

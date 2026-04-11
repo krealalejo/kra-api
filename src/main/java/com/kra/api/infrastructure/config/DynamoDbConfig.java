@@ -10,17 +10,6 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.net.URI;
 
-/**
- * Spring configuration for AWS SDK v2 DynamoDB beans.
- *
- * In production (EC2 with IAM instance role from Phase 3):
- *   - endpointOverride is blank → SDK uses real AWS endpoint
- *   - DefaultCredentialsProvider picks up instance profile credentials automatically
- *
- * In integration tests:
- *   - endpointOverride is set to Testcontainers DynamoDB Local URL via @SpringBootTest property
- *     or by directly instantiating DynamoDbEnhancedClient in the test (bypassing this config)
- */
 @Configuration
 public class DynamoDbConfig {
 

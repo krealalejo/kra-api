@@ -49,7 +49,6 @@ class DynamoDbProjectRepositoryIT {
         String endpoint = "http://" + dynamodbLocal.getHost()
                 + ":" + dynamodbLocal.getMappedPort(DYNAMODB_PORT);
 
-        // DynamoDB Local does not authenticate — use fake credentials
         dynamoDbClient = DynamoDbClient.builder()
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.EU_WEST_1)
@@ -63,51 +62,41 @@ class DynamoDbProjectRepositoryIT {
                 .dynamoDbClient(dynamoDbClient)
                 .build();
 
-        // Instantiate repository directly — no Spring context needed
         repository = new DynamoDbProjectRepository(enhancedClient, TABLE_NAME);
     }
 
-    /**
-     * Creates kra-table with attribute names that exactly match
-     * ProjectDynamoDbItem getter-derived names (no @DynamoDbAttribute overrides):
-     *   getPk()     -> "pk"      (partition key)
-     *   getSk()     -> "sk"      (sort key)
-     *   getGsi1pk() -> "gsi1pk"  (GSI1 partition key)
-     *
-     * These MUST be lowercase to match what the Enhanced Client writes and reads.
-     */
     private static void createTable(DynamoDbClient client) {
         client.createTable(CreateTableRequest.builder()
                 .tableName(TABLE_NAME)
                 .billingMode(BillingMode.PAY_PER_REQUEST)
                 .attributeDefinitions(
                         AttributeDefinition.builder()
-                                .attributeName("pk")
+                                .attributeName("PK")
                                 .attributeType(ScalarAttributeType.S)
                                 .build(),
                         AttributeDefinition.builder()
-                                .attributeName("sk")
+                                .attributeName("SK")
                                 .attributeType(ScalarAttributeType.S)
                                 .build(),
                         AttributeDefinition.builder()
-                                .attributeName("gsi1pk")
+                                .attributeName("GSI1PK")
                                 .attributeType(ScalarAttributeType.S)
                                 .build()
                 )
                 .keySchema(
                         KeySchemaElement.builder()
-                                .attributeName("pk")
+                                .attributeName("PK")
                                 .keyType(KeyType.HASH)
                                 .build(),
                         KeySchemaElement.builder()
-                                .attributeName("sk")
+                                .attributeName("SK")
                                 .keyType(KeyType.RANGE)
                                 .build()
                 )
                 .globalSecondaryIndexes(GlobalSecondaryIndex.builder()
                         .indexName("GSI1")
                         .keySchema(KeySchemaElement.builder()
-                                .attributeName("gsi1pk")
+                                .attributeName("GSI1PK")
                                 .keyType(KeyType.HASH)
                                 .build())
                         .projection(Projection.builder()
@@ -119,13 +108,12 @@ class DynamoDbProjectRepositoryIT {
 
     @BeforeEach
     void cleanTable() {
-        // Delete all items between tests to keep tests independent
         dynamoDbClient.scan(r -> r.tableName(TABLE_NAME)).items().forEach(item ->
                 dynamoDbClient.deleteItem(d -> d
                         .tableName(TABLE_NAME)
                         .key(java.util.Map.of(
-                                "pk", item.get("pk"),
-                                "sk", item.get("sk")))));
+                                "PK", item.get("PK"),
+                                "SK", item.get("SK")))));
     }
 
     @Test

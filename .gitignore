@@ -35,3 +35,8 @@ build/
 ### Others ###
 .planning/
 .claude/
+
+# Local secrets (loaded by dotenv-java at startup)
+.env
+.env.local
+.env.*.local

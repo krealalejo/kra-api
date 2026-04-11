@@ -16,18 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-/**
- * Infrastructure adapter: implements the ProjectRepository domain port using
- * AWS SDK v2 DynamoDB Enhanced Client.
- *
- * Key design (matches kra-table from Phase 3 Terraform + ProjectDynamoDbItem):
- *   PK  = "PROJECT#<id>"  (base table partition key)
- *   SK  = "METADATA"      (base table sort key)
- *   GSI1PK = "TYPE#PROJECT"  (GSI1 partition key — used for findAll)
- *
- * Spring picks this up as the single @Repository implementation of ProjectRepository.
- * ProjectService (Phase 5) will have this bean injected automatically.
- */
 @Repository
 public class DynamoDbProjectRepository implements ProjectRepository {
 

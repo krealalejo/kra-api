@@ -12,12 +12,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Returns HTTP 403 with a JSON body matching GlobalExceptionHandler's ErrorResponse format:
- *   {"error": "FORBIDDEN", "message": "You do not have permission to access this resource"}
- *
- * Implements D-09: custom AccessDeniedHandler for consistent API error format.
- */
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 

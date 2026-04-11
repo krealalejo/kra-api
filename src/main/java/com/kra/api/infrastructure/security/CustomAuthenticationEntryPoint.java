@@ -12,12 +12,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Returns HTTP 401 with a JSON body matching GlobalExceptionHandler's ErrorResponse format:
- *   {"error": "UNAUTHORIZED", "message": "Full authentication is required to access this resource"}
- *
- * Implements D-08: custom AuthenticationEntryPoint for consistent API error format.
- */
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
