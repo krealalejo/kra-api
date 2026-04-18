@@ -99,6 +99,13 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine} -XX:+EnableDynamicAgentLoading -Djdk.attach.allowAttachSelf=true -Xshare:off</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.14</version>
@@ -123,8 +130,8 @@
 										<limit>
 											<counter>BRANCH</counter>
 											<value>COVEREDRATIO</value>
-											<!-- TODO: raise to 0.80 once test coverage is improved; current baseline is 18% (measured 2026-04-18) -->
-											<minimum>0.15</minimum>
+							<!-- Branch coverage enforced at 80% — mvn verify will fail if coverage drops below -->
+										<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
