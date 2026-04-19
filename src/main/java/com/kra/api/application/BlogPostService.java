@@ -2,6 +2,7 @@ package com.kra.api.application;
 
 import com.kra.api.domain.model.BlogPost;
 import com.kra.api.domain.model.BlogSlug;
+import com.kra.api.domain.model.Reference;
 import com.kra.api.domain.repository.BlogPostRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,14 @@ public class BlogPostService {
         this.blogPostRepository = blogPostRepository;
     }
 
-    public BlogPost createPost(String slug, String title, String content) {
+    public BlogPost createPost(String slug, String title, String content, List<Reference> references) {
         BlogSlug blogSlug = BlogSlug.of(slug);
         if (blogPostRepository.findBySlug(blogSlug).isPresent()) {
             throw new IllegalArgumentException("Slug already in use");
         }
         Instant now = Instant.now();
-        BlogPost post = new BlogPost(blogSlug, title, content != null ? content : "", now, now);
+        BlogPost post = new BlogPost(blogSlug, title, content != null ? content : "", now, now,
+                references != null ? references : List.of());
         blogPostRepository.save(post);
         return post;
     }
@@ -38,12 +40,13 @@ public class BlogPostService {
                 .orElseThrow(() -> new BlogPostNotFoundException(slug));
     }
 
-    public BlogPost updatePost(String slug, String title, String content) {
+    public BlogPost updatePost(String slug, String title, String content, List<Reference> references) {
         BlogSlug blogSlug = BlogSlug.of(slug);
         BlogPost existing = blogPostRepository.findBySlug(blogSlug)
                 .orElseThrow(() -> new BlogPostNotFoundException(slug));
         existing.setTitle(title);
         existing.setContent(content != null ? content : "");
+        existing.setReferences(references != null ? references : List.of());
         existing.touchUpdatedAt(Instant.now());
         blogPostRepository.save(existing);
         return existing;

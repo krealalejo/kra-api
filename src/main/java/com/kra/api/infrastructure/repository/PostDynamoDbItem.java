@@ -2,6 +2,7 @@ package com.kra.api.infrastructure.repository;
 
 import com.kra.api.domain.model.BlogPost;
 import com.kra.api.domain.model.BlogSlug;
+import com.kra.api.domain.model.Reference;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -9,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.Instant;
+import java.util.List;
 
 @DynamoDbBean
 public class PostDynamoDbItem {
@@ -20,6 +22,7 @@ public class PostDynamoDbItem {
     private String content;
     private Long createdAtMillis;
     private Long updatedAtMillis;
+    private List<ReferenceItem> references;
 
     public PostDynamoDbItem() {}
 
@@ -85,6 +88,9 @@ public class PostDynamoDbItem {
         this.updatedAtMillis = updatedAtMillis;
     }
 
+    public List<ReferenceItem> getReferences() { return references; }
+    public void setReferences(List<ReferenceItem> references) { this.references = references; }
+
     public static PostDynamoDbItem fromDomain(BlogPost post) {
         PostDynamoDbItem item = new PostDynamoDbItem();
         item.setPk("POST#" + post.getSlug().getValue());
@@ -94,6 +100,11 @@ public class PostDynamoDbItem {
         item.setContent(post.getContent());
         item.setCreatedAtMillis(post.getCreatedAt().toEpochMilli());
         item.setUpdatedAtMillis(post.getUpdatedAt().toEpochMilli());
+        item.setReferences(
+            post.getReferences().stream()
+                .map(r -> new ReferenceItem(r.label(), r.url()))
+                .toList()
+        );
         return item;
     }
 
@@ -102,6 +113,11 @@ public class PostDynamoDbItem {
         BlogSlug slug = BlogSlug.of(raw);
         Instant created = Instant.ofEpochMilli(createdAtMillis != null ? createdAtMillis : 0L);
         Instant updated = Instant.ofEpochMilli(updatedAtMillis != null ? updatedAtMillis : created.toEpochMilli());
-        return new BlogPost(slug, title, content != null ? content : "", created, updated);
+        List<Reference> refs = references != null
+            ? references.stream()
+                  .map(r -> new Reference(r.getLabel(), r.getUrl()))
+                  .toList()
+            : List.of();
+        return new BlogPost(slug, title, content != null ? content : "", created, updated, refs);
     }
 }

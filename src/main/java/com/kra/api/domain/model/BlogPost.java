@@ -1,6 +1,7 @@
 package com.kra.api.domain.model;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 public class BlogPost {
@@ -10,13 +11,17 @@ public class BlogPost {
     private String content;
     private final Instant createdAt;
     private Instant updatedAt;
+    private List<Reference> references;
 
-    public BlogPost(BlogSlug slug, String title, String content, Instant createdAt, Instant updatedAt) {
+    public BlogPost(BlogSlug slug, String title, String content,
+                    Instant createdAt, Instant updatedAt,
+                    List<Reference> references) {
         this.slug = Objects.requireNonNull(slug, "slug must not be null");
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.content = content != null ? content : "";
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt must not be null");
+        this.references = references != null ? List.copyOf(references) : List.of();
     }
 
     public BlogSlug getSlug() {
@@ -39,12 +44,20 @@ public class BlogPost {
         return updatedAt;
     }
 
+    public List<Reference> getReferences() {
+        return references;
+    }
+
     public void setTitle(String title) {
         this.title = Objects.requireNonNull(title, "title must not be null");
     }
 
     public void setContent(String content) {
         this.content = content != null ? content : "";
+    }
+
+    public void setReferences(List<Reference> references) {
+        this.references = references != null ? List.copyOf(references) : List.of();
     }
 
     public void touchUpdatedAt(Instant now) {
