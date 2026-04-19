@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public class CreateBlogPostRequest {
 
     @NotBlank
@@ -15,6 +17,8 @@ public class CreateBlogPostRequest {
 
     @Size(max = 200_000)
     private String content;
+
+    private List<BlogPostResponse.ReferenceDto> references;
 
     public String getSlug() {
         return slug;
@@ -39,4 +43,7 @@ public class CreateBlogPostRequest {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public List<BlogPostResponse.ReferenceDto> getReferences() { return references; }
+    public void setReferences(List<BlogPostResponse.ReferenceDto> references) { this.references = references; }
 }

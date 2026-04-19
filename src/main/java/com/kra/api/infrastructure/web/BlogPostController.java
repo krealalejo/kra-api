@@ -2,6 +2,7 @@ package com.kra.api.infrastructure.web;
 
 import com.kra.api.application.BlogPostService;
 import com.kra.api.domain.model.BlogPost;
+import com.kra.api.domain.model.Reference;
 import com.kra.api.infrastructure.web.dto.BlogPostResponse;
 import com.kra.api.infrastructure.web.dto.CreateBlogPostRequest;
 import com.kra.api.infrastructure.web.dto.UpdateBlogPostRequest;
@@ -40,7 +41,8 @@ public class BlogPostController {
         BlogPost created = blogPostService.createPost(
                 req.getSlug(),
                 req.getTitle(),
-                req.getContent() != null ? req.getContent() : "");
+                req.getContent() != null ? req.getContent() : "",
+                toReferences(req.getReferences()));
         return ResponseEntity.status(HttpStatus.CREATED).body(BlogPostResponse.from(created));
     }
 
@@ -51,7 +53,8 @@ public class BlogPostController {
         BlogPost updated = blogPostService.updatePost(
                 slug,
                 req.getTitle(),
-                req.getContent() != null ? req.getContent() : "");
+                req.getContent() != null ? req.getContent() : "",
+                toReferences(req.getReferences()));
         return ResponseEntity.ok(BlogPostResponse.from(updated));
     }
 
@@ -59,5 +62,12 @@ public class BlogPostController {
     public ResponseEntity<Void> delete(@PathVariable String slug) {
         blogPostService.deletePost(slug);
         return ResponseEntity.noContent().build();
+    }
+
+    private List<Reference> toReferences(List<BlogPostResponse.ReferenceDto> dtos) {
+        if (dtos == null) return List.of();
+        return dtos.stream()
+                .map(d -> new Reference(d.label(), d.url()))
+                .toList();
     }
 }
