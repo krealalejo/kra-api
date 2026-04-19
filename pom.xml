@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.kra</groupId>
 	<artifactId>kra-api</artifactId>
@@ -31,10 +31,8 @@
 		<sonar.organization>krealalejo</sonar.organization>
 		<sonar.projectKey>krealalejo_kra-api</sonar.projectKey>
 		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-		<!-- Exclude infrastructure layer (DynamoDB repos, GitHub client, config) from SonarCloud coverage — matches JaCoCo excludes -->
 		<sonar.coverage.exclusions>
 			**/infrastructure/repository/**,
-			**/infrastructure/github/**,
 			**/infrastructure/config/**,
 			**/KraApiApplication.java
 		</sonar.coverage.exclusions>
@@ -93,6 +91,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>4.12.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
@@ -129,7 +133,6 @@
 							<excludes>
 								<exclude>com/kra/api/KraApiApplication.class</exclude>
 								<exclude>com/kra/api/infrastructure/repository/**</exclude>
-								<exclude>com/kra/api/infrastructure/github/**</exclude>
 								<exclude>com/kra/api/infrastructure/config/**</exclude>
 							</excludes>
 						</configuration>
@@ -141,7 +144,6 @@
 							<excludes>
 								<exclude>com/kra/api/KraApiApplication.class</exclude>
 								<exclude>com/kra/api/infrastructure/repository/**</exclude>
-								<exclude>com/kra/api/infrastructure/github/**</exclude>
 								<exclude>com/kra/api/infrastructure/config/**</exclude>
 							</excludes>
 							<rules>
@@ -151,7 +153,6 @@
 										<limit>
 											<counter>BRANCH</counter>
 											<value>COVEREDRATIO</value>
-							<!-- Branch coverage enforced at 80% — mvn verify will fail if coverage drops below -->
 										<minimum>0.80</minimum>
 										</limit>
 									</limits>

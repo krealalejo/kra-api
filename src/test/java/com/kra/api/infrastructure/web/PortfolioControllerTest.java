@@ -41,6 +41,17 @@ class PortfolioControllerTest {
     }
 
     @Test
+    void getContributions_returns200() throws Exception {
+        when(gitHubPortfolioClient.getContributionCalendar()).thenReturn(
+                new com.kra.api.infrastructure.web.dto.GitHubContributionResponse(280, List.of())
+        );
+
+        mockMvc.perform(get("/portfolio/contributions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalContributions").value(280));
+    }
+
+    @Test
     void getRepo_returns200() throws Exception {
         PortfolioRepoResponse r = new PortfolioRepoResponse("o", "n", "o/n", "d", "https://x", List.of(), 1, "2024-01-01T00:00:00Z");
         when(gitHubPortfolioClient.getRepoDetail("o", "n")).thenReturn(

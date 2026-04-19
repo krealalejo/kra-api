@@ -2,6 +2,7 @@ package com.kra.api.infrastructure.github;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.kra.api.infrastructure.config.GitHubProperties;
+import com.kra.api.infrastructure.web.dto.GitHubContributionResponse;
 import com.kra.api.infrastructure.web.dto.PortfolioRepoResponse;
 import com.kra.api.infrastructure.web.dto.PortfolioRepoDetailResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -101,6 +102,64 @@ public class GitHubPortfolioClient {
                 return null;
             }
             return null;
+        }
+    }
+
+    public GitHubContributionResponse getContributionCalendar() {
+        String user = properties.portfolioUser();
+        String query = """
+                {
+                  user(login: "%s") {
+                    contributionsCollection {
+                      contributionCalendar {
+                        totalContributions
+                        weeks {
+                          contributionDays {
+                            contributionCount
+                            date
+                            color
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                """.formatted(user);
+
+        try {
+            JsonNode response = githubWebClient.post()
+                    .uri("/graphql")
+                    .bodyValue(java.util.Map.of("query", query))
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+
+            if (response == null || response.path("data").path("user").isMissingNode()) {
+                return new GitHubContributionResponse(0, List.of());
+            }
+
+            JsonNode calendar = response.path("data").path("user")
+                    .path("contributionsCollection")
+                    .path("contributionCalendar");
+
+            int total = calendar.path("totalContributions").asInt(0);
+            List<GitHubContributionResponse.ContributionWeek> weeks = new ArrayList<>();
+
+            for (JsonNode weekNode : calendar.path("weeks")) {
+                List<GitHubContributionResponse.ContributionDay> days = new ArrayList<>();
+                for (JsonNode dayNode : weekNode.path("contributionDays")) {
+                    days.add(new GitHubContributionResponse.ContributionDay(
+                            dayNode.path("contributionCount").asInt(0),
+                            dayNode.path("date").asText(""),
+                            dayNode.path("color").asText("")
+                    ));
+                }
+                weeks.add(new GitHubContributionResponse.ContributionWeek(days));
+            }
+
+            return new GitHubContributionResponse(total, weeks);
+        } catch (WebClientResponseException e) {
+            throw mapUpstream(e);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.kra.api.infrastructure.web;
 
 import com.kra.api.infrastructure.github.GitHubPortfolioClient;
+import com.kra.api.infrastructure.web.dto.GitHubContributionResponse;
 import com.kra.api.infrastructure.web.dto.PortfolioRepoDetailResponse;
 import com.kra.api.infrastructure.web.dto.PortfolioRepoResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,11 @@ public class PortfolioController {
     @GetMapping("/repos")
     public List<PortfolioRepoResponse> listRepos() {
         return gitHubPortfolioClient.listPublicRepos();
+    }
+
+    @GetMapping("/contributions")
+    public GitHubContributionResponse getContributions() {
+        return gitHubPortfolioClient.getContributionCalendar();
     }
 
     @GetMapping("/repos/{owner}/{repo}")
