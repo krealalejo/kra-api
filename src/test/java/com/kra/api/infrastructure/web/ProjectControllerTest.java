@@ -197,6 +197,24 @@ class ProjectControllerTest {
     }
 
     @Test
+    void listProjects_limitOverMax_cappedAt100() throws Exception {
+        when(projectService.getAllProjects(100)).thenReturn(List.of());
+
+        mockMvc.perform(get("/projects").param("limit", "999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void listProjects_limitBelowMin_cappedAt0() throws Exception {
+        when(projectService.getAllProjects(0)).thenReturn(List.of());
+
+        mockMvc.perform(get("/projects").param("limit", "-5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
     void updateProject_noToken_returns401() throws Exception {
         mockMvc.perform(put("/projects/abc-123")
                 .contentType(MediaType.APPLICATION_JSON)

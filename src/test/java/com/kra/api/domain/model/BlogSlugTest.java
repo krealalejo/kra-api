@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BlogSlugTest {
 
-    // Factory method tests
     @Test
     void of_validSlug_createsInstance() {
         BlogSlug slug = BlogSlug.of("my-post");
@@ -32,7 +31,6 @@ class BlogSlugTest {
         assertEquals(longSlug, slug.getValue());
     }
 
-    // Validation tests - null/blank
     @Test
     void of_nullValue_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> BlogSlug.of(null));
@@ -48,7 +46,6 @@ class BlogSlugTest {
         assertThrows(IllegalArgumentException.class, () -> BlogSlug.of("   "));
     }
 
-    // Validation tests - pattern violations
     @Test
     void of_uppercaseLetters_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> BlogSlug.of("My-Post"));
@@ -75,7 +72,6 @@ class BlogSlugTest {
         assertThrows(IllegalArgumentException.class, () -> BlogSlug.of(tooLong));
     }
 
-    // Equality tests
     @Test
     void equals_sameValue_returnsTrue() {
         BlogSlug slug1 = BlogSlug.of("same-slug");

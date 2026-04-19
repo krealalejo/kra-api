@@ -24,7 +24,6 @@ class BlogPostServiceTest {
         reset(repository);
     }
 
-    // createPost tests
     @Test
     void createPost_savesAndReturnsPost() {
         when(repository.findBySlug(any())).thenReturn(Optional.empty());
@@ -50,7 +49,6 @@ class BlogPostServiceTest {
         assertEquals("", created.getContent());
     }
 
-    // listPosts tests
     @Test
     void listPosts_returnsPostsFromRepository() {
         List<BlogPost> posts = List.of(
@@ -78,7 +76,6 @@ class BlogPostServiceTest {
         assertNotNull(created.getUpdatedAt());
     }
 
-    // getPost tests
     @Test
     void getPost_found_returnsPost() {
         BlogSlug slug = BlogSlug.of("my-post");
@@ -95,7 +92,6 @@ class BlogPostServiceTest {
             () -> service.getPost("nonexistent"));
     }
 
-    // updatePost tests
     @Test
     void updatePost_found_updatesAndReturns() {
         BlogSlug slug = BlogSlug.of("my-post");
@@ -123,7 +119,6 @@ class BlogPostServiceTest {
         assertEquals("", updated.getContent());
     }
 
-    // deletePost tests
     @Test
     void deletePost_found_deletesSuccessfully() {
         BlogSlug slug = BlogSlug.of("my-post");

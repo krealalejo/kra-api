@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LeadTest {
 
-    // Constructor success test
     @Test
     void constructor_allValidFields_gettersReturnCorrectValues() {
         Instant created = Instant.parse("2026-01-01T12:00:00Z");
@@ -20,7 +19,6 @@ class LeadTest {
         assertEquals(created, lead.getCreatedAt());
     }
 
-    // ID validation tests
     @Test
     void constructor_nullId_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
@@ -39,7 +37,6 @@ class LeadTest {
             () -> new Lead("   ", "email@test.com", "Message", Instant.now()));
     }
 
-    // Email validation tests
     @Test
     void constructor_nullEmail_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
@@ -58,7 +55,6 @@ class LeadTest {
             () -> new Lead("id-1", "   ", "Message", Instant.now()));
     }
 
-    // Message validation tests
     @Test
     void constructor_nullMessage_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
@@ -77,7 +73,6 @@ class LeadTest {
             () -> new Lead("id-1", "email@test.com", "   ", Instant.now()));
     }
 
-    // CreatedAt validation test
     @Test
     void constructor_nullCreatedAt_throwsNullPointerException() {
         assertThrows(NullPointerException.class,

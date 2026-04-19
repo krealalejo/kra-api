@@ -1,6 +1,7 @@
 package com.kra.api.infrastructure.web;
 
 import com.kra.api.infrastructure.config.SecurityConfig;
+import com.kra.api.infrastructure.github.GitHubApiException;
 import com.kra.api.infrastructure.github.GitHubPortfolioClient;
 import com.kra.api.infrastructure.security.CustomAccessDeniedHandler;
 import com.kra.api.infrastructure.security.CustomAuthenticationEntryPoint;
@@ -19,7 +20,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(PortfolioController.class)
 @Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class, CustomAccessDeniedHandler.class, GlobalExceptionHandler.class})
 class PortfolioControllerTest {
@@ -57,5 +57,32 @@ class PortfolioControllerTest {
         mockMvc.perform(get("/portfolio/repos/{owner}/{repo}", "x+y", "repo"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void getRepo_validOwnerInvalidRepo_returns400() throws Exception {
+        mockMvc.perform(get("/portfolio/repos/{owner}/{repo}", "valid-owner", "bad repo!"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void listRepos_githubError404_returns404() throws Exception {
+        when(gitHubPortfolioClient.listPublicRepos())
+                .thenThrow(new GitHubApiException(404, "Repository not found"));
+
+        mockMvc.perform(get("/portfolio/repos"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("GITHUB_ERROR"));
+    }
+
+    @Test
+    void listRepos_githubError502_returns502() throws Exception {
+        when(gitHubPortfolioClient.listPublicRepos())
+                .thenThrow(new GitHubApiException(502, "GitHub API error"));
+
+        mockMvc.perform(get("/portfolio/repos"))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.error").value("GITHUB_ERROR"));
     }
 }

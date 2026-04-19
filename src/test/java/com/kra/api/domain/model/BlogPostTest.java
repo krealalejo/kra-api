@@ -18,7 +18,6 @@ class BlogPostTest {
         );
     }
 
-    // Constructor tests
     @Test
     void constructor_allFields_gettersReturnCorrectValues() {
         BlogSlug slug = BlogSlug.of("my-post");
@@ -67,7 +66,6 @@ class BlogPostTest {
             () -> new BlogPost(slug, "Title", "Content", Instant.now(), null));
     }
 
-    // Setter tests
     @Test
     void setTitle_validValue_updatesTitle() {
         BlogPost post = buildPost("test");
