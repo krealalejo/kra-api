@@ -4,6 +4,7 @@ import com.kra.api.application.BlogPostNotFoundException;
 import com.kra.api.application.BlogPostService;
 import com.kra.api.domain.model.BlogPost;
 import com.kra.api.domain.model.BlogSlug;
+import com.kra.api.domain.model.Reference;
 import com.kra.api.infrastructure.config.SecurityConfig;
 import com.kra.api.infrastructure.security.CustomAccessDeniedHandler;
 import com.kra.api.infrastructure.security.CustomAuthenticationEntryPoint;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -52,7 +54,8 @@ class BlogPostControllerTest {
                                 "Hello",
                                 "Body",
                                 Instant.parse("2024-01-01T00:00:00Z"),
-                                Instant.parse("2024-01-02T00:00:00Z"));
+                                Instant.parse("2024-01-02T00:00:00Z"),
+                                List.of());
                 when(blogPostService.getPost("hello-world")).thenReturn(post);
 
                 mockMvc.perform(get("/posts/hello-world"))
@@ -85,8 +88,10 @@ class BlogPostControllerTest {
                                 "Title",
                                 "Content",
                                 Instant.now(),
-                                Instant.now());
-                when(blogPostService.createPost(eq("new-post"), eq("Title"), eq("Content"))).thenReturn(created);
+                                Instant.now(),
+                                List.of());
+                when(blogPostService.createPost(eq("new-post"), eq("Title"), eq("Content"), anyList()))
+                                .thenReturn(created);
 
                 mockMvc.perform(post("/posts")
                                 .with(jwt())
@@ -103,8 +108,10 @@ class BlogPostControllerTest {
                                 "Title",
                                 "",
                                 Instant.now(),
-                                Instant.now());
-                when(blogPostService.createPost(eq("no-content"), eq("Title"), eq(""))).thenReturn(created);
+                                Instant.now(),
+                                List.of());
+                when(blogPostService.createPost(eq("no-content"), eq("Title"), eq(""), anyList()))
+                                .thenReturn(created);
 
                 mockMvc.perform(post("/posts")
                                 .with(jwt())
@@ -115,14 +122,38 @@ class BlogPostControllerTest {
         }
 
         @Test
+        void createPost_withReferences_returns201WithReferences() throws Exception {
+                BlogPost post = new BlogPost(
+                                BlogSlug.of("my-post"), "My Title", "Content",
+                                Instant.parse("2026-01-01T00:00:00Z"),
+                                Instant.parse("2026-01-01T00:00:00Z"),
+                                List.of(new Reference("MDN", "https://developer.mozilla.org")));
+                when(blogPostService.createPost(eq("my-post"), eq("My Title"), eq("Content"), anyList()))
+                                .thenReturn(post);
+
+                mockMvc.perform(post("/posts")
+                                .with(jwt())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                    {"slug":"my-post","title":"My Title","content":"Content",
+                                     "references":[{"label":"MDN","url":"https://developer.mozilla.org"}]}
+                                    """))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.references[0].label").value("MDN"))
+                                .andExpect(jsonPath("$.references[0].url").value("https://developer.mozilla.org"));
+        }
+
+        @Test
         void updatePost_withJwt_returns200() throws Exception {
                 BlogPost updated = new BlogPost(
                                 BlogSlug.of("hello-world"),
                                 "Updated",
                                 "New content",
                                 Instant.parse("2024-01-01T00:00:00Z"),
-                                Instant.now());
-                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq("New content"))).thenReturn(updated);
+                                Instant.now(),
+                                List.of());
+                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq("New content"), anyList()))
+                                .thenReturn(updated);
 
                 mockMvc.perform(put("/posts/hello-world")
                                 .with(jwt())
@@ -139,8 +170,10 @@ class BlogPostControllerTest {
                                 "Updated",
                                 "",
                                 Instant.parse("2024-01-01T00:00:00Z"),
-                                Instant.now());
-                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq(""))).thenReturn(updated);
+                                Instant.now(),
+                                List.of());
+                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq(""), anyList()))
+                                .thenReturn(updated);
 
                 mockMvc.perform(put("/posts/hello-world")
                                 .with(jwt())
@@ -152,7 +185,7 @@ class BlogPostControllerTest {
 
         @Test
         void updatePost_notFound_returns404() throws Exception {
-                when(blogPostService.updatePost(eq("nope"), any(), any()))
+                when(blogPostService.updatePost(eq("nope"), any(), any(), anyList()))
                                 .thenThrow(new BlogPostNotFoundException("nope"));
 
                 mockMvc.perform(put("/posts/nope")
