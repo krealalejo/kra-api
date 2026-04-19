@@ -127,4 +127,21 @@ class BlogPostTest {
         BlogPost post = buildPost("test");
         assertThrows(NullPointerException.class, () -> post.touchUpdatedAt(null));
     }
+
+    @Test
+    void setReferences_nullValue_defaultsToEmptyList() {
+        BlogPost post = buildPost("test");
+        post.setReferences(null);
+        assertNotNull(post.getReferences());
+        assertTrue(post.getReferences().isEmpty());
+    }
+
+    @Test
+    void setReferences_validList_updatesReferences() {
+        BlogPost post = buildPost("test");
+        Reference ref = new Reference("MDN", "https://developer.mozilla.org");
+        post.setReferences(List.of(ref));
+        assertEquals(1, post.getReferences().size());
+        assertEquals("MDN", post.getReferences().get(0).label());
+    }
 }

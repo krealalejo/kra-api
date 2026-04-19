@@ -201,4 +201,43 @@ class GitHubPortfolioClientTest {
         assertEquals(0, result.totalContributions());
         assertTrue(result.weeks().isEmpty());
     }
+
+    @Test
+    void listPublicRepos_blankUser_throwsIllegalArgumentException() {
+        GitHubProperties blankUserProps = new GitHubProperties("token", "   ", mockWebServer.url("/").toString());
+        GitHubPortfolioClient blankClient = new GitHubPortfolioClient(
+                WebClient.builder().baseUrl(mockWebServer.url("/").toString()).build(),
+                blankUserProps);
+
+        assertThrows(IllegalArgumentException.class, blankClient::listPublicRepos);
+    }
+
+    @Test
+    void getRepoDetail_longReadme_truncatesContent() throws InterruptedException {
+        String repoBody = """
+                {
+                  "owner": { "login": "o" },
+                  "name": "n",
+                  "full_name": "o/n",
+                  "description": "d",
+                  "html_url": "u",
+                  "topics": [],
+                  "stargazers_count": 1,
+                  "updated_at": "2024",
+                  "default_branch": "main"
+                }
+                """;
+        String longText = "A".repeat(5000);
+        String encoded = java.util.Base64.getEncoder().encodeToString(longText.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String readmeBody = "{\"content\": \"" + encoded + "\"}";
+
+        mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
+
+        var result = client.getRepoDetail("o", "n");
+
+        assertNotNull(result.readmeExcerpt());
+        assertTrue(result.readmeExcerpt().endsWith("…"));
+        assertTrue(result.readmeExcerpt().length() < 5000);
+    }
 }

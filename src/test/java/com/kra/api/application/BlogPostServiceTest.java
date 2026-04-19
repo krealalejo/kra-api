@@ -134,4 +134,21 @@ class BlogPostServiceTest {
         assertThrows(BlogPostNotFoundException.class,
             () -> service.deletePost("nonexistent"));
     }
+
+    @Test
+    void createPost_nullReferences_defaultsToEmptyList() {
+        when(repository.findBySlug(any())).thenReturn(Optional.empty());
+        BlogPost created = service.createPost("my-slug", "Title", "Content", null);
+        assertTrue(created.getReferences().isEmpty());
+        verify(repository).save(any(BlogPost.class));
+    }
+
+    @Test
+    void updatePost_nullReferences_defaultsToEmptyList() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        BlogPost existing = new BlogPost(slug, "Title", "Content", Instant.now(), Instant.now(), List.of());
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+        BlogPost updated = service.updatePost("my-post", "Title", "Content", null);
+        assertTrue(updated.getReferences().isEmpty());
+    }
 }
