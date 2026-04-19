@@ -27,7 +27,7 @@ class BlogPostServiceTest {
     @Test
     void createPost_savesAndReturnsPost() {
         when(repository.findBySlug(any())).thenReturn(Optional.empty());
-        BlogPost created = service.createPost("my-slug", "My Title", "Content here");
+        BlogPost created = service.createPost("my-slug", "My Title", "Content here", List.of());
         verify(repository).save(any(BlogPost.class));
         assertEquals("my-slug", created.getSlug().getValue());
         assertEquals("My Title", created.getTitle());
@@ -36,24 +36,24 @@ class BlogPostServiceTest {
     @Test
     void createPost_duplicateSlug_throwsIllegalArgumentException() {
         BlogSlug slug = BlogSlug.of("existing-slug");
-        BlogPost existing = new BlogPost(slug, "Existing", "", Instant.now(), Instant.now());
+        BlogPost existing = new BlogPost(slug, "Existing", "", Instant.now(), Instant.now(), List.of());
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
         assertThrows(IllegalArgumentException.class,
-            () -> service.createPost("existing-slug", "New Title", "Content"));
+            () -> service.createPost("existing-slug", "New Title", "Content", List.of()));
     }
 
     @Test
     void createPost_nullContent_defaultsToEmptyString() {
         when(repository.findBySlug(any())).thenReturn(Optional.empty());
-        BlogPost created = service.createPost("my-slug", "Title", null);
+        BlogPost created = service.createPost("my-slug", "Title", null, List.of());
         assertEquals("", created.getContent());
     }
 
     @Test
     void listPosts_returnsPostsFromRepository() {
         List<BlogPost> posts = List.of(
-            new BlogPost(BlogSlug.of("post-1"), "Title 1", "", Instant.now(), Instant.now()),
-            new BlogPost(BlogSlug.of("post-2"), "Title 2", "", Instant.now(), Instant.now())
+            new BlogPost(BlogSlug.of("post-1"), "Title 1", "", Instant.now(), Instant.now(), List.of()),
+            new BlogPost(BlogSlug.of("post-2"), "Title 2", "", Instant.now(), Instant.now(), List.of())
         );
         when(repository.findAllByNewestFirst()).thenReturn(posts);
         List<BlogPost> result = service.listPosts();
@@ -71,7 +71,7 @@ class BlogPostServiceTest {
     @Test
     void createPost_setsCreatedAtAndUpdatedAt() {
         when(repository.findBySlug(any())).thenReturn(Optional.empty());
-        BlogPost created = service.createPost("new-post", "Title", "Content");
+        BlogPost created = service.createPost("new-post", "Title", "Content", List.of());
         assertNotNull(created.getCreatedAt());
         assertNotNull(created.getUpdatedAt());
     }
@@ -79,7 +79,7 @@ class BlogPostServiceTest {
     @Test
     void getPost_found_returnsPost() {
         BlogSlug slug = BlogSlug.of("my-post");
-        BlogPost post = new BlogPost(slug, "My Post", "Content", Instant.now(), Instant.now());
+        BlogPost post = new BlogPost(slug, "My Post", "Content", Instant.now(), Instant.now(), List.of());
         when(repository.findBySlug(slug)).thenReturn(Optional.of(post));
         BlogPost result = service.getPost("my-post");
         assertEquals("my-post", result.getSlug().getValue());
@@ -95,9 +95,9 @@ class BlogPostServiceTest {
     @Test
     void updatePost_found_updatesAndReturns() {
         BlogSlug slug = BlogSlug.of("my-post");
-        BlogPost existing = new BlogPost(slug, "Old Title", "Old Content", Instant.now(), Instant.now());
+        BlogPost existing = new BlogPost(slug, "Old Title", "Old Content", Instant.now(), Instant.now(), List.of());
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
-        BlogPost updated = service.updatePost("my-post", "New Title", "New Content");
+        BlogPost updated = service.updatePost("my-post", "New Title", "New Content", List.of());
         assertEquals("New Title", updated.getTitle());
         assertEquals("New Content", updated.getContent());
         verify(repository).save(existing);
@@ -107,22 +107,22 @@ class BlogPostServiceTest {
     void updatePost_notFound_throwsBlogPostNotFoundException() {
         when(repository.findBySlug(any())).thenReturn(Optional.empty());
         assertThrows(BlogPostNotFoundException.class,
-            () -> service.updatePost("nonexistent", "Title", "Content"));
+            () -> service.updatePost("nonexistent", "Title", "Content", List.of()));
     }
 
     @Test
     void updatePost_nullContent_defaultsToEmptyString() {
         BlogSlug slug = BlogSlug.of("my-post");
-        BlogPost existing = new BlogPost(slug, "Title", "Old Content", Instant.now(), Instant.now());
+        BlogPost existing = new BlogPost(slug, "Title", "Old Content", Instant.now(), Instant.now(), List.of());
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
-        BlogPost updated = service.updatePost("my-post", "Title", null);
+        BlogPost updated = service.updatePost("my-post", "Title", null, List.of());
         assertEquals("", updated.getContent());
     }
 
     @Test
     void deletePost_found_deletesSuccessfully() {
         BlogSlug slug = BlogSlug.of("my-post");
-        BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now());
+        BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of());
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
         assertDoesNotThrow(() -> service.deletePost("my-post"));
         verify(repository).deleteBySlug(slug);

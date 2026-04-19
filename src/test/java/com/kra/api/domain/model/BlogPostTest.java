@@ -3,6 +3,7 @@ package com.kra.api.domain.model;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +15,8 @@ class BlogPostTest {
             "Test Title",
             "Test content",
             Instant.now(),
-            Instant.now()
+            Instant.now(),
+            List.of()
         );
     }
 
@@ -23,7 +25,7 @@ class BlogPostTest {
         BlogSlug slug = BlogSlug.of("my-post");
         Instant created = Instant.parse("2026-01-01T00:00:00Z");
         Instant updated = Instant.parse("2026-01-02T00:00:00Z");
-        BlogPost post = new BlogPost(slug, "My Title", "My content", created, updated);
+        BlogPost post = new BlogPost(slug, "My Title", "My content", created, updated, List.of());
 
         assertEquals(slug, post.getSlug());
         assertEquals("My Title", post.getTitle());
@@ -35,20 +37,20 @@ class BlogPostTest {
     @Test
     void constructor_nullSlug_throwsNullPointerException() {
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(null, "Title", "Content", Instant.now(), Instant.now()));
+            () -> new BlogPost(null, "Title", "Content", Instant.now(), Instant.now(), List.of()));
     }
 
     @Test
     void constructor_nullTitle_throwsNullPointerException() {
         BlogSlug slug = BlogSlug.of("test");
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(slug, null, "Content", Instant.now(), Instant.now()));
+            () -> new BlogPost(slug, null, "Content", Instant.now(), Instant.now(), List.of()));
     }
 
     @Test
     void constructor_nullContent_defaultsToEmptyString() {
         BlogSlug slug = BlogSlug.of("test");
-        BlogPost post = new BlogPost(slug, "Title", null, Instant.now(), Instant.now());
+        BlogPost post = new BlogPost(slug, "Title", null, Instant.now(), Instant.now(), List.of());
         assertEquals("", post.getContent());
     }
 
@@ -56,14 +58,33 @@ class BlogPostTest {
     void constructor_nullCreatedAt_throwsNullPointerException() {
         BlogSlug slug = BlogSlug.of("test");
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(slug, "Title", "Content", null, Instant.now()));
+            () -> new BlogPost(slug, "Title", "Content", null, Instant.now(), List.of()));
     }
 
     @Test
     void constructor_nullUpdatedAt_throwsNullPointerException() {
         BlogSlug slug = BlogSlug.of("test");
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(slug, "Title", "Content", Instant.now(), null));
+            () -> new BlogPost(slug, "Title", "Content", Instant.now(), null, List.of()));
+    }
+
+    @Test
+    void constructor_nullReferences_defaultsToEmptyList() {
+        BlogSlug slug = BlogSlug.of("test");
+        BlogPost post = new BlogPost(slug, "Title", "Content", Instant.now(), Instant.now(), null);
+        assertNotNull(post.getReferences());
+        assertTrue(post.getReferences().isEmpty());
+    }
+
+    @Test
+    void constructor_withReferences_returnsImmutableList() {
+        BlogSlug slug = BlogSlug.of("test");
+        Reference ref = new Reference("MDN", "https://developer.mozilla.org");
+        BlogPost post = new BlogPost(slug, "Title", "Content", Instant.now(), Instant.now(), List.of(ref));
+        assertEquals(1, post.getReferences().size());
+        assertEquals("MDN", post.getReferences().get(0).label());
+        assertThrows(UnsupportedOperationException.class,
+            () -> post.getReferences().add(new Reference("x", "https://x.com")));
     }
 
     @Test
