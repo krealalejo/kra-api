@@ -5,6 +5,7 @@ import com.kra.api.domain.model.BlogPost;
 import com.kra.api.domain.model.Reference;
 import com.kra.api.infrastructure.web.dto.BlogPostResponse;
 import com.kra.api.infrastructure.web.dto.CreateBlogPostRequest;
+import com.kra.api.infrastructure.web.dto.ReferenceRequest;
 import com.kra.api.infrastructure.web.dto.UpdateBlogPostRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -64,7 +65,7 @@ public class BlogPostController {
         return ResponseEntity.noContent().build();
     }
 
-    private List<Reference> toReferences(List<BlogPostResponse.ReferenceDto> dtos) {
+    private List<Reference> toReferences(List<ReferenceRequest> dtos) {
         if (dtos == null) return List.of();
         return dtos.stream()
                 .map(d -> new Reference(d.label(), d.url()))

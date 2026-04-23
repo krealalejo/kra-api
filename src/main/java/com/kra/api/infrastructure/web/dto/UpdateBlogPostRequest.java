@@ -1,5 +1,6 @@
 package com.kra.api.infrastructure.web.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -13,7 +14,8 @@ public class UpdateBlogPostRequest {
     @Size(max = 200_000)
     private String content;
 
-    private List<BlogPostResponse.ReferenceDto> references;
+    @Valid
+    private List<ReferenceRequest> references;
 
     public String getTitle() {
         return title;
@@ -31,6 +33,6 @@ public class UpdateBlogPostRequest {
         this.content = content;
     }
 
-    public List<BlogPostResponse.ReferenceDto> getReferences() { return references; }
-    public void setReferences(List<BlogPostResponse.ReferenceDto> references) { this.references = references; }
+    public List<ReferenceRequest> getReferences() { return references; }
+    public void setReferences(List<ReferenceRequest> references) { this.references = references; }
 }
