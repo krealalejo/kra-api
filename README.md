@@ -4,6 +4,11 @@ REST API for the **KRA** portfolio: projects and blog backed by **DynamoDB**, co
 
 **Stack:** Spring Boot **3.5**, Java **21**, **DDD**-style layering (domain free of Spring/AWS), AWS SDK **v2** (DynamoDB Enhanced Client), GitHub via **WebClient**, **Actuator** for health.
 
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-api&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=krealalejo_kra-api)
+![Java](https://img.shields.io/badge/Java_21-ED8B00?style=flat&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.5-6DB33F?style=flat&logo=springboot&logoColor=white)
+![DynamoDB](https://img.shields.io/badge/DynamoDB-4053D6?style=flat&logo=amazondynamodb&logoColor=white)
+
 ---
 
 ## Prerequisites
@@ -93,6 +98,8 @@ flowchart LR
   INFRA --> DDB
   INFRA --> GH
 ```
+
+> Full system architecture (C4 Level 1, 2 & 3): [kra-docs-architecture](https://github.com/krealalejo/kra-docs-architecture)
 
 **Packages:** `domain` (models + repository interfaces), `application` (use cases), `infrastructure` (DynamoDB, HTTP, GitHub, security, configuration). The domain layer does not depend on Spring or the AWS SDK.
 
