@@ -1,6 +1,7 @@
 package com.kra.api.infrastructure.config;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -61,12 +62,11 @@ class WebCorsConfigurationTest {
         TestableCorsConfig config = new TestableCorsConfig("https://kra.example.com");
         CorsConfigurationSource source = config.corsConfigurationSource();
 
-        // Simulate an incoming request — UrlBasedCorsConfigurationSource matches /** pattern.
-        jakarta.servlet.http.HttpServletRequest mockRequest =
-            org.mockito.Mockito.mock(jakarta.servlet.http.HttpServletRequest.class);
-        org.mockito.Mockito.when(mockRequest.getRequestURI()).thenReturn("/projects");
+        // MockHttpServletRequest provides all required fields (contextPath, servletPath, etc.)
+        // that UrlBasedCorsConfigurationSource needs via UrlPathHelper.
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects");
 
-        CorsConfiguration corsConfig = source.getCorsConfiguration(mockRequest);
+        CorsConfiguration corsConfig = source.getCorsConfiguration(request);
         assertThat(corsConfig).isNotNull();
         assertThat(corsConfig.getAllowedOriginPatterns())
             .contains("https://kra.example.com");
@@ -81,11 +81,9 @@ class WebCorsConfigurationTest {
         TestableCorsConfig config = new TestableCorsConfig("   ");
         CorsConfigurationSource source = config.corsConfigurationSource();
 
-        jakarta.servlet.http.HttpServletRequest mockRequest =
-            org.mockito.Mockito.mock(jakarta.servlet.http.HttpServletRequest.class);
-        org.mockito.Mockito.when(mockRequest.getRequestURI()).thenReturn("/projects");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects");
 
-        CorsConfiguration corsConfig = source.getCorsConfiguration(mockRequest);
+        CorsConfiguration corsConfig = source.getCorsConfiguration(request);
         assertThat(corsConfig).isNotNull();
         // Blank EC2_ORIGIN should only contain the localhost patterns, not the blank string.
         assertThat(corsConfig.getAllowedOriginPatterns())
