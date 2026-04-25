@@ -1,7 +1,7 @@
 package com.kra.api.infrastructure.web;
 
 import com.kra.api.infrastructure.config.SecurityConfig;
-import com.kra.api.infrastructure.s3.S3PresignedUrlService;
+import com.kra.api.infrastructure.s3.S3Service;
 import com.kra.api.infrastructure.security.CustomAccessDeniedHandler;
 import com.kra.api.infrastructure.security.CustomAuthenticationEntryPoint;
 import org.junit.jupiter.api.Test;
@@ -27,12 +27,12 @@ class UploadControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private S3PresignedUrlService s3PresignedUrlService;
+    private S3Service s3Service;
 
     @Test
     void generateUploadUrl_withValidJwt_returns200WithUrlAndKey() throws Exception {
-        when(s3PresignedUrlService.generateUploadUrl(any(), any()))
-                .thenReturn(new S3PresignedUrlService.PresignResult(
+        when(s3Service.generateUploadUrl(any(), any()))
+                .thenReturn(new S3Service.PresignResult(
                         "https://kra-assets.s3.eu-west-1.amazonaws.com/images/abc-123.jpg?X-Amz-Signature=...",
                         "images/abc-123.jpg"));
 
