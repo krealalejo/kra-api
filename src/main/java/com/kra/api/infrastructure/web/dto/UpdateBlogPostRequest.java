@@ -17,6 +17,8 @@ public class UpdateBlogPostRequest {
     @Valid
     private List<ReferenceRequest> references;
 
+    private String imageUrl;
+
     public String getTitle() {
         return title;
     }
@@ -35,4 +37,7 @@ public class UpdateBlogPostRequest {
 
     public List<ReferenceRequest> getReferences() { return references; }
     public void setReferences(List<ReferenceRequest> references) { this.references = references; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

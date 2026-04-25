@@ -22,6 +22,8 @@ public class CreateBlogPostRequest {
     @Valid
     private List<ReferenceRequest> references;
 
+    private String imageUrl;   // optional — S3 key stored after frontend upload
+
     public String getSlug() {
         return slug;
     }
@@ -48,4 +50,7 @@ public class CreateBlogPostRequest {
 
     public List<ReferenceRequest> getReferences() { return references; }
     public void setReferences(List<ReferenceRequest> references) { this.references = references; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

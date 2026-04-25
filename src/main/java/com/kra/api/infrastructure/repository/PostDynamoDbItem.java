@@ -23,6 +23,7 @@ public class PostDynamoDbItem {
     private Long createdAtMillis;
     private Long updatedAtMillis;
     private List<ReferenceItem> references;
+    private String imageUrl;   // plain DynamoDB string attribute; null if not set
 
     public PostDynamoDbItem() {}
 
@@ -91,6 +92,9 @@ public class PostDynamoDbItem {
     public List<ReferenceItem> getReferences() { return references; }
     public void setReferences(List<ReferenceItem> references) { this.references = references; }
 
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
     public static PostDynamoDbItem fromDomain(BlogPost post) {
         PostDynamoDbItem item = new PostDynamoDbItem();
         item.setPk("POST#" + post.getSlug().getValue());
@@ -105,6 +109,7 @@ public class PostDynamoDbItem {
                 .map(r -> new ReferenceItem(r.label(), r.url()))
                 .toList()
         );
+        item.setImageUrl(post.getImageUrl());   // per D-13: stores S3 key, null if not set
         return item;
     }
 
@@ -118,6 +123,6 @@ public class PostDynamoDbItem {
                   .map(r -> new Reference(r.getLabel(), r.getUrl()))
                   .toList()
             : List.of();
-        return new BlogPost(slug, title, content != null ? content : "", created, updated, refs);
+        return new BlogPost(slug, title, content != null ? content : "", created, updated, refs, imageUrl);
     }
 }

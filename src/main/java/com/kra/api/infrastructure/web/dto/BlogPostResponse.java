@@ -11,7 +11,8 @@ public record BlogPostResponse(
         String content,
         Instant createdAt,
         Instant updatedAt,
-        List<ReferenceDto> references) {
+        List<ReferenceDto> references,
+        String imageUrl) {
 
     public record ReferenceDto(String label, String url) {}
 
@@ -25,6 +26,7 @@ public record BlogPostResponse(
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                refs);
+                refs,
+                post.getImageUrl());
     }
 }

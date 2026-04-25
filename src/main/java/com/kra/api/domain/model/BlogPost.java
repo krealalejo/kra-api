@@ -12,16 +12,18 @@ public class BlogPost {
     private final Instant createdAt;
     private Instant updatedAt;
     private List<Reference> references;
+    private String imageUrl;   // nullable, stores S3 key e.g. "images/{uuid}.jpg"
 
     public BlogPost(BlogSlug slug, String title, String content,
                     Instant createdAt, Instant updatedAt,
-                    List<Reference> references) {
+                    List<Reference> references, String imageUrl) {
         this.slug = Objects.requireNonNull(slug, "slug must not be null");
         this.title = Objects.requireNonNull(title, "title must not be null");
         this.content = content != null ? content : "";
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt must not be null");
         this.references = references != null ? List.copyOf(references) : List.of();
+        this.imageUrl = imageUrl;   // nullable — no requireNonNull; optional field
     }
 
     public BlogSlug getSlug() {
@@ -48,6 +50,10 @@ public class BlogPost {
         return references;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
     public void setTitle(String title) {
         this.title = Objects.requireNonNull(title, "title must not be null");
     }
@@ -58,6 +64,10 @@ public class BlogPost {
 
     public void setReferences(List<Reference> references) {
         this.references = references != null ? List.copyOf(references) : List.of();
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public void touchUpdatedAt(Instant now) {

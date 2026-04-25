@@ -18,7 +18,7 @@ class PostDynamoDbItemTest {
         Instant created = Instant.parse("2026-01-01T00:00:00Z");
         Instant updated = Instant.parse("2026-01-02T00:00:00Z");
         Reference ref = new Reference("MDN", "https://developer.mozilla.org");
-        BlogPost post = new BlogPost(slug, "My Title", "My Content", created, updated, List.of(ref));
+        BlogPost post = new BlogPost(slug, "My Title", "My Content", created, updated, List.of(ref), null);
 
         PostDynamoDbItem item = PostDynamoDbItem.fromDomain(post);
 

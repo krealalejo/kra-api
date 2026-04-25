@@ -43,7 +43,8 @@ public class BlogPostController {
                 req.getSlug(),
                 req.getTitle(),
                 req.getContent() != null ? req.getContent() : "",
-                toReferences(req.getReferences()));
+                toReferences(req.getReferences()),
+                req.getImageUrl());
         return ResponseEntity.status(HttpStatus.CREATED).body(BlogPostResponse.from(created));
     }
 
@@ -55,7 +56,8 @@ public class BlogPostController {
                 slug,
                 req.getTitle(),
                 req.getContent() != null ? req.getContent() : "",
-                toReferences(req.getReferences()));
+                toReferences(req.getReferences()),
+                req.getImageUrl());
         return ResponseEntity.ok(BlogPostResponse.from(updated));
     }
 
