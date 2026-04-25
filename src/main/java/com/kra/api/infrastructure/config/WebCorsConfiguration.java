@@ -22,7 +22,7 @@ public class WebCorsConfiguration {
                 "http://localhost:*",
                 "http://127.0.0.1:*"
         ));
-        String ec2Origin = System.getenv("EC2_ORIGIN");
+        String ec2Origin = System.getProperty("EC2_ORIGIN");
         if (ec2Origin != null && !ec2Origin.isBlank()) {
             origins.add(ec2Origin);
         } else {

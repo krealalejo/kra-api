@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/posts", "/posts/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/posts/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/posts/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/admin/upload").authenticated()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer((oauth2) -> oauth2

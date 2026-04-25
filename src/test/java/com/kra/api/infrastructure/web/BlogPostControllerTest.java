@@ -21,7 +21,6 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -140,9 +139,9 @@ class BlogPostControllerTest {
                                 .with(jwt())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
-                                    {"slug":"my-post","title":"My Title","content":"Content",
-                                     "references":[{"label":"MDN","url":"https://developer.mozilla.org"}]}
-                                    """))
+                                                {"slug":"my-post","title":"My Title","content":"Content",
+                                                 "references":[{"label":"MDN","url":"https://developer.mozilla.org"}]}
+                                                """))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.references[0].label").value("MDN"))
                                 .andExpect(jsonPath("$.references[0].url").value("https://developer.mozilla.org"));
