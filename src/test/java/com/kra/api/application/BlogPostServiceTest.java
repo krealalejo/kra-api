@@ -178,6 +178,18 @@ class BlogPostServiceTest {
     }
 
     @Test
+    void updatePost_imageUnchanged_doesNotDeleteFromS3() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/same.jpg");
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+
+        // Same imageUrl passed — no S3 deletion should occur.
+        service.updatePost("my-post", "Title", "New Content", List.of(), "images/same.jpg");
+
+        verify(s3Service, never()).deleteObject(any());
+    }
+
+    @Test
     void deletePost_withImage_deletesFromS3() {
         BlogSlug slug = BlogSlug.of("my-post");
         BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/image.jpg");
