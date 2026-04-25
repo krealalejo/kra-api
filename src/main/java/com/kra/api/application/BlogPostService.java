@@ -4,18 +4,22 @@ import com.kra.api.domain.model.BlogPost;
 import com.kra.api.domain.model.BlogSlug;
 import com.kra.api.domain.model.Reference;
 import com.kra.api.domain.repository.BlogPostRepository;
+import com.kra.api.infrastructure.s3.S3Service;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BlogPostService {
 
     private final BlogPostRepository blogPostRepository;
+    private final S3Service s3Service;
 
-    public BlogPostService(BlogPostRepository blogPostRepository) {
+    public BlogPostService(BlogPostRepository blogPostRepository, S3Service s3Service) {
         this.blogPostRepository = blogPostRepository;
+        this.s3Service = s3Service;
     }
 
     public BlogPost createPost(String slug, String title, String content, List<Reference> references) {
@@ -52,6 +56,13 @@ public class BlogPostService {
         BlogSlug blogSlug = BlogSlug.of(slug);
         BlogPost existing = blogPostRepository.findBySlug(blogSlug)
                 .orElseThrow(() -> new BlogPostNotFoundException(slug));
+        
+        // Handle S3 deletion if image is replaced or removed
+        String oldImageUrl = existing.getImageUrl();
+        if (oldImageUrl != null && !Objects.equals(oldImageUrl, imageUrl)) {
+            s3Service.deleteObject(oldImageUrl);
+        }
+
         existing.setTitle(title);
         existing.setContent(content != null ? content : "");
         existing.setReferences(references != null ? references : List.of());
@@ -63,9 +74,13 @@ public class BlogPostService {
 
     public void deletePost(String slug) {
         BlogSlug blogSlug = BlogSlug.of(slug);
-        if (blogPostRepository.findBySlug(blogSlug).isEmpty()) {
-            throw new BlogPostNotFoundException(slug);
+        BlogPost existing = blogPostRepository.findBySlug(blogSlug)
+                .orElseThrow(() -> new BlogPostNotFoundException(slug));
+        
+        if (existing.getImageUrl() != null) {
+            s3Service.deleteObject(existing.getImageUrl());
         }
+        
         blogPostRepository.deleteBySlug(blogSlug);
     }
 }

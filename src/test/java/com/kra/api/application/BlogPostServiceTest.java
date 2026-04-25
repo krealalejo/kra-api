@@ -3,6 +3,7 @@ package com.kra.api.application;
 import com.kra.api.domain.model.BlogPost;
 import com.kra.api.domain.model.BlogSlug;
 import com.kra.api.domain.repository.BlogPostRepository;
+import com.kra.api.infrastructure.s3.S3Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +18,13 @@ import static org.mockito.Mockito.*;
 class BlogPostServiceTest {
 
     private final BlogPostRepository repository = mock(BlogPostRepository.class);
-    private final BlogPostService service = new BlogPostService(repository);
+    private final S3Service s3Service = mock(S3Service.class);
+    private final BlogPostService service = new BlogPostService(repository, s3Service);
 
     @BeforeEach
     void resetMocks() {
         reset(repository);
+        reset(s3Service);
     }
 
     @Test
@@ -150,5 +153,39 @@ class BlogPostServiceTest {
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
         BlogPost updated = service.updatePost("my-post", "Title", "Content", null);
         assertTrue(updated.getReferences().isEmpty());
+    }
+
+    @Test
+    void updatePost_imageChanged_deletesOldFromS3() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/old.jpg");
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+
+        service.updatePost("my-post", "Title", "", List.of(), "images/new.jpg");
+
+        verify(s3Service).deleteObject("images/old.jpg");
+    }
+
+    @Test
+    void updatePost_imageRemoved_deletesOldFromS3() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/old.jpg");
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+
+        service.updatePost("my-post", "Title", "", List.of(), null);
+
+        verify(s3Service).deleteObject("images/old.jpg");
+    }
+
+    @Test
+    void deletePost_withImage_deletesFromS3() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/image.jpg");
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+
+        service.deletePost("my-post");
+
+        verify(s3Service).deleteObject("images/image.jpg");
+        verify(repository).deleteBySlug(slug);
     }
 }
