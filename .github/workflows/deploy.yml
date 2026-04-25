@@ -1,0 +1,150 @@
+name: Build, Push, Deploy API
+
+# Deploy kra-api to AWS EC2 on every push to main.
+# Builds a linux/arm64 Docker image (EC2 is t4g.micro / ARM64 aarch64).
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # ─────────────────────────────────────────────────────────
+  # Job 1: Build ARM64 Docker image and push to ECR
+  # ─────────────────────────────────────────────────────────
+  build-and-push:
+    name: Build and Push to ECR (linux/arm64)
+    runs-on: ubuntu-latest
+
+    outputs:
+      # Export short SHA so the deploy job references the exact image pushed
+      image_tag: ${{ steps.meta.outputs.short_sha }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Compute 7-char short SHA for deterministic image tagging
+      - name: Compute image tag
+        id: meta
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      # QEMU provides ARM64 emulation on the x86-64 GitHub runner.
+      # Required for cross-platform builds targeting linux/arm64.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      # Docker Buildx is the multi-platform build driver; required alongside QEMU.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      # Build the Spring Boot JAR inside the container (multi-stage Dockerfile)
+      # and push to ECR with two tags: kra-api-latest and kra-api-<sha>.
+      # The kra-api- prefix distinguishes this image from the Nginx image in the same ECR repo.
+      - name: Build and push kra-api image (linux/arm64)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.ECR_REPOSITORY_URL }}:kra-api-latest
+            ${{ secrets.ECR_REPOSITORY_URL }}:kra-api-${{ steps.meta.outputs.short_sha }}
+
+  # ─────────────────────────────────────────────────────────
+  # Job 2: SSH into EC2 and deploy via Docker Compose
+  # ─────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push   # Only runs if image build and push succeed
+
+    steps:
+      - name: Configure AWS credentials (needed to generate ECR token on runner)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Generate a short-lived ECR auth token on the runner.
+      # Passed to EC2 via SSH env var so the instance can authenticate to ECR
+      # without needing its own IAM role or long-lived credentials.
+      - name: Generate ECR auth token
+        id: ecr-token
+        run: |
+          TOKEN=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})
+          echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REPOSITORY_URL }}
+          DOCKER_PASSWORD: ${{ steps.ecr-token.outputs.token }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          COGNITO_ISSUER_URI: ${{ secrets.COGNITO_ISSUER_URI }}
+          AWS_DYNAMODB_TABLE_NAME: ${{ secrets.AWS_DYNAMODB_TABLE_NAME }}
+          AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_PORTFOLIO_TOKEN }}
+          GITHUB_PORTFOLIO_USER: ${{ secrets.GITHUB_PORTFOLIO_USER }}
+          EC2_ORIGIN: ${{ secrets.EC2_ORIGIN }}
+          ALLOWED_SSH_CIDR: ${{ secrets.ALLOWED_SSH_CIDR }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_REGISTRY,DOCKER_PASSWORD,AWS_REGION,IMAGE_TAG,COGNITO_ISSUER_URI,AWS_DYNAMODB_TABLE_NAME,AWS_S3_BUCKET_NAME,GITHUB_TOKEN,GITHUB_PORTFOLIO_USER,EC2_ORIGIN,ALLOWED_SSH_CIDR
+          script: |
+            set -e
+
+            # 1. Authenticate Docker to ECR using the token generated on the runner.
+            echo "${DOCKER_PASSWORD}" | docker login \
+              --username AWS \
+              --password-stdin \
+              $(echo "${ECR_REGISTRY}" | cut -d/ -f1)
+
+            # 2. Ensure the app directory exists and is owned by ec2-user.
+            sudo mkdir -p /opt/kra
+            sudo chown ec2-user:ec2-user /opt/kra
+
+            # 3. Write .env file (idempotent — overwritten on every deploy).
+            #    Secrets are never stored in git; they arrive via SSH env vars.
+            cat > /opt/kra/.env <<EOF
+            # kra-api runtime environment
+            COGNITO_ISSUER_URI=${COGNITO_ISSUER_URI}
+            AWS_REGION=${AWS_REGION}
+            AWS_DYNAMODB_TABLE_NAME=${AWS_DYNAMODB_TABLE_NAME}
+            AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+            GITHUB_TOKEN=${GITHUB_TOKEN}
+            GITHUB_PORTFOLIO_USER=${GITHUB_PORTFOLIO_USER}
+            EC2_ORIGIN=${EC2_ORIGIN}
+            # nginx environment
+            ALLOWED_SSH_CIDR=${ALLOWED_SSH_CIDR}
+            # image references
+            ECR_REGISTRY=${ECR_REGISTRY}
+            KRA_API_TAG=kra-api-${IMAGE_TAG}
+            EOF
+
+            # 4. Pull the new kra-api image (nginx:alpine is already present or will pull as fallback).
+            cd /opt/kra
+            docker compose pull kra-api
+
+            # 5. Restart all containers, removing any orphaned services.
+            docker compose up -d --remove-orphans
+
+            # 6. Verify both containers are running.
+            docker compose ps
