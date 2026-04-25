@@ -99,8 +99,8 @@ jobs:
           COGNITO_ISSUER_URI: ${{ secrets.COGNITO_ISSUER_URI }}
           AWS_DYNAMODB_TABLE_NAME: ${{ secrets.AWS_DYNAMODB_TABLE_NAME }}
           AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_PORTFOLIO_TOKEN }}
-          GITHUB_PORTFOLIO_USER: ${{ secrets.GITHUB_PORTFOLIO_USER }}
+          GITHUB_TOKEN: ${{ secrets.PORTFOLIO_TOKEN }}
+          GITHUB_PORTFOLIO_USER: ${{ secrets.PORTFOLIO_USER }}
           EC2_ORIGIN: ${{ secrets.EC2_ORIGIN }}
           ALLOWED_SSH_CIDR: ${{ secrets.ALLOWED_SSH_CIDR }}
         with:
