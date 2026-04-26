@@ -89,4 +89,17 @@ class ActivityCardServiceTest {
         assertEquals(List.of("chess", "poker"), result.tags());
         verify(repository).save(any(ActivityCard.class));
     }
+
+    @Test
+    void update_withBlankStrings_doesNotOverwriteExistingValues() {
+        ActivityCard existingCard = new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"));
+        when(repository.findByType("PLAYING")).thenReturn(java.util.Optional.of(existingCard));
+
+        // blank strings should not overwrite existing values
+        ActivityCardResponse result = service.update("PLAYING", "  ", "\t", null);
+
+        assertEquals("Existing title", result.title());
+        assertEquals("Existing desc", result.description());
+        verify(repository).save(any(ActivityCard.class));
+    }
 }
