@@ -42,12 +42,8 @@ class ActivityCardServiceTest {
 
     @Test
     void update_existingCard_updatesFieldsAndSaves() {
-        List<ActivityCard> existingCards = List.of(
-                new ActivityCard("SHIPPING", "Old title", "Old desc", null),
-                new ActivityCard("READING", null, null, null),
-                new ActivityCard("PLAYING", null, null, null)
-        );
-        when(repository.findAll()).thenReturn(existingCards);
+        ActivityCard existingCard = new ActivityCard("SHIPPING", "Old title", "Old desc", null);
+        when(repository.findByType("SHIPPING")).thenReturn(java.util.Optional.of(existingCard));
 
         ActivityCardResponse result = service.update("SHIPPING", "New title", "New desc", null);
 
@@ -59,7 +55,7 @@ class ActivityCardServiceTest {
 
     @Test
     void update_cardNotFound_createsNewWithUppercaseType() {
-        when(repository.findAll()).thenReturn(List.of());
+        when(repository.findByType("reading")).thenReturn(java.util.Optional.empty());
 
         ActivityCardResponse result = service.update("reading", "A title", null, null);
 
@@ -71,10 +67,8 @@ class ActivityCardServiceTest {
 
     @Test
     void update_withNullFields_doesNotOverwriteExistingValues() {
-        List<ActivityCard> existingCards = List.of(
-                new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"))
-        );
-        when(repository.findAll()).thenReturn(existingCards);
+        ActivityCard existingCard = new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"));
+        when(repository.findByType("PLAYING")).thenReturn(java.util.Optional.of(existingCard));
 
         ActivityCardResponse result = service.update("PLAYING", null, null, null);
 
@@ -87,7 +81,7 @@ class ActivityCardServiceTest {
 
     @Test
     void update_withTags_savesTags() {
-        when(repository.findAll()).thenReturn(List.of());
+        when(repository.findByType("PLAYING")).thenReturn(java.util.Optional.empty());
         List<String> tags = List.of("chess", "poker");
 
         ActivityCardResponse result = service.update("PLAYING", "Play title", "Play desc", tags);
