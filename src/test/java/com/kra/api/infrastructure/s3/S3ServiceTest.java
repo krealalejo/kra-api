@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,7 +42,7 @@ class S3ServiceTest {
     @Test
     void generateUploadUrl_withExtension() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
-        when(presigned.url()).thenReturn(new URL("https://test-url.com"));
+        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
         when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
 
         S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png");
@@ -56,7 +56,7 @@ class S3ServiceTest {
     @Test
     void generateUploadUrl_noExtension() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
-        when(presigned.url()).thenReturn(new URL("https://test-url.com"));
+        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
         when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
 
         S3Service.PresignResult result = s3Service.generateUploadUrl("filename", "application/octet-stream");
@@ -67,7 +67,7 @@ class S3ServiceTest {
     @Test
     void deleteObject_validKey() {
         String key = "images/uuid.jpg";
-        
+
         s3Service.deleteObject(key);
 
         ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
@@ -75,7 +75,7 @@ class S3ServiceTest {
 
         assertEquals(BUCKET, captor.getAllValues().get(0).bucket());
         assertEquals("images/uuid.jpg", captor.getAllValues().get(0).key());
-        
+
         assertEquals(BUCKET, captor.getAllValues().get(1).bucket());
         assertEquals("thumbnails/uuid-thumb.webp", captor.getAllValues().get(1).key());
     }
