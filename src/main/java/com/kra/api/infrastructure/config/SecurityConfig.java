@@ -36,6 +36,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/config/profile").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/config/profile").authenticated()
+                .requestMatchers(HttpMethod.GET, "/activity").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/activity/**").authenticated()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/contact").permitAll()
                 .requestMatchers(HttpMethod.POST, "/projects/**").authenticated()
