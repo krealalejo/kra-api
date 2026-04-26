@@ -1,7 +1,10 @@
 package com.kra.api.infrastructure.web;
 
 import com.kra.api.application.BlogPostNotFoundException;
+import com.kra.api.application.EducationNotFoundException;
+import com.kra.api.application.ExperienceNotFoundException;
 import com.kra.api.application.ProjectNotFoundException;
+import com.kra.api.application.SkillCategoryNotFoundException;
 import com.kra.api.infrastructure.github.GitHubApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,24 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BlogPostNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBlogNotFound(BlogPostNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ExperienceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExperienceNotFound(ExperienceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(EducationNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEducationNotFound(EducationNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SkillCategoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSkillCategoryNotFound(SkillCategoryNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
     }
