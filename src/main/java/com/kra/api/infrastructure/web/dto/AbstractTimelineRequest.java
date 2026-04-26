@@ -1,6 +1,5 @@
 package com.kra.api.infrastructure.web.dto;
 
-import jakarta.validation.constraints.NotBlank;
 
 public abstract class AbstractTimelineRequest {
     protected String title;

@@ -1,7 +1,5 @@
 package com.kra.api.domain.model;
 
-import java.util.Objects;
-
 public class Education extends TimelineEntity {
     private String institution;
 
