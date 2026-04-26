@@ -129,7 +129,7 @@ public class GitHubPortfolioClient {
         try {
             JsonNode response = githubWebClient.post()
                     .uri("/graphql")
-                    .bodyValue(java.util.Map.of("query", query))
+                    .bodyValue(java.util.Objects.requireNonNull(java.util.Map.of("query", query)))
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .block();

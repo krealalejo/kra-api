@@ -8,10 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
+@SuppressWarnings("null")
 class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
@@ -21,7 +26,7 @@ class GlobalExceptionHandlerTest {
         var ex = new ProjectNotFoundException("p1");
         var res = handler.handleNotFound(ex);
         assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
-        assertEquals("NOT_FOUND", res.getBody().error());
+        assertEquals("NOT_FOUND", Objects.requireNonNull(res.getBody()).error());
     }
 
     @Test
@@ -58,12 +63,12 @@ class GlobalExceptionHandlerTest {
         BindingResult br = new BeanPropertyBindingResult(new Object(), "obj");
         br.addError(new FieldError("obj", "field", "must not be null"));
         // MethodArgumentNotValidException constructor takes (MethodParameter, BindingResult)
-        // We can pass null for MethodParameter for this simple test
-        var ex = new MethodArgumentNotValidException(null, br);
+        // We mock MethodParameter to satisfy @NonNull requirement
+        var ex = new MethodArgumentNotValidException(mock(MethodParameter.class), br);
 
         var res = handler.handleValidation(ex);
         assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
-        assertEquals("field: must not be null", res.getBody().message());
+        assertEquals("field: must not be null", Objects.requireNonNull(res.getBody()).message());
     }
 
     @Test

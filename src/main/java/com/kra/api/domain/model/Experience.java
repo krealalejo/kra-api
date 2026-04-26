@@ -1,7 +1,5 @@
 package com.kra.api.domain.model;
 
-import java.util.Objects;
-
 public class Experience extends TimelineEntity {
     private String company;
 
