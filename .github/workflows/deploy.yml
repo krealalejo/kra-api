@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -32,7 +32,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@19d944daaa35f0fa1d3f7f8af1d3f2e5de25c5b7 # v2
 
       # Compute 7-char short SHA for deterministic image tagging
       - name: Compute image tag
@@ -44,17 +44,17 @@ jobs:
       # QEMU provides ARM64 emulation on the x86-64 GitHub runner.
       # Required for cross-platform builds targeting linux/arm64.
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
 
       # Docker Buildx is the multi-platform build driver; required alongside QEMU.
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
 
       # Build the Spring Boot JAR inside the container (multi-stage Dockerfile)
       # and push to ECR with two tags: kra-api-latest and kra-api-<sha>.
       # The kra-api- prefix distinguishes this image from the Nginx image in the same ECR repo.
       - name: Build and push kra-api image (linux/arm64)
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
         with:
           context: .
           file: ./Dockerfile
@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Configure AWS credentials (needed to generate ECR token on runner)
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -90,7 +90,7 @@ jobs:
           echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         env:
           ECR_REGISTRY: ${{ secrets.ECR_REPOSITORY_URL }}
           DOCKER_PASSWORD: ${{ steps.ecr-token.outputs.token }}
