@@ -27,9 +27,10 @@ class GlobalExceptionHandlerTest {
     @Test
     void handleBlogNotFound() {
         var ex = new BlogPostNotFoundException("b1");
-        var res = handler.handleBlogNotFound(ex);
+        var res = handler.handleNotFound(ex);
         assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
     }
+
 
     @Test
     void handleBadArgument() {
