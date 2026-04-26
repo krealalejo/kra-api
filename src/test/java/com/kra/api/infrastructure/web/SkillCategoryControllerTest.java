@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SkillCategoryController.class)
+@SuppressWarnings("null")
 class SkillCategoryControllerTest extends AbstractControllerTest {
 
     @MockitoBean
