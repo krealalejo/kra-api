@@ -141,9 +141,38 @@ jobs:
             KRA_API_TAG=kra-api-${IMAGE_TAG}
             EOF
 
-            # 4. Write docker-compose.yml (Source of Truth is now this workflow).
-            #    We use 'COMPOSE' to prevent shell expansion of ${VAR}.
-            #    We use sed to strip the leading 12 spaces used for YAML formatting.
+            # 4. Write Nginx configuration template (needed for the reverse proxy).
+            cat > /opt/kra/nginx.conf.template <<'NGINX'
+            upstream backend {
+                server kra-api:8080;
+            }
+
+            server {
+                listen 80;
+                server_name _;
+
+                location / {
+                    proxy_pass         http://backend;
+                    proxy_set_header   Host              $host;
+                    proxy_set_header   X-Real-IP         $remote_addr;
+                    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                    proxy_set_header   X-Forwarded-Proto $scheme;
+                }
+
+                location /admin {
+                    allow ${ALLOWED_ADMIN_CIDR};
+                    deny all;
+
+                    proxy_pass         http://backend;
+                    proxy_set_header   Host              $host;
+                    proxy_set_header   X-Real-IP         $remote_addr;
+                    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                    proxy_set_header   X-Forwarded-Proto $scheme;
+                }
+            }
+            NGINX
+
+            # 5. Write docker-compose.yml.
             sed 's/^            //' > /opt/kra/docker-compose.yml <<'COMPOSE'
             services:
               nginx:
@@ -152,6 +181,8 @@ jobs:
                   - "80:80"
                 environment:
                   ALLOWED_ADMIN_CIDR: ${ALLOWED_SSH_CIDR}
+                volumes:
+                  - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
                 depends_on:
                   - kra-api
                 restart: unless-stopped
