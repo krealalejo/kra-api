@@ -73,4 +73,14 @@ class ConfigControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("UNAUTHORIZED"));
     }
+
+    @Test
+    void updateProfile_malformedBody_returns400() throws Exception {
+        mockMvc.perform(put("/config/profile")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("not-json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
 }
