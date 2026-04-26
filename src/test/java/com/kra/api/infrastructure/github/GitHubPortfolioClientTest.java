@@ -240,4 +240,48 @@ class GitHubPortfolioClientTest {
         assertTrue(result.readmeExcerpt().endsWith("…"));
         assertTrue(result.readmeExcerpt().length() < 5000);
     }
+
+    @Test
+    void getRepoDetail_readmeContentEmpty() {
+        String repoBody = "{\"full_name\": \"o/n\", \"default_branch\": \"main\"}";
+        String readmeBody = "{\"content\": \"\"}";
+        
+        mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
+
+        var result = client.getRepoDetail("o", "n");
+
+        assertNull(result.readmeExcerpt());
+    }
+
+    @Test
+    void getContributionCalendar_missingDataNode() {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("{\"errors\": [{\"message\": \"error\"}]}")
+                .addHeader("Content-Type", "application/json"));
+
+        GitHubContributionResponse result = client.getContributionCalendar();
+
+        assertEquals(0, result.totalContributions());
+    }
+
+    @Test
+    void listPublicRepos_multipleTopics() {
+        String body = """
+                [
+                  {
+                    "owner": { "login": "test-user" },
+                    "name": "repo1",
+                    "topics": ["t1", "t2"]
+                  }
+                ]
+                """;
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(body)
+                .addHeader("Content-Type", "application/json"));
+
+        var result = client.listPublicRepos();
+
+        assertEquals(2, result.get(0).topics().size());
+    }
 }

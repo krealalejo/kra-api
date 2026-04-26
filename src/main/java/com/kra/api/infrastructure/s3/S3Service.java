@@ -17,11 +17,16 @@ import java.util.UUID;
 @Service
 public class S3Service {
 
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
+
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${aws.region:eu-west-1}")
-    private String region;
+    public S3Service(S3Client s3Client, S3Presigner s3Presigner) {
+        this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
+    }
 
     public record PresignResult(String uploadUrl, String s3Key) {}
 
@@ -31,56 +36,38 @@ public class S3Service {
                 : "bin";
         String key = "images/" + UUID.randomUUID() + "." + ext;
 
-        try (S3Presigner presigner = createPresigner()) {
-            PutObjectRequest objectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(key)
-                    .contentType(contentType)
-                    .build();
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(contentType)
+                .build();
 
-            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(5))
-                    .putObjectRequest(objectRequest)
-                    .build();
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .putObjectRequest(objectRequest)
+                .build();
 
-            PresignedPutObjectRequest presigned = presigner.presignPutObject(presignRequest);
-            return new PresignResult(presigned.url().toString(), key);
-        }
+        PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(presignRequest);
+        return new PresignResult(presigned.url().toString(), key);
     }
 
     public void deleteObject(String key) {
         if (key == null || key.isBlank()) return;
 
-        try (S3Client s3Client = createClient()) {
-            // Delete original image
-            s3Client.deleteObject(DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(key)
-                    .build());
+        // Delete original image
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build());
 
-            // Delete thumbnail (derived from key)
-            // e.g. images/uuid.jpg -> thumbnails/uuid-thumb.webp
-            String thumbKey = key.replaceFirst("^images/", "thumbnails/")
-                               .replaceFirst("\\.[^.]+$", "-thumb.webp");
+        // Delete thumbnail (derived from key)
+        // e.g. images/uuid.jpg -> thumbnails/uuid-thumb.webp
+        String thumbKey = key.replaceFirst("^images/", "thumbnails/")
+                           .replaceFirst("\\.[^.]+$", "-thumb.webp");
 
-            s3Client.deleteObject(DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(thumbKey)
-                    .build());
-        }
-    }
-
-    private S3Presigner createPresigner() {
-        return S3Presigner.builder()
-                .region(Region.of(region))
-                .credentialsProvider(DefaultCredentialsProvider.builder().build())
-                .build();
-    }
-
-    private S3Client createClient() {
-        return S3Client.builder()
-                .region(Region.of(region))
-                .credentialsProvider(DefaultCredentialsProvider.builder().build())
-                .build();
+        s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(thumbKey)
+                .build());
     }
 }
