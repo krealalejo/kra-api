@@ -141,7 +141,38 @@ jobs:
             KRA_API_TAG=kra-api-${IMAGE_TAG}
             EOF
 
-            # 4. Pull the new kra-api image (nginx:alpine is already present or will pull as fallback).
+            # 4. Write docker-compose.yml (Source of Truth is now this workflow).
+            #    We use 'COMPOSE' to prevent shell expansion of ${VAR}.
+            #    We use sed to strip the leading 12 spaces used for YAML formatting.
+            sed 's/^            //' > /opt/kra/docker-compose.yml <<'COMPOSE'
+            services:
+              nginx:
+                image: ${NGINX_IMAGE:-nginx:alpine}
+                ports:
+                  - "80:80"
+                environment:
+                  ALLOWED_ADMIN_CIDR: ${ALLOWED_SSH_CIDR}
+                depends_on:
+                  - kra-api
+                restart: unless-stopped
+
+              kra-api:
+                image: ${ECR_REGISTRY}:${KRA_API_TAG}
+                expose:
+                  - "8080"
+                environment:
+                  - COGNITO_ISSUER_URI=${COGNITO_ISSUER_URI}
+                  - AWS_REGION=${AWS_REGION}
+                  - AWS_DYNAMODB_TABLE_NAME=${AWS_DYNAMODB_TABLE_NAME}
+                  - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+                  - GITHUB_TOKEN=${GITHUB_TOKEN}
+                  - GITHUB_PORTFOLIO_USER=${GITHUB_PORTFOLIO_USER}
+                  - GITHUB_API_BASE_URL=https://api.github.com
+                  - EC2_ORIGIN=${EC2_ORIGIN}
+                restart: unless-stopped
+            COMPOSE
+
+            # 5. Pull the new kra-api image.
             cd /opt/kra
             docker compose pull kra-api
 
