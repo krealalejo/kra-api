@@ -3,6 +3,7 @@ package com.kra.api.infrastructure.web;
 import com.kra.api.application.AppConfigService;
 import com.kra.api.infrastructure.web.dto.ProfileConfigResponse;
 import com.kra.api.infrastructure.web.dto.UpdateProfileRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,7 +27,7 @@ public class ConfigController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<ProfileConfigResponse> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<ProfileConfigResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         ProfileConfigResponse updated = appConfigService.updateProfile(
                 request.getHomePortraitUrl(),
                 request.getCvPortraitUrl()
