@@ -47,4 +47,10 @@ class ProjectIdTest {
         ProjectId id2 = ProjectId.of("hash-test");
         assertEquals(id1.hashCode(), id2.hashCode());
     }
+
+    @Test
+    void equals_differentType_returnsFalse() {
+        ProjectId id = ProjectId.of("1");
+        assertNotEquals("1", id);
+    }
 }

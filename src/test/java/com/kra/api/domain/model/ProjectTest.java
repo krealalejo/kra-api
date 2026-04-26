@@ -51,6 +51,20 @@ class ProjectTest {
     }
 
     @Test
+    void setters_workCorrectly() {
+        Project p = buildProject("1");
+        p.setTitle("New Title");
+        p.setDescription("New Desc");
+        p.setUrl("http://new.url");
+        p.setContent("New content");
+        
+        assertEquals("New Title", p.getTitle());
+        assertEquals("New Desc", p.getDescription());
+        assertEquals("http://new.url", p.getUrl());
+        assertEquals("New content", p.getContent());
+    }
+
+    @Test
     void equals_sameId_returnsTrue() {
         Project p1 = buildProject("same-id");
         Project p2 = new Project(ProjectId.of("same-id"), "Different Title", "Other desc", null, null);
@@ -62,5 +76,24 @@ class ProjectTest {
         Project p1 = buildProject("id-alpha");
         Project p2 = buildProject("id-beta");
         assertNotEquals(p1, p2);
+    }
+
+    @Test
+    void setTitle_null_throwsException() {
+        Project p = buildProject("1");
+        assertThrows(NullPointerException.class, () -> p.setTitle(null));
+    }
+
+    @Test
+    void equals_differentType_returnsFalse() {
+        Project p = buildProject("1");
+        assertNotEquals("string", p);
+    }
+
+    @Test
+    void testHashCode() {
+        Project p1 = buildProject("1");
+        Project p2 = buildProject("1");
+        assertEquals(p1.hashCode(), p2.hashCode());
     }
 }
