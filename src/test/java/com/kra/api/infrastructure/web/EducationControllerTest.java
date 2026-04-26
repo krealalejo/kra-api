@@ -3,16 +3,10 @@ package com.kra.api.infrastructure.web;
 import com.kra.api.application.EducationNotFoundException;
 import com.kra.api.application.EducationService;
 import com.kra.api.domain.model.Education;
-import com.kra.api.infrastructure.config.SecurityConfig;
-import com.kra.api.infrastructure.security.CustomAccessDeniedHandler;
-import com.kra.api.infrastructure.security.CustomAuthenticationEntryPoint;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -24,12 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EducationController.class)
-@Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class, CustomAccessDeniedHandler.class})
-@SuppressWarnings("null")
-class EducationControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class EducationControllerTest extends AbstractControllerTest {
 
     @MockitoBean
     private EducationService educationService;

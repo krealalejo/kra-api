@@ -3,16 +3,10 @@ package com.kra.api.infrastructure.web;
 import com.kra.api.application.ExperienceNotFoundException;
 import com.kra.api.application.ExperienceService;
 import com.kra.api.domain.model.Experience;
-import com.kra.api.infrastructure.config.SecurityConfig;
-import com.kra.api.infrastructure.security.CustomAccessDeniedHandler;
-import com.kra.api.infrastructure.security.CustomAuthenticationEntryPoint;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -24,12 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ExperienceController.class)
-@Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class, CustomAccessDeniedHandler.class})
-@SuppressWarnings("null")
-class ExperienceControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class ExperienceControllerTest extends AbstractControllerTest {
 
     @MockitoBean
     private ExperienceService experienceService;
