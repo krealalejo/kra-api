@@ -85,8 +85,10 @@ jobs:
       # without needing its own IAM role or long-lived credentials.
       - name: Generate ECR auth token
         id: ecr-token
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          TOKEN=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})
+          TOKEN=$(aws ecr get-login-password --region "$AWS_REGION")
           echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to EC2 via SSH
