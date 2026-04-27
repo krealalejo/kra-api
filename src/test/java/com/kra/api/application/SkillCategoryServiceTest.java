@@ -75,7 +75,7 @@ class SkillCategoryServiceTest {
     void update_shouldThrowIfNotFound() {
         when(repository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(SkillCategoryNotFoundException.class, () -> 
+        assertThrows(SkillCategoryNotFoundException.class, () ->
             service.update("1", "N", List.of("S"), 1));
     }
 

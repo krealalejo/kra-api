@@ -23,7 +23,7 @@ public class PostDynamoDbItem {
     private Long createdAtMillis;
     private Long updatedAtMillis;
     private List<ReferenceItem> references;
-    private String imageUrl;   // plain DynamoDB string attribute; null if not set
+    private String imageUrl;
 
     public PostDynamoDbItem() {}
 
@@ -109,7 +109,7 @@ public class PostDynamoDbItem {
                 .map(r -> new ReferenceItem(r.label(), r.url()))
                 .toList()
         );
-        item.setImageUrl(post.getImageUrl());   // per D-13: stores S3 key, null if not set
+        item.setImageUrl(post.getImageUrl());
         return item;
     }
 

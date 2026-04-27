@@ -16,7 +16,6 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-@SuppressWarnings("null")
 class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
@@ -62,8 +61,6 @@ class GlobalExceptionHandlerTest {
     void handleValidation() {
         BindingResult br = new BeanPropertyBindingResult(new Object(), "obj");
         br.addError(new FieldError("obj", "field", "must not be null"));
-        // MethodArgumentNotValidException constructor takes (MethodParameter, BindingResult)
-        // We mock MethodParameter to satisfy @NonNull requirement
         var ex = new MethodArgumentNotValidException(mock(MethodParameter.class), br);
 
         var res = handler.handleValidation(ex);

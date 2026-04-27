@@ -16,17 +16,15 @@ public class AppConfigService {
 
     public ProfileConfigResponse getProfile() {
         AppConfig config = repository.findProfile();
-        return new ProfileConfigResponse(config.getHomePortraitUrl(), config.getCvPortraitUrl());
+        return new ProfileConfigResponse(config.getHomePortraitUrl(), config.getCvPortraitUrl(), config.getCvPdfUrl());
     }
 
-    public ProfileConfigResponse updateProfile(String homePortraitUrl, String cvPortraitUrl) {
-        // Note: this is a last-writer-wins update with no optimistic locking.
-        // Concurrent updates will silently overwrite each other. Acceptable for
-        // single-admin use; revisit if multiple admins are supported.
+    public ProfileConfigResponse updateProfile(String homePortraitUrl, String cvPortraitUrl, String cvPdfUrl) {
         AppConfig config = repository.findProfile();
-        if (homePortraitUrl != null) config.setHomePortraitUrl(homePortraitUrl);
-        if (cvPortraitUrl != null) config.setCvPortraitUrl(cvPortraitUrl);
+        config.setHomePortraitUrl(homePortraitUrl);
+        config.setCvPortraitUrl(cvPortraitUrl);
+        config.setCvPdfUrl(cvPdfUrl);
         repository.saveProfile(config);
-        return new ProfileConfigResponse(config.getHomePortraitUrl(), config.getCvPortraitUrl());
+        return new ProfileConfigResponse(config.getHomePortraitUrl(), config.getCvPortraitUrl(), config.getCvPdfUrl());
     }
 }

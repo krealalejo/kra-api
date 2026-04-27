@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * through a testable subclass that overrides the env-reading helper. This avoids
  * Java 21 module restrictions that prevent modifying System.getenv via reflection.
  */
-@SuppressWarnings("null")
 class WebCorsConfigurationTest {
 
     /**
@@ -63,8 +62,6 @@ class WebCorsConfigurationTest {
         TestableCorsConfig config = new TestableCorsConfig("https://kra.example.com");
         CorsConfigurationSource source = config.corsConfigurationSource();
 
-        // MockHttpServletRequest provides all required fields (contextPath, servletPath, etc.)
-        // that UrlBasedCorsConfigurationSource needs via UrlPathHelper.
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects");
 
         CorsConfiguration corsConfig = source.getCorsConfiguration(request);
@@ -86,7 +83,6 @@ class WebCorsConfigurationTest {
 
         CorsConfiguration corsConfig = source.getCorsConfiguration(request);
         assertThat(corsConfig).isNotNull();
-        // Blank EC2_ORIGIN should only contain the localhost patterns, not the blank string.
         assertThat(corsConfig.getAllowedOriginPatterns())
             .doesNotContain("   ");
     }

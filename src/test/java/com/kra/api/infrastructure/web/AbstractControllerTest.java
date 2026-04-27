@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
     CustomAccessDeniedHandler.class,
     GlobalExceptionHandler.class
 })
-@SuppressWarnings("null")
 public abstract class AbstractControllerTest {
 
     @Autowired

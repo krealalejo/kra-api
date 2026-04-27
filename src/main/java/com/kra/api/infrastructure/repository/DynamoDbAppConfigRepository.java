@@ -28,9 +28,9 @@ public class DynamoDbAppConfigRepository implements AppConfigRepository {
         Key key = Key.builder().partitionValue(PK).sortValue(SK).build();
         AppConfigDynamoDbItem item = table.getItem(key);
         if (item == null) {
-            return new AppConfig(null, null);
+            return new AppConfig(null, null, null);
         }
-        return new AppConfig(item.getHomePortraitUrl(), item.getCvPortraitUrl());
+        return new AppConfig(item.getHomePortraitUrl(), item.getCvPortraitUrl(), item.getCvPdfUrl());
     }
 
     @Override
@@ -40,6 +40,7 @@ public class DynamoDbAppConfigRepository implements AppConfigRepository {
         item.setSk(SK);
         item.setHomePortraitUrl(config.getHomePortraitUrl());
         item.setCvPortraitUrl(config.getCvPortraitUrl());
+        item.setCvPdfUrl(config.getCvPdfUrl());
         table.putItem(item);
     }
 }

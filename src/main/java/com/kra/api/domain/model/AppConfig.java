@@ -4,12 +4,14 @@ public class AppConfig {
 
     private String homePortraitUrl;
     private String cvPortraitUrl;
+    private String cvPdfUrl;
 
     public AppConfig() {}
 
-    public AppConfig(String homePortraitUrl, String cvPortraitUrl) {
+    public AppConfig(String homePortraitUrl, String cvPortraitUrl, String cvPdfUrl) {
         this.homePortraitUrl = homePortraitUrl;
         this.cvPortraitUrl = cvPortraitUrl;
+        this.cvPdfUrl = cvPdfUrl;
     }
 
     public String getHomePortraitUrl() {
@@ -26,5 +28,13 @@ public class AppConfig {
 
     public void setCvPortraitUrl(String cvPortraitUrl) {
         this.cvPortraitUrl = cvPortraitUrl;
+    }
+
+    public String getCvPdfUrl() {
+        return cvPdfUrl;
+    }
+
+    public void setCvPdfUrl(String cvPdfUrl) {
+        this.cvPdfUrl = cvPdfUrl;
     }
 }

@@ -12,7 +12,7 @@ public class BlogPost {
     private final Instant createdAt;
     private Instant updatedAt;
     private List<Reference> references;
-    private String imageUrl;   // nullable, stores S3 key e.g. "images/{uuid}.jpg"
+    private String imageUrl;
 
     public BlogPost(BlogSlug slug, String title, String content,
                     Instant createdAt, Instant updatedAt,
@@ -23,7 +23,7 @@ public class BlogPost {
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt must not be null");
         this.references = references != null ? List.copyOf(references) : List.of();
-        this.imageUrl = imageUrl;   // nullable — no requireNonNull; optional field
+        this.imageUrl = imageUrl;
     }
 
     public BlogSlug getSlug() {

@@ -36,7 +36,6 @@ public class ActivityController {
     public ResponseEntity<ActivityCardResponse> update(
             @PathVariable String type,
             @Valid @RequestBody UpdateActivityCardRequest request) {
-        // T-25-02: Guard against arbitrary SK injection — only accept known card types
         if (!VALID_TYPES.contains(type.toUpperCase())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid activity card type. Must be one of: SHIPPING, READING, PLAYING");

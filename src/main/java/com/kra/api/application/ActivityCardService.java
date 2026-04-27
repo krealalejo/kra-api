@@ -22,7 +22,6 @@ public class ActivityCardService {
     }
 
     public ActivityCardResponse update(String type, String title, String description, List<String> tags) {
-        // Read existing (or empty placeholder) so we don't overwrite unset fields with null
         ActivityCard card = repository.findByType(type)
                 .orElse(new ActivityCard(type.toUpperCase(), null, null, null));
 

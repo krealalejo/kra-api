@@ -30,7 +30,8 @@ public class ConfigController {
     public ResponseEntity<ProfileConfigResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         ProfileConfigResponse updated = appConfigService.updateProfile(
                 request.getHomePortraitUrl(),
-                request.getCvPortraitUrl()
+                request.getCvPortraitUrl(),
+                request.getCvPdfUrl()
         );
         return ResponseEntity.ok(updated);
     }

@@ -10,5 +10,6 @@ public record PortfolioRepoResponse(
         String htmlUrl,
         List<String> topics,
         int stargazersCount,
-        String updatedAt) {
+        String updatedAt,
+        String kind) {
 }

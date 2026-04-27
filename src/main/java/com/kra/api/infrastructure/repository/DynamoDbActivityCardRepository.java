@@ -34,7 +34,7 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
         for (String sk : List.of(SK_SHIPPING, SK_READING, SK_PLAYING)) {
             Key key = Key.builder().partitionValue(PK).sortValue(sk).build();
             ActivityCardDynamoDbItem item = table.getItem(key);
-            String type = sk.substring("ACTIVITY#".length()); // "SHIPPING", "READING", "PLAYING"
+            String type = sk.substring("ACTIVITY#".length());
             if (item == null) {
                 cards.add(new ActivityCard(type, null, null, null));
             } else {

@@ -89,4 +89,15 @@ class ExperienceTest {
     void equals_differentType_returnsFalse() {
         assertNotEquals("string", build("1"));
     }
+
+    @Test
+    void equals_null_returnsFalse() {
+        assertNotEquals(null, build("1"));
+    }
+
+    @Test
+    void equals_sameObject_returnsTrue() {
+        Experience e = build("1");
+        assertEquals(e, e);
+    }
 }

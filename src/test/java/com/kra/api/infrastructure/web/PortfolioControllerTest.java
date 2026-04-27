@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @WebMvcTest(PortfolioController.class)
 @Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class, CustomAccessDeniedHandler.class, GlobalExceptionHandler.class})
-@SuppressWarnings("null")
 class PortfolioControllerTest {
 
     @Autowired
@@ -34,7 +33,7 @@ class PortfolioControllerTest {
     @Test
     void listRepos_returns200() throws Exception {
         when(gitHubPortfolioClient.listPublicRepos()).thenReturn(List.of(
-                new PortfolioRepoResponse("o", "n", "o/n", "d", "https://x", List.of("aws"), 3, "2024-01-01T00:00:00Z")));
+                new PortfolioRepoResponse("o", "n", "o/n", "d", "https://x", List.of("aws"), 3, "2024-01-01T00:00:00Z", "Backend")));
 
         mockMvc.perform(get("/portfolio/repos"))
                 .andExpect(status().isOk())
@@ -54,7 +53,7 @@ class PortfolioControllerTest {
 
     @Test
     void getRepo_returns200() throws Exception {
-        PortfolioRepoResponse r = new PortfolioRepoResponse("o", "n", "o/n", "d", "https://x", List.of(), 1, "2024-01-01T00:00:00Z");
+        PortfolioRepoResponse r = new PortfolioRepoResponse("o", "n", "o/n", "d", "https://x", List.of(), 1, "2024-01-01T00:00:00Z", "Backend");
         when(gitHubPortfolioClient.getRepoDetail("o", "n")).thenReturn(
                 PortfolioRepoDetailResponse.fromSummary(r, "main", "hello"));
 

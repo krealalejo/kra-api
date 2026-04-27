@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
-@SuppressWarnings("null")
 class GitHubPortfolioClientTest {
 
     private MockWebServer mockWebServer;
@@ -128,7 +127,7 @@ class GitHubPortfolioClientTest {
                   "content": "SGVsbG8gd29ybGQ="
                 }
                 """;
-        
+
         mockWebServer.enqueue(new MockResponse()
                 .setBody(repoBody)
                 .addHeader("Content-Type", "application/json"));
@@ -143,7 +142,7 @@ class GitHubPortfolioClientTest {
         assertEquals("Hello world", result.readmeExcerpt());
 
         assertEquals(2, mockWebServer.getRequestCount());
-        mockWebServer.takeRequest(); // repo request
+        mockWebServer.takeRequest();
         RecordedRequest readmeReq = mockWebServer.takeRequest();
         assertTrue(readmeReq.getPath().contains("/repos/o/n/readme"));
     }
@@ -178,11 +177,11 @@ class GitHubPortfolioClientTest {
     @Test
     void getRepoDetail_noReadme() {
         String repoBody = "{\"full_name\": \"o/n\", \"default_branch\": \"main\"}";
-        
+
         mockWebServer.enqueue(new MockResponse()
                 .setBody(repoBody)
                 .addHeader("Content-Type", "application/json"));
-        mockWebServer.enqueue(new MockResponse().setResponseCode(404)); // README not found
+        mockWebServer.enqueue(new MockResponse().setResponseCode(404));
 
         var result = client.getRepoDetail("o", "n");
 
@@ -245,7 +244,7 @@ class GitHubPortfolioClientTest {
     void getRepoDetail_readmeContentEmpty() {
         String repoBody = "{\"full_name\": \"o/n\", \"default_branch\": \"main\"}";
         String readmeBody = "{\"content\": \"\"}";
-        
+
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
 
@@ -283,5 +282,12 @@ class GitHubPortfolioClientTest {
         var result = client.listPublicRepos();
 
         assertEquals(2, result.get(0).topics().size());
+    }
+
+    @Test
+    void getRepoDetail_repoNotFound_throwsException() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(404));
+
+        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("o", "n"));
     }
 }

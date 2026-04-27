@@ -12,6 +12,7 @@ public class AppConfigDynamoDbItem {
     private String sk;
     private String homePortraitUrl;
     private String cvPortraitUrl;
+    private String cvPdfUrl;
 
     public AppConfigDynamoDbItem() {}
 
@@ -49,5 +50,13 @@ public class AppConfigDynamoDbItem {
 
     public void setCvPortraitUrl(String cvPortraitUrl) {
         this.cvPortraitUrl = cvPortraitUrl;
+    }
+
+    public String getCvPdfUrl() {
+        return cvPdfUrl;
+    }
+
+    public void setCvPdfUrl(String cvPdfUrl) {
+        this.cvPdfUrl = cvPdfUrl;
     }
 }
