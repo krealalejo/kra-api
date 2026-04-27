@@ -1,5 +1,6 @@
 package com.kra.api.infrastructure.github;
 
+import com.kra.api.domain.repository.ProjectMetadataRepository;
 import com.kra.api.infrastructure.config.GitHubProperties;
 import com.kra.api.infrastructure.web.dto.GitHubContributionResponse;
 import okhttp3.mockwebserver.MockResponse;
@@ -13,10 +14,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 class GitHubPortfolioClientTest {
 
     private MockWebServer mockWebServer;
     private GitHubPortfolioClient client;
+    private ProjectMetadataRepository projectMetadataRepository;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -29,7 +35,9 @@ class GitHubPortfolioClientTest {
                 .build();
 
         GitHubProperties properties = new GitHubProperties("test-token", "test-user", baseUrl);
-        client = new GitHubPortfolioClient(webClient, properties);
+        projectMetadataRepository = mock(ProjectMetadataRepository.class);
+        when(projectMetadataRepository.findByOwnerAndRepo(anyString(), anyString())).thenReturn(null);
+        client = new GitHubPortfolioClient(webClient, properties, projectMetadataRepository);
     }
 
     @AfterEach
@@ -206,7 +214,8 @@ class GitHubPortfolioClientTest {
         GitHubProperties blankUserProps = new GitHubProperties("token", "   ", mockWebServer.url("/").toString());
         GitHubPortfolioClient blankClient = new GitHubPortfolioClient(
                 WebClient.builder().baseUrl(mockWebServer.url("/").toString()).build(),
-                blankUserProps);
+                blankUserProps,
+                projectMetadataRepository);
 
         assertThrows(IllegalArgumentException.class, blankClient::listPublicRepos);
     }
