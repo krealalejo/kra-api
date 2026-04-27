@@ -5,19 +5,15 @@ import com.kra.api.domain.repository.SkillCategoryRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Repository
 public class DynamoDbSkillCategoryRepository extends AbstractDynamoDbRepository<SkillCategory, SkillCategoryDynamoDbItem>
         implements SkillCategoryRepository {
 
-    private static final String GSI1_NAME = "GSI1";
     private static final String TYPE_SKILL = "TYPE#SKILL";
 
     public DynamoDbSkillCategoryRepository(
@@ -38,13 +34,8 @@ public class DynamoDbSkillCategoryRepository extends AbstractDynamoDbRepository<
 
     @Override
     public List<SkillCategory> findAll() {
-        DynamoDbIndex<SkillCategoryDynamoDbItem> gsi1 = table.index(GSI1_NAME);
-        QueryConditional condition = QueryConditional.keyEqualTo(k -> k.partitionValue(TYPE_SKILL));
-        return StreamSupport.stream(gsi1.query(condition).spliterator(), false)
-                .flatMap(page -> page.items().stream())
-                .filter(item -> "METADATA".equals(item.getSk()))
-                .map(SkillCategoryDynamoDbItem::toDomain)
-                .sorted(Comparator.comparingInt(SkillCategory::getSortOrder))
-                .toList();
+        return findAllByGsi1(TYPE_SKILL, SkillCategoryDynamoDbItem::toDomain,
+                item -> "METADATA".equals(item.getSk()),
+                Comparator.comparingInt(SkillCategory::getSortOrder));
     }
 }

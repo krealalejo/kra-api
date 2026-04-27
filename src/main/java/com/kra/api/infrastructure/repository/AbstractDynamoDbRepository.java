@@ -1,12 +1,19 @@
 package com.kra.api.infrastructure.repository;
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public abstract class AbstractDynamoDbRepository<D, I> {
 
@@ -34,6 +41,17 @@ public abstract class AbstractDynamoDbRepository<D, I> {
 
     public void deleteById(String id) {
         table.deleteItem(buildKey(id));
+    }
+
+    protected List<D> findAllByGsi1(String typeValue, Function<I, D> toDomain,
+            Predicate<I> filter, Comparator<D> comparator) {
+        DynamoDbIndex<I> gsi1 = table.index("GSI1");
+        QueryConditional condition = QueryConditional.keyEqualTo(k -> k.partitionValue(typeValue));
+        Stream<D> stream = StreamSupport.stream(gsi1.query(condition).spliterator(), false)
+                .flatMap(page -> page.items().stream())
+                .filter(filter)
+                .map(toDomain);
+        return (comparator != null ? stream.sorted(comparator) : stream).toList();
     }
 
     protected Key buildKey(String id) {
