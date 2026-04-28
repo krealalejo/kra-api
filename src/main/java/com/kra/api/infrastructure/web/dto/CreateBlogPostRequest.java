@@ -22,7 +22,7 @@ public class CreateBlogPostRequest {
     @Valid
     private List<ReferenceRequest> references;
 
-    private String imageUrl;   // optional — S3 key stored after frontend upload
+    private String imageUrl;
 
     public String getSlug() {
         return slug;

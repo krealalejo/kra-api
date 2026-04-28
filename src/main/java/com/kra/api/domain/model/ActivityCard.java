@@ -4,10 +4,10 @@ import java.util.List;
 
 public class ActivityCard {
 
-    private String type;        // "SHIPPING", "READING", or "PLAYING"
-    private String title;       // nullable
-    private String description; // nullable
-    private List<String> tags;  // nullable; meaningful only for PLAYING type
+    private String type;
+    private String title;
+    private String description;
+    private List<String> tags;
 
     public ActivityCard() {}
 

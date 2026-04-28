@@ -54,7 +54,7 @@ class ActivityControllerTest {
     void update_withValidType_shouldReturnUpdated() throws Exception {
         UpdateActivityCardRequest request = new UpdateActivityCardRequest();
         request.setTitle("New Title");
-        
+
         ActivityCardResponse response = new ActivityCardResponse("SHIPPING", "New Title", "Desc", null);
         when(service.update(eq("shipping"), eq("New Title"), any(), any())).thenReturn(response);
 

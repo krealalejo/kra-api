@@ -81,7 +81,7 @@ class EducationServiceTest {
     void update_shouldThrowIfNotFound() {
         when(repository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(EducationNotFoundException.class, () -> 
+        assertThrows(EducationNotFoundException.class, () ->
             service.update("1", "T", "I", "L", "Y", "D", 1));
     }
 

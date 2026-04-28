@@ -87,13 +87,11 @@ class ConfigControllerTest {
 
     @Test
     void updateProfile_withJwtAndNoAuthorities_returns200() throws Exception {
-        // Documents the current security policy: any authenticated principal may write.
-        // If role-based access is added in future, update this test to expect 403.
         when(appConfigService.updateProfile("images/home.jpg", null, null))
                 .thenReturn(new ProfileConfigResponse("images/home.jpg", null, null));
 
         mockMvc.perform(put("/config/profile")
-                        .with(jwt().authorities())   // empty authorities — no roles
+                        .with(jwt().authorities())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"homePortraitUrl\":\"images/home.jpg\"}"))
                 .andExpect(status().isOk());

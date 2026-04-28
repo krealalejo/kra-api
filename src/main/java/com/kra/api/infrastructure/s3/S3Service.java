@@ -53,14 +53,11 @@ public class S3Service {
     public void deleteObject(String key) {
         if (key == null || key.isBlank()) return;
 
-        // Delete original image
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build());
 
-        // Delete thumbnail (derived from key)
-        // e.g. images/uuid.jpg -> thumbnails/uuid-thumb.webp
         String thumbKey = key.replaceFirst("^images/", "thumbnails/")
                            .replaceFirst("\\.[^.]+$", "-thumb.webp");
 

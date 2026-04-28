@@ -183,7 +183,6 @@ class BlogPostServiceTest {
         BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/same.jpg");
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
 
-        // Same imageUrl passed — no S3 deletion should occur.
         service.updatePost("my-post", "Title", "New Content", List.of(), "images/same.jpg");
 
         verify(s3Service, never()).deleteObject(any());

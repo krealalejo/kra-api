@@ -57,7 +57,7 @@ class ProjectTest {
         p.setDescription("New Desc");
         p.setUrl("http://new.url");
         p.setContent("New content");
-        
+
         assertEquals("New Title", p.getTitle());
         assertEquals("New Desc", p.getDescription());
         assertEquals("http://new.url", p.getUrl());

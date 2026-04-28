@@ -81,7 +81,7 @@ class ExperienceServiceTest {
     void update_shouldThrowIfNotFound() {
         when(repository.findById("1")).thenReturn(Optional.empty());
 
-        assertThrows(ExperienceNotFoundException.class, () -> 
+        assertThrows(ExperienceNotFoundException.class, () ->
             service.update("1", "T", "C", "L", "Y", "D", 1));
     }
 

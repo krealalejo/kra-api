@@ -56,8 +56,7 @@ public class BlogPostService {
         BlogSlug blogSlug = BlogSlug.of(slug);
         BlogPost existing = blogPostRepository.findBySlug(blogSlug)
                 .orElseThrow(() -> new BlogPostNotFoundException(slug));
-        
-        // Handle S3 deletion if image is replaced or removed
+
         String oldImageUrl = existing.getImageUrl();
         if (oldImageUrl != null && !Objects.equals(oldImageUrl, imageUrl)) {
             s3Service.deleteObject(oldImageUrl);
@@ -66,7 +65,7 @@ public class BlogPostService {
         existing.setTitle(title);
         existing.setContent(content != null ? content : "");
         existing.setReferences(references != null ? references : List.of());
-        existing.setImageUrl(imageUrl);   // per D-14: update imageUrl if provided
+        existing.setImageUrl(imageUrl);
         existing.touchUpdatedAt(Instant.now());
         blogPostRepository.save(existing);
         return existing;
@@ -76,11 +75,11 @@ public class BlogPostService {
         BlogSlug blogSlug = BlogSlug.of(slug);
         BlogPost existing = blogPostRepository.findBySlug(blogSlug)
                 .orElseThrow(() -> new BlogPostNotFoundException(slug));
-        
+
         if (existing.getImageUrl() != null) {
             s3Service.deleteObject(existing.getImageUrl());
         }
-        
+
         blogPostRepository.deleteBySlug(blogSlug);
     }
 }
