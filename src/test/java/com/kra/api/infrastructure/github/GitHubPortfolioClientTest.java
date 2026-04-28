@@ -283,4 +283,11 @@ class GitHubPortfolioClientTest {
 
         assertEquals(2, result.get(0).topics().size());
     }
+
+    @Test
+    void getRepoDetail_repoNotFound_throwsException() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(404));
+
+        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("o", "n"));
+    }
 }
