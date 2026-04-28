@@ -5,6 +5,8 @@ import com.kra.api.infrastructure.config.GitHubProperties;
 import com.kra.api.infrastructure.web.dto.GitHubContributionResponse;
 import com.kra.api.infrastructure.web.dto.PortfolioRepoResponse;
 import com.kra.api.infrastructure.web.dto.PortfolioRepoDetailResponse;
+import com.kra.api.domain.model.ProjectMetadata;
+import com.kra.api.domain.repository.ProjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,12 +25,15 @@ public class GitHubPortfolioClient {
 
     private final WebClient githubWebClient;
     private final GitHubProperties properties;
+    private final ProjectMetadataRepository projectMetadataRepository;
 
     public GitHubPortfolioClient(
             @Qualifier("githubWebClient") WebClient githubWebClient,
-            GitHubProperties properties) {
+            GitHubProperties properties,
+            ProjectMetadataRepository projectMetadataRepository) {
         this.githubWebClient = githubWebClient;
         this.properties = properties;
+        this.projectMetadataRepository = projectMetadataRepository;
     }
 
     public List<PortfolioRepoResponse> listPublicRepos() {
@@ -47,7 +52,7 @@ public class GitHubPortfolioClient {
             }
             List<PortfolioRepoResponse> out = new ArrayList<>();
             for (JsonNode n : root) {
-                out.add(mapRepoSummary(n));
+                out.add(mapRepoWithMetadata(n));
             }
             return out;
         } catch (WebClientResponseException e) {
@@ -67,7 +72,7 @@ public class GitHubPortfolioClient {
             if (n == null) {
                 throw new GitHubApiException(502, "Empty response from GitHub");
             }
-            PortfolioRepoResponse summary = mapRepoSummary(n);
+            PortfolioRepoResponse summary = mapRepoWithMetadata(n);
             String defaultBranch = n.path("default_branch").asText(null);
             String readme = fetchReadmeExcerpt(owner, repo);
             return PortfolioRepoDetailResponse.fromSummary(summary, defaultBranch, readme);
@@ -171,7 +176,7 @@ public class GitHubPortfolioClient {
         return new GitHubApiException(code >= 400 && code < 600 ? code : 502, "GitHub API error");
     }
 
-    private static PortfolioRepoResponse mapRepoSummary(JsonNode n) {
+    private PortfolioRepoResponse mapRepoWithMetadata(JsonNode n) {
         String owner = n.path("owner").path("login").asText("");
         String name = n.path("name").asText("");
         String fullName = n.path("full_name").asText("");
@@ -186,6 +191,10 @@ public class GitHubPortfolioClient {
         }
         int stars = n.path("stargazers_count").asInt(0);
         String updatedAt = n.path("updated_at").asText("");
-        return new PortfolioRepoResponse(owner, name, fullName, description, htmlUrl, topics, stars, updatedAt);
+
+        ProjectMetadata meta = projectMetadataRepository.findByOwnerAndRepo(owner, name);
+        String kind = meta != null ? meta.getKind() : null;
+
+        return new PortfolioRepoResponse(owner, name, fullName, description, htmlUrl, topics, stars, updatedAt, kind);
     }
 }

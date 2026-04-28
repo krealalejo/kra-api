@@ -12,7 +12,8 @@ public record PortfolioRepoDetailResponse(
         int stargazersCount,
         String updatedAt,
         String defaultBranch,
-        String readmeExcerpt) {
+        String readmeExcerpt,
+        String kind) {
 
     public static PortfolioRepoDetailResponse fromSummary(
             PortfolioRepoResponse r,
@@ -28,6 +29,7 @@ public record PortfolioRepoDetailResponse(
                 r.stargazersCount(),
                 r.updatedAt(),
                 defaultBranch,
-                readmeExcerpt);
+                readmeExcerpt,
+                r.kind());
     }
 }
