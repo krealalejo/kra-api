@@ -140,11 +140,11 @@ class BlogPostControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                                 {"slug":"my-post","title":"My Title","content":"Content",
-                                                 "references":[{"label":"MDN","url":"https:
+                                                 "references":[{"label":"MDN","url":"https://developer.mozilla.org"}]}
                                                 """))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.references[0].label").value("MDN"))
-                                .andExpect(jsonPath("$.references[0].url").value("https:
+                                .andExpect(jsonPath("$.references[0].url").value("https://developer.mozilla.org"));
         }
 
         @Test
