@@ -24,8 +24,8 @@ public class AppConfigService {
         // Concurrent updates will silently overwrite each other. Acceptable for
         // single-admin use; revisit if multiple admins are supported.
         AppConfig config = repository.findProfile();
-        if (homePortraitUrl != null) config.setHomePortraitUrl(homePortraitUrl);
-        if (cvPortraitUrl != null) config.setCvPortraitUrl(cvPortraitUrl);
+        config.setHomePortraitUrl(homePortraitUrl);
+        config.setCvPortraitUrl(cvPortraitUrl);
         repository.saveProfile(config);
         return new ProfileConfigResponse(config.getHomePortraitUrl(), config.getCvPortraitUrl());
     }

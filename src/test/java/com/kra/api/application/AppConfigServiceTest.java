@@ -45,14 +45,14 @@ class AppConfigServiceTest {
     }
 
     @Test
-    void updateProfile_shouldNotUpdateNullFields() {
+    void updateProfile_shouldAllowNullFields() {
         AppConfig config = new AppConfig("old1", "old2");
         when(repository.findProfile()).thenReturn(config);
 
         ProfileConfigResponse result = service.updateProfile(null, null);
 
-        assertEquals("old1", result.homePortraitUrl());
-        assertEquals("old2", result.cvPortraitUrl());
+        assertNull(result.homePortraitUrl());
+        assertNull(result.cvPortraitUrl());
         verify(repository).saveProfile(config);
     }
 }
