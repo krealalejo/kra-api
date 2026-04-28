@@ -30,4 +30,17 @@ public class UpdateProfileRequest {
     public void setCvPortraitUrl(String cvPortraitUrl) {
         this.cvPortraitUrl = cvPortraitUrl;
     }
+
+    @Size(max = 512)
+    @Pattern(regexp = "^documents/[\\w\\-]+\\.pdf$",
+             message = "Must be a valid relative S3 PDF key under documents/")
+    private String cvPdfUrl;
+
+    public String getCvPdfUrl() {
+        return cvPdfUrl;
+    }
+
+    public void setCvPdfUrl(String cvPdfUrl) {
+        this.cvPdfUrl = cvPdfUrl;
+    }
 }

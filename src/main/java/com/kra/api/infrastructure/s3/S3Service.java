@@ -32,7 +32,8 @@ public class S3Service {
         String ext = filename.contains(".")
                 ? filename.substring(filename.lastIndexOf('.') + 1)
                 : "bin";
-        String key = "images/" + UUID.randomUUID() + "." + ext;
+        String prefix = "application/pdf".equals(contentType) ? "documents" : "images";
+        String key = prefix + "/" + UUID.randomUUID() + "." + ext;
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)

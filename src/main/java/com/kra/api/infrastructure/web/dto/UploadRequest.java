@@ -10,8 +10,8 @@ public class UploadRequest {
 
     @NotBlank
     @Pattern(
-        regexp = "^(image/jpeg|image/png|image/gif|image/webp)$",
-        message = "contentType must be one of: image/jpeg, image/png, image/gif, image/webp"
+        regexp = "^(image/jpeg|image/png|image/gif|image/webp|application/pdf)$",
+        message = "contentType must be one of: image/jpeg, image/png, image/gif, image/webp, application/pdf"
     )
     private String contentType;
 

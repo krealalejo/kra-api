@@ -7,17 +7,20 @@ class AppConfigTest {
 
     @Test
     void testConstructorAndGetters() {
-        AppConfig config = new AppConfig("home.jpg", "cv.pdf");
+        AppConfig config = new AppConfig("home.jpg", "cv.jpg", "documents/cv.pdf");
         assertEquals("home.jpg", config.getHomePortraitUrl());
-        assertEquals("cv.pdf", config.getCvPortraitUrl());
+        assertEquals("cv.jpg", config.getCvPortraitUrl());
+        assertEquals("documents/cv.pdf", config.getCvPdfUrl());
     }
 
     @Test
     void testDefaultConstructorAndSetters() {
         AppConfig config = new AppConfig();
         config.setHomePortraitUrl("new_home.jpg");
-        config.setCvPortraitUrl("new_cv.pdf");
+        config.setCvPortraitUrl("new_cv.jpg");
+        config.setCvPdfUrl("documents/new_cv.pdf");
         assertEquals("new_home.jpg", config.getHomePortraitUrl());
-        assertEquals("new_cv.pdf", config.getCvPortraitUrl());
+        assertEquals("new_cv.jpg", config.getCvPortraitUrl());
+        assertEquals("documents/new_cv.pdf", config.getCvPdfUrl());
     }
 }

@@ -59,9 +59,24 @@ class UploadControllerTest {
         mockMvc.perform(post("/admin/upload")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"filename\":\"doc.pdf\",\"contentType\":\"application/pdf\"}"))
+                        .content("{\"filename\":\"doc.txt\",\"contentType\":\"text/plain\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void generateUploadUrl_withPdfContentType_returns200() throws Exception {
+        when(s3Service.generateUploadUrl(any(), any()))
+                .thenReturn(new S3Service.PresignResult(
+                        "https://kra-assets.s3.eu-west-1.amazonaws.com/documents/abc-123.pdf?X-Amz-Signature=...",
+                        "documents/abc-123.pdf"));
+
+        mockMvc.perform(post("/admin/upload")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"filename\":\"cv.pdf\",\"contentType\":\"application/pdf\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.s3Key").value("documents/abc-123.pdf"));
     }
 
     @Test

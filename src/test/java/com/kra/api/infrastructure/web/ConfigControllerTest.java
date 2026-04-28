@@ -34,18 +34,19 @@ class ConfigControllerTest {
     @Test
     void getProfile_public_returns200WithUrls() throws Exception {
         when(appConfigService.getProfile())
-                .thenReturn(new ProfileConfigResponse("images/home.jpg", "images/cv.jpg"));
+                .thenReturn(new ProfileConfigResponse("images/home.jpg", "images/cv.jpg", "documents/cv.pdf"));
 
         mockMvc.perform(get("/config/profile").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.homePortraitUrl").value("images/home.jpg"))
-                .andExpect(jsonPath("$.cvPortraitUrl").value("images/cv.jpg"));
+                .andExpect(jsonPath("$.cvPortraitUrl").value("images/cv.jpg"))
+                .andExpect(jsonPath("$.cvPdfUrl").value("documents/cv.pdf"));
     }
 
     @Test
     void getProfile_public_noUrlsYet_returnsNulls() throws Exception {
         when(appConfigService.getProfile())
-                .thenReturn(new ProfileConfigResponse(null, null));
+                .thenReturn(new ProfileConfigResponse(null, null, null));
 
         mockMvc.perform(get("/config/profile").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -54,8 +55,8 @@ class ConfigControllerTest {
 
     @Test
     void updateProfile_withJwt_returns200() throws Exception {
-        when(appConfigService.updateProfile("images/home.jpg", "images/cv.jpg"))
-                .thenReturn(new ProfileConfigResponse("images/home.jpg", "images/cv.jpg"));
+        when(appConfigService.updateProfile("images/home.jpg", "images/cv.jpg", null))
+                .thenReturn(new ProfileConfigResponse("images/home.jpg", "images/cv.jpg", null));
 
         mockMvc.perform(put("/config/profile")
                         .with(jwt())
@@ -88,8 +89,8 @@ class ConfigControllerTest {
     void updateProfile_withJwtAndNoAuthorities_returns200() throws Exception {
         // Documents the current security policy: any authenticated principal may write.
         // If role-based access is added in future, update this test to expect 403.
-        when(appConfigService.updateProfile("images/home.jpg", null))
-                .thenReturn(new ProfileConfigResponse("images/home.jpg", null));
+        when(appConfigService.updateProfile("images/home.jpg", null, null))
+                .thenReturn(new ProfileConfigResponse("images/home.jpg", null, null));
 
         mockMvc.perform(put("/config/profile")
                         .with(jwt().authorities())   // empty authorities — no roles
