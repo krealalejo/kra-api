@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ExperienceController.class)
-@SuppressWarnings("null")
 class ExperienceControllerTest extends AbstractControllerTest {
 
     @MockitoBean

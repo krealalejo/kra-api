@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * through a testable subclass that overrides the env-reading helper. This avoids
  * Java 21 module restrictions that prevent modifying System.getenv via reflection.
  */
-@SuppressWarnings("null")
 class WebCorsConfigurationTest {
 
     /**

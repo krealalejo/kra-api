@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
-@SuppressWarnings("null")
 class GitHubPortfolioClientTest {
 
     private MockWebServer mockWebServer;
