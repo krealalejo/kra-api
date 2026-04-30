@@ -31,7 +31,7 @@ class UploadControllerTest {
 
     @Test
     void generateUploadUrl_withValidJwt_returns200WithUrlAndKey() throws Exception {
-        when(s3Service.generateUploadUrl(any(), any()))
+        when(s3Service.generateUploadUrl(any(), any(), any()))
                 .thenReturn(new S3Service.PresignResult(
                         "https://kra-assets.s3.eu-west-1.amazonaws.com/images/abc-123.jpg?X-Amz-Signature=...",
                         "images/abc-123.jpg"));
@@ -66,7 +66,7 @@ class UploadControllerTest {
 
     @Test
     void generateUploadUrl_withPdfContentType_returns200() throws Exception {
-        when(s3Service.generateUploadUrl(any(), any()))
+        when(s3Service.generateUploadUrl(any(), any(), any()))
                 .thenReturn(new S3Service.PresignResult(
                         "https://kra-assets.s3.eu-west-1.amazonaws.com/documents/abc-123.pdf?X-Amz-Signature=...",
                         "documents/abc-123.pdf"));

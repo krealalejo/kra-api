@@ -45,7 +45,7 @@ class S3ServiceTest {
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
         when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
 
-        S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png");
+        S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png", null);
 
         assertNotNull(result.uploadUrl());
         assertTrue(result.s3Key().startsWith("images/"));
@@ -59,9 +59,21 @@ class S3ServiceTest {
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
         when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
 
-        S3Service.PresignResult result = s3Service.generateUploadUrl("filename", "application/octet-stream");
+        S3Service.PresignResult result = s3Service.generateUploadUrl("filename", "application/octet-stream", null);
 
         assertTrue(result.s3Key().endsWith(".bin"));
+    }
+
+    @Test
+    void generateUploadUrl_portraitType_usesPortraitsPrefix() throws MalformedURLException {
+        PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
+        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
+        when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("photo.jpg", "image/jpeg", "portrait");
+
+        assertTrue(result.s3Key().startsWith("images/portraits/"));
+        assertTrue(result.s3Key().endsWith(".jpg"));
     }
 
     @Test

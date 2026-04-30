@@ -15,9 +15,18 @@ public class UploadRequest {
     )
     private String contentType;
 
+    @Pattern(
+        regexp = "^(portrait|blog|pdf)$",
+        message = "uploadType must be one of: portrait, blog, pdf"
+    )
+    private String uploadType;
+
     public String getFilename() { return filename; }
     public void setFilename(String filename) { this.filename = filename; }
 
     public String getContentType() { return contentType; }
     public void setContentType(String contentType) { this.contentType = contentType; }
+
+    public String getUploadType() { return uploadType; }
+    public void setUploadType(String uploadType) { this.uploadType = uploadType; }
 }

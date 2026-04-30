@@ -21,7 +21,7 @@ public class UploadController {
     @PostMapping("/admin/upload")
     public ResponseEntity<UploadResponse> generateUploadUrl(@Valid @RequestBody UploadRequest request) {
         S3Service.PresignResult result =
-                s3Service.generateUploadUrl(request.getFilename(), request.getContentType());
+                s3Service.generateUploadUrl(request.getFilename(), request.getContentType(), request.getUploadType());
         return ResponseEntity.ok(new UploadResponse(result.uploadUrl(), result.s3Key()));
     }
 }

@@ -28,11 +28,18 @@ public class S3Service {
 
     public record PresignResult(String uploadUrl, String s3Key) {}
 
-    public PresignResult generateUploadUrl(String filename, String contentType) {
+    public PresignResult generateUploadUrl(String filename, String contentType, String uploadType) {
         String ext = filename.contains(".")
                 ? filename.substring(filename.lastIndexOf('.') + 1)
                 : "bin";
-        String prefix = "application/pdf".equals(contentType) ? "documents" : "images";
+        String prefix;
+        if ("application/pdf".equals(contentType)) {
+            prefix = "documents";
+        } else if ("portrait".equals(uploadType)) {
+            prefix = "images/portraits";
+        } else {
+            prefix = "images";
+        }
         String key = prefix + "/" + UUID.randomUUID() + "." + ext;
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
