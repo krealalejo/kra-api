@@ -5,9 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ExperienceTest {
+class ExperienceTest extends AbstractIdentifiableEntityTest {
 
-    private Experience build(String id) {
+    @Override
+    Experience build(String id) {
         return new Experience(id, "Engineer", "Acme", "London", "2020-2023", "Built things", 1);
     }
 
@@ -75,29 +76,4 @@ class ExperienceTest {
         assertEquals(e1, e2);
     }
 
-    @Test
-    void equals_differentId_returnsFalse() {
-        assertNotEquals(build("a"), build("b"));
-    }
-
-    @Test
-    void hashCode_sameId_equal() {
-        assertEquals(build("x").hashCode(), build("x").hashCode());
-    }
-
-    @Test
-    void equals_differentType_returnsFalse() {
-        assertNotEquals("string", build("1"));
-    }
-
-    @Test
-    void equals_null_returnsFalse() {
-        assertNotEquals(null, build("1"));
-    }
-
-    @Test
-    void equals_sameObject_returnsTrue() {
-        Experience e = build("1");
-        assertEquals(e, e);
-    }
 }
