@@ -92,8 +92,8 @@ flowchart LR
   DDB[(DynamoDB)]
   GH[GitHub API]
 
-  FE -->|Public GET / POST contact| WEB
-  CLI -->|Bearer JWT writes| WEB
+  FE -- "Public GET / POST contact" --> WEB
+  CLI -- "Bearer JWT writes" --> WEB
   WEB --> COG
   INFRA --> DDB
   INFRA --> GH
