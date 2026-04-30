@@ -36,6 +36,11 @@
 			**/infrastructure/config/**,
 			**/KraApiApplication.java
 		</sonar.coverage.exclusions>
+		<sonar.cpd.exclusions>
+			**/domain/model/AppConfig.java,
+			**/infrastructure/repository/AppConfigDynamoDbItem.java,
+			**/*Test.java
+		</sonar.cpd.exclusions>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
