@@ -5,9 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EducationTest {
+class EducationTest extends AbstractIdentifiableEntityTest {
 
-    private Education build(String id) {
+    @Override
+    Education build(String id) {
         return new Education(id, "BSc CS", "MIT", "Cambridge", "2015-2019", "Graduated top of class", 1);
     }
 
@@ -75,18 +76,4 @@ class EducationTest {
         assertEquals(e1, e2);
     }
 
-    @Test
-    void equals_differentId_returnsFalse() {
-        assertNotEquals(build("a"), build("b"));
-    }
-
-    @Test
-    void hashCode_sameId_equal() {
-        assertEquals(build("x").hashCode(), build("x").hashCode());
-    }
-
-    @Test
-    void equals_differentType_returnsFalse() {
-        assertNotEquals("string", build("1"));
-    }
 }

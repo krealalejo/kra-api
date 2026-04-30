@@ -7,9 +7,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SkillCategoryTest {
+class SkillCategoryTest extends AbstractIdentifiableEntityTest {
 
-    private SkillCategory build(String id) {
+    @Override
+    SkillCategory build(String id) {
         return new SkillCategory(id, "Backend", List.of("Java", "Spring"), 1);
     }
 
@@ -80,29 +81,4 @@ class SkillCategoryTest {
         assertEquals(c1, c2);
     }
 
-    @Test
-    void equals_differentId_returnsFalse() {
-        assertNotEquals(build("a"), build("b"));
-    }
-
-    @Test
-    void hashCode_sameId_equal() {
-        assertEquals(build("x").hashCode(), build("x").hashCode());
-    }
-
-    @Test
-    void equals_differentType_returnsFalse() {
-        assertNotEquals("string", build("1"));
-    }
-
-    @Test
-    void equals_null_returnsFalse() {
-        assertNotEquals(null, build("1"));
-    }
-
-    @Test
-    void equals_sameObject_returnsTrue() {
-        SkillCategory c = build("1");
-        assertEquals(c, c);
-    }
 }
