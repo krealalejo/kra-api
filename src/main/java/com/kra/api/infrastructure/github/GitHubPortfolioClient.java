@@ -190,11 +190,12 @@ public class GitHubPortfolioClient {
             }
         }
         int stars = n.path("stargazers_count").asInt(0);
+        String createdAt = n.path("created_at").asText("");
         String updatedAt = n.path("updated_at").asText("");
 
         ProjectMetadata meta = projectMetadataRepository.findByOwnerAndRepo(owner, name);
         String kind = meta != null ? meta.getKind() : null;
 
-        return new PortfolioRepoResponse(owner, name, fullName, description, htmlUrl, topics, stars, updatedAt, kind);
+        return new PortfolioRepoResponse(owner, name, fullName, description, htmlUrl, topics, stars, createdAt, updatedAt, kind);
     }
 }
