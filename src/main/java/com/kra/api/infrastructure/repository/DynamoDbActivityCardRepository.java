@@ -55,13 +55,13 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
 
     @Override
     public void save(ActivityCard card) {
-        String sk = "ACTIVITY#" + card.getType();
+        String sk = "ACTIVITY#" + card.type();
         ActivityCardDynamoDbItem item = new ActivityCardDynamoDbItem();
         item.setPk(PK);
         item.setSk(sk);
-        item.setTitle(card.getTitle());
-        item.setDescription(card.getDescription());
-        item.setTags(card.getTags());
+        item.setTitle(card.title());
+        item.setDescription(card.description());
+        item.setTags(card.tags());
         table.putItem(item);
     }
 }

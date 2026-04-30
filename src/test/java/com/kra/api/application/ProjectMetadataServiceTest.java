@@ -43,9 +43,6 @@ class ProjectMetadataServiceTest {
 
     @Test
     void testUpsertMetadata() {
-        ProjectMetadata m = new ProjectMetadata();
-        when(repository.findByOwnerAndRepo("owner", "repo")).thenReturn(m);
-
         List<String> stack = List.of("Vue");
         ProjectMetadataResponse response = service.upsertMetadata("owner", "repo", "Lead", "2025", "Frontend", "develop", stack);
 
@@ -55,6 +52,6 @@ class ProjectMetadataServiceTest {
         assertEquals("develop", response.mainBranch());
         assertEquals(stack, response.stack());
 
-        verify(repository).save(eq("owner"), eq("repo"), any(ProjectMetadata.class));
+        verify(repository).save(eq("owner"), eq("repo"), eq(new ProjectMetadata("Lead", "2025", "Frontend", "develop", stack)));
     }
 }

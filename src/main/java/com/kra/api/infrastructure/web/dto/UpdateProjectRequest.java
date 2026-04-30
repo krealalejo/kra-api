@@ -1,4 +1,10 @@
 package com.kra.api.infrastructure.web.dto;
 
-public class UpdateProjectRequest extends CreateProjectRequest {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record UpdateProjectRequest(
+        @NotBlank(message = "title is required") String title,
+        String description,
+        String url,
+        String content
+) {}

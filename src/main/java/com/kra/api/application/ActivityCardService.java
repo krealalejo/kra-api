@@ -17,19 +17,21 @@ public class ActivityCardService {
 
     public List<ActivityCardResponse> getAll() {
         return repository.findAll().stream()
-                .map(c -> new ActivityCardResponse(c.getType(), c.getTitle(), c.getDescription(), c.getTags()))
+                .map(c -> new ActivityCardResponse(c.type(), c.title(), c.description(), c.tags()))
                 .toList();
     }
 
     public ActivityCardResponse update(String type, String title, String description, List<String> tags) {
-        ActivityCard card = repository.findByType(type)
+        ActivityCard existing = repository.findByType(type)
                 .orElse(new ActivityCard(type.toUpperCase(), null, null, null));
 
-        if (title != null && !title.isBlank())             card.setTitle(title);
-        if (description != null && !description.isBlank()) card.setDescription(description);
-        if (tags != null)                                   card.setTags(tags);
-
-        repository.save(card);
-        return new ActivityCardResponse(card.getType(), card.getTitle(), card.getDescription(), card.getTags());
+        ActivityCard updated = new ActivityCard(
+                existing.type(),
+                title != null && !title.isBlank() ? title : existing.title(),
+                description != null && !description.isBlank() ? description : existing.description(),
+                tags != null ? tags : existing.tags()
+        );
+        repository.save(updated);
+        return new ActivityCardResponse(updated.type(), updated.title(), updated.description(), updated.tags());
     }
 }

@@ -7,25 +7,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class ActivityCardTest {
 
     @Test
-    void testConstructorAndGetters() {
+    void testAccessors() {
         ActivityCard card = new ActivityCard("SHIPPING", "Title", "Desc", List.of("tag"));
-        assertEquals("SHIPPING", card.getType());
-        assertEquals("Title", card.getTitle());
-        assertEquals("Desc", card.getDescription());
-        assertEquals(List.of("tag"), card.getTags());
+        assertEquals("SHIPPING", card.type());
+        assertEquals("Title", card.title());
+        assertEquals("Desc", card.description());
+        assertEquals(List.of("tag"), card.tags());
     }
 
     @Test
-    void testSetters() {
-        ActivityCard card = new ActivityCard();
-        card.setType("LEARNING");
-        card.setTitle("New Title");
-        card.setDescription("New Desc");
-        card.setTags(List.of("new"));
+    void testEquality() {
+        ActivityCard a = new ActivityCard("LEARNING", "New Title", "New Desc", List.of("new"));
+        ActivityCard b = new ActivityCard("LEARNING", "New Title", "New Desc", List.of("new"));
 
-        assertEquals("LEARNING", card.getType());
-        assertEquals("New Title", card.getTitle());
-        assertEquals("New Desc", card.getDescription());
-        assertEquals(List.of("new"), card.getTags());
+        assertEquals(a, b);
     }
 }

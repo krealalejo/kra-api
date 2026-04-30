@@ -194,7 +194,7 @@ public class GitHubPortfolioClient {
         String updatedAt = n.path("updated_at").asText("");
 
         ProjectMetadata meta = projectMetadataRepository.findByOwnerAndRepo(owner, name);
-        String kind = meta != null ? meta.getKind() : null;
+        String kind = meta != null ? meta.kind() : null;
 
         return new PortfolioRepoResponse(owner, name, fullName, description, htmlUrl, topics, stars, createdAt, updatedAt, kind);
     }

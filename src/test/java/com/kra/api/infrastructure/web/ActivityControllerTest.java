@@ -52,8 +52,7 @@ class ActivityControllerTest {
 
     @Test
     void update_withValidType_shouldReturnUpdated() throws Exception {
-        UpdateActivityCardRequest request = new UpdateActivityCardRequest();
-        request.setTitle("New Title");
+        UpdateActivityCardRequest request = new UpdateActivityCardRequest("New Title", null, null);
 
         ActivityCardResponse response = new ActivityCardResponse("SHIPPING", "New Title", "Desc", null);
         when(service.update(eq("shipping"), eq("New Title"), any(), any())).thenReturn(response);
@@ -68,8 +67,7 @@ class ActivityControllerTest {
 
     @Test
     void update_withInvalidType_shouldReturnBadRequest() throws Exception {
-        UpdateActivityCardRequest request = new UpdateActivityCardRequest();
-        request.setTitle("Title");
+        UpdateActivityCardRequest request = new UpdateActivityCardRequest("Title", null, null);
 
         mockMvc.perform(put("/activity/invalid")
                         .with(jwt())
@@ -80,7 +78,7 @@ class ActivityControllerTest {
 
     @Test
     void update_withoutAuth_shouldReturnUnauthorized() throws Exception {
-        UpdateActivityCardRequest request = new UpdateActivityCardRequest();
+        UpdateActivityCardRequest request = new UpdateActivityCardRequest(null, null, null);
 
         mockMvc.perform(put("/activity/shipping")
                         .contentType(MediaType.APPLICATION_JSON)

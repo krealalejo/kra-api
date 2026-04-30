@@ -56,12 +56,7 @@ class ProjectMetadataControllerTest {
 
     @Test
     void upsertMetadata_withValidRequest_shouldReturnOk() throws Exception {
-        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest();
-        request.setRole("Lead");
-        request.setYear("2025");
-        request.setKind("Frontend");
-        request.setMainBranch("develop");
-        request.setStack(List.of("Vue"));
+        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest("Lead", "2025", "Frontend", "develop", List.of("Vue"));
 
         ProjectMetadataResponse response = new ProjectMetadataResponse("Lead", "2025", "Frontend", "develop", List.of("Vue"));
         when(service.upsertMetadata(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyList()))
@@ -77,8 +72,7 @@ class ProjectMetadataControllerTest {
 
     @Test
     void upsertMetadata_withInvalidKind_shouldReturnBadRequest() throws Exception {
-        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest();
-        request.setKind("InvalidKind");
+        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest(null, null, "InvalidKind", null, null);
 
         mockMvc.perform(put("/projects/metadata/owner/repo")
                         .with(jwt())
@@ -89,7 +83,7 @@ class ProjectMetadataControllerTest {
 
     @Test
     void upsertMetadata_withoutAuth_shouldReturnUnauthorized() throws Exception {
-        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest();
+        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest(null, null, null, null, null);
 
         mockMvc.perform(put("/projects/metadata/owner/repo")
                         .contentType(MediaType.APPLICATION_JSON)

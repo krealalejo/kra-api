@@ -49,14 +49,14 @@ public class ProjectMetadataController {
             @Valid @RequestBody UpsertProjectMetadataRequest request) {
         validatePathVariable(owner);
         validatePathVariable(repo);
-        String kind = request.getKind();
+        String kind = request.kind();
         if (kind != null && !kind.isBlank() && !ALLOWED_KINDS.contains(kind)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid kind value");
         }
         ProjectMetadataResponse result = projectMetadataService.upsertMetadata(
                 owner, repo,
-                request.getRole(), request.getYear(), request.getKind(),
-                request.getMainBranch(), request.getStack()
+                request.role(), request.year(), request.kind(),
+                request.mainBranch(), request.stack()
         );
         return ResponseEntity.ok(result);
     }

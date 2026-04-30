@@ -42,9 +42,9 @@ public class ActivityController {
         }
         ActivityCardResponse updated = activityCardService.update(
                 type,
-                request.getTitle(),
-                request.getDescription(),
-                request.getTags()
+                request.title(),
+                request.description(),
+                request.tags()
         );
         return ResponseEntity.ok(updated);
     }

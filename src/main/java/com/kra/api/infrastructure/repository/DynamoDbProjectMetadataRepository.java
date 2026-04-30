@@ -39,11 +39,11 @@ public class DynamoDbProjectMetadataRepository implements ProjectMetadataReposit
         ProjectMetadataDynamoDbItem item = new ProjectMetadataDynamoDbItem();
         item.setPk(pk);
         item.setSk(SK);
-        item.setRole(metadata.getRole());
-        item.setYear(metadata.getYear());
-        item.setKind(metadata.getKind());
-        item.setMainBranch(metadata.getMainBranch());
-        item.setStack(metadata.getStack());
+        item.setRole(metadata.role());
+        item.setYear(metadata.year());
+        item.setKind(metadata.kind());
+        item.setMainBranch(metadata.mainBranch());
+        item.setStack(metadata.stack());
         table.putItem(item);
     }
 }

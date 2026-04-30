@@ -33,7 +33,7 @@ public class SkillCategoryController {
     @PostMapping
     public ResponseEntity<SkillCategoryResponse> create(@Valid @RequestBody CreateSkillCategoryRequest req) {
         SkillCategory cat = skillCategoryService.create(
-                req.getName(), req.getSkills(), req.getSortOrder());
+                req.name(), req.skills(), req.sortOrder());
         return ResponseEntity.status(HttpStatus.CREATED).body(SkillCategoryResponse.from(cat));
     }
 

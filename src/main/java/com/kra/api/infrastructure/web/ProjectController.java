@@ -26,7 +26,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectResponse> create(@Valid @RequestBody CreateProjectRequest req) {
         Project project = projectService.createProject(
-                req.getTitle(), req.getDescription(), req.getUrl(), req.getContent());
+                req.title(), req.description(), req.url(), req.content());
         return ResponseEntity.status(HttpStatus.CREATED).body(ProjectResponse.from(project));
     }
 
@@ -51,7 +51,7 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> update(@PathVariable String id,
             @Valid @RequestBody UpdateProjectRequest req) {
         Project updated = projectService.updateProject(
-                id, req.getTitle(), req.getDescription(), req.getUrl(), req.getContent());
+                id, req.title(), req.description(), req.url(), req.content());
         return ResponseEntity.ok(ProjectResponse.from(updated));
     }
 

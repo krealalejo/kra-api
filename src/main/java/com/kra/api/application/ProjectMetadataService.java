@@ -18,18 +18,13 @@ public class ProjectMetadataService {
 
     public ProjectMetadataResponse getMetadata(String owner, String repo) {
         ProjectMetadata m = repository.findByOwnerAndRepo(owner, repo);
-        return new ProjectMetadataResponse(m.getRole(), m.getYear(), m.getKind(), m.getMainBranch(), m.getStack());
+        return new ProjectMetadataResponse(m.role(), m.year(), m.kind(), m.mainBranch(), m.stack());
     }
 
     public ProjectMetadataResponse upsertMetadata(String owner, String repo, String role, String year,
                                                    String kind, String mainBranch, List<String> stack) {
-        ProjectMetadata m = repository.findByOwnerAndRepo(owner, repo);
-        m.setRole(role);
-        m.setYear(year);
-        m.setKind(kind);
-        m.setMainBranch(mainBranch);
-        m.setStack(stack);
-        repository.save(owner, repo, m);
-        return new ProjectMetadataResponse(m.getRole(), m.getYear(), m.getKind(), m.getMainBranch(), m.getStack());
+        ProjectMetadata updated = new ProjectMetadata(role, year, kind, mainBranch, stack);
+        repository.save(owner, repo, updated);
+        return new ProjectMetadataResponse(role, year, kind, mainBranch, stack);
     }
 }
