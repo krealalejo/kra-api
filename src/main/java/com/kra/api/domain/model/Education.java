@@ -1,6 +1,12 @@
 package com.kra.api.domain.model;
 
+import java.io.Serial;
+
 public class Education extends TimelineEntity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String institution;
 
     public Education(String id, String title, String institution, String location,

@@ -5,6 +5,9 @@ import com.kra.api.domain.model.BlogSlug;
 import com.kra.api.domain.model.Reference;
 import com.kra.api.domain.repository.BlogPostRepository;
 import com.kra.api.infrastructure.s3.S3Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -22,10 +25,12 @@ public class BlogPostService {
         this.s3Service = s3Service;
     }
 
+    @CacheEvict(value = "posts", allEntries = true)
     public BlogPost createPost(String slug, String title, String content, List<Reference> references) {
         return createPost(slug, title, content, references, null);
     }
 
+    @CacheEvict(value = "posts", allEntries = true)
     public BlogPost createPost(String slug, String title, String content, List<Reference> references, String imageUrl) {
         BlogSlug blogSlug = BlogSlug.of(slug);
         if (blogPostRepository.findBySlug(blogSlug).isPresent()) {
@@ -38,20 +43,30 @@ public class BlogPostService {
         return post;
     }
 
+    @Cacheable("posts")
     public List<BlogPost> listPosts() {
         return blogPostRepository.findAllByNewestFirst();
     }
 
+    @Cacheable(value = "post", key = "#slug")
     public BlogPost getPost(String slug) {
         BlogSlug blogSlug = BlogSlug.of(slug);
         return blogPostRepository.findBySlug(blogSlug)
                 .orElseThrow(() -> new BlogPostNotFoundException(slug));
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "post", key = "#slug"),
+        @CacheEvict(value = "posts", allEntries = true)
+    })
     public BlogPost updatePost(String slug, String title, String content, List<Reference> references) {
         return updatePost(slug, title, content, references, null);
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "post", key = "#slug"),
+        @CacheEvict(value = "posts", allEntries = true)
+    })
     public BlogPost updatePost(String slug, String title, String content, List<Reference> references, String imageUrl) {
         BlogSlug blogSlug = BlogSlug.of(slug);
         BlogPost existing = blogPostRepository.findBySlug(blogSlug)
@@ -71,6 +86,10 @@ public class BlogPostService {
         return existing;
     }
 
+    @Caching(evict = {
+        @CacheEvict(value = "post", key = "#slug"),
+        @CacheEvict(value = "posts", allEntries = true)
+    })
     public void deletePost(String slug) {
         BlogSlug blogSlug = BlogSlug.of(slug);
         BlogPost existing = blogPostRepository.findBySlug(blogSlug)

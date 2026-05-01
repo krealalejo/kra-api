@@ -1,8 +1,13 @@
 package com.kra.api.domain.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class TimelineEntity {
+public abstract class TimelineEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
     protected final String id;
     protected String title;
     protected String location;

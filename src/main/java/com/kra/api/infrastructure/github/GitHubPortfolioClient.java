@@ -8,6 +8,7 @@ import com.kra.api.infrastructure.web.dto.PortfolioRepoDetailResponse;
 import com.kra.api.domain.model.ProjectMetadata;
 import com.kra.api.domain.repository.ProjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -36,6 +37,7 @@ public class GitHubPortfolioClient {
         this.projectMetadataRepository = projectMetadataRepository;
     }
 
+    @Cacheable("portfolioRepos")
     public List<PortfolioRepoResponse> listPublicRepos() {
         String user = properties.portfolioUser();
         if (user == null || user.isBlank()) {
@@ -60,6 +62,7 @@ public class GitHubPortfolioClient {
         }
     }
 
+    @Cacheable(value = "portfolioRepoDetail", key = "#owner + '/' + #repo")
     public PortfolioRepoDetailResponse getRepoDetail(String owner, String repo) {
         try {
             JsonNode n = githubWebClient.get()

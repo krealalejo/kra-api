@@ -2,6 +2,8 @@ package com.kra.api.application;
 
 import com.kra.api.domain.model.Experience;
 import com.kra.api.domain.repository.ExperienceRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,7 @@ public class ExperienceService {
         this.experienceRepository = experienceRepository;
     }
 
+    @CacheEvict(value = "experience", allEntries = true)
     public Experience create(String title, String company, String location,
                              String years, String description, int sortOrder) {
         Experience experience = new Experience(
@@ -24,10 +27,12 @@ public class ExperienceService {
         return experience;
     }
 
+    @Cacheable("experience")
     public List<Experience> findAll() {
         return experienceRepository.findAll();
     }
 
+    @CacheEvict(value = "experience", allEntries = true)
     public Experience update(String id, String title, String company, String location,
                              String years, String description, Integer sortOrder) {
         Experience existing = experienceRepository.findById(id)
@@ -42,6 +47,7 @@ public class ExperienceService {
         return existing;
     }
 
+    @CacheEvict(value = "experience", allEntries = true)
     public void delete(String id) {
         experienceRepository.findById(id)
                 .orElseThrow(() -> new ExperienceNotFoundException(id));
