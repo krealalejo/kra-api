@@ -152,7 +152,11 @@ jobs:
             KRA_API_TAG=kra-api-${IMAGE_TAG}
             EOF
 
-            # 5. Write Nginx configuration template (needed for the reverse proxy).
+            # 5. Write Nginx configuration template (reverse proxy + TLS termination).
+            #    HTTP (80): serves ACME challenge path for Let's Encrypt webroot renewal,
+            #               redirects everything else to HTTPS.
+            #    HTTPS (443): terminates TLS using Let's Encrypt certs, proxies to kra-api:8080.
+            #    Cert files are mounted from the host (/etc/letsencrypt) — see docker-compose volumes.
             cat > /opt/kra/nginx.conf.template <<'NGINX'
             upstream backend {
                 server kra-api:8080;
@@ -160,7 +164,25 @@ jobs:
 
             server {
                 listen 80;
-                server_name _;
+                server_name api.krealalejo.dev;
+
+                location /.well-known/acme-challenge/ {
+                    root /var/www/certbot;
+                }
+
+                location / {
+                    return 301 https://$host$request_uri;
+                }
+            }
+
+            server {
+                listen 443 ssl;
+                server_name api.krealalejo.dev;
+
+                ssl_certificate     /etc/letsencrypt/live/api.krealalejo.dev/fullchain.pem;
+                ssl_certificate_key /etc/letsencrypt/live/api.krealalejo.dev/privkey.pem;
+                ssl_protocols       TLSv1.2 TLSv1.3;
+                ssl_ciphers         HIGH:!aNULL:!MD5;
 
                 location / {
                     proxy_pass         http://backend;
@@ -173,16 +195,22 @@ jobs:
             NGINX
 
             # 6. Write docker-compose.yml.
+            #    nginx mounts three host paths:
+            #      /etc/letsencrypt  — Let's Encrypt certs (read-only; certbot writes here on the host)
+            #      /var/www/certbot  — ACME webroot for renewal challenges (read-only in container)
             sed 's/^            //' > /opt/kra/docker-compose.yml <<'COMPOSE'
             services:
               nginx:
                 image: ${NGINX_IMAGE:-nginx:alpine}
                 ports:
                   - "80:80"
+                  - "443:443"
                 environment:
                   ALLOWED_ADMIN_CIDR: ${ALLOWED_SSH_CIDR}
                 volumes:
                   - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+                  - /etc/letsencrypt:/etc/letsencrypt:ro
+                  - /var/www/certbot:/var/www/certbot:ro
                 depends_on:
                   - kra-api
                 restart: unless-stopped
