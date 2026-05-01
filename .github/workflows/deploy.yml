@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # ─────────────────────────────────────────────────────────
   # Job 1: Build ARM64 Docker image and push to ECR
@@ -63,6 +67,8 @@ jobs:
           tags: |
             ${{ secrets.ECR_REPOSITORY_URL }}:kra-api-latest
             ${{ secrets.ECR_REPOSITORY_URL }}:kra-api-${{ steps.meta.outputs.short_sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   # ─────────────────────────────────────────────────────────
   # Job 2: SSH into EC2 and deploy via Docker Compose
@@ -196,8 +202,8 @@ jobs:
             cd /opt/kra
             docker compose pull kra-api
 
-            # 5. Restart all containers, removing any orphaned services.
+            # 6. Restart all containers, removing any orphaned services.
             docker compose up -d --remove-orphans
 
-            # 6. Verify both containers are running.
+            # 7. Verify both containers are running.
             docker compose ps
