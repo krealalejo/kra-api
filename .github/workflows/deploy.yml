@@ -125,11 +125,16 @@ jobs:
               --password-stdin \
               $(echo "${ECR_REGISTRY}" | cut -d/ -f1)
 
-            # 2. Ensure the app directory exists and is owned by ec2-user.
+            # 2. Stop running containers so their images are no longer in use,
+            # then prune — allows old image layers to be reclaimed on t4g.micro.
+            cd /opt/kra && docker compose down || true
+            docker system prune -af
+
+            # 3. Ensure the app directory exists and is owned by ec2-user.
             sudo mkdir -p /opt/kra
             sudo chown ec2-user:ec2-user /opt/kra
 
-            # 3. Write .env file (idempotent — overwritten on every deploy).
+            # 4. Write .env file (idempotent — overwritten on every deploy).
             #    Secrets are never stored in git; they arrive via SSH env vars.
             cat > /opt/kra/.env <<EOF
             # kra-api runtime environment
@@ -147,7 +152,7 @@ jobs:
             KRA_API_TAG=kra-api-${IMAGE_TAG}
             EOF
 
-            # 4. Write Nginx configuration template (needed for the reverse proxy).
+            # 5. Write Nginx configuration template (needed for the reverse proxy).
             cat > /opt/kra/nginx.conf.template <<'NGINX'
             upstream backend {
                 server kra-api:8080;
@@ -167,7 +172,7 @@ jobs:
             }
             NGINX
 
-            # 5. Write docker-compose.yml.
+            # 6. Write docker-compose.yml.
             sed 's/^            //' > /opt/kra/docker-compose.yml <<'COMPOSE'
             services:
               nginx:
@@ -198,12 +203,12 @@ jobs:
                 restart: unless-stopped
             COMPOSE
 
-            # 5. Pull the new kra-api image.
+            # 7. Pull the new kra-api image.
             cd /opt/kra
             docker compose pull kra-api
 
-            # 6. Restart all containers, removing any orphaned services.
+            # 8. Restart all containers, removing any orphaned services.
             docker compose up -d --remove-orphans
 
-            # 7. Verify both containers are running.
+            # 9. Verify both containers are running.
             docker compose ps
