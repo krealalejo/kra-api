@@ -3,6 +3,8 @@ package com.kra.api.application;
 import com.kra.api.domain.model.ProjectMetadata;
 import com.kra.api.domain.repository.ProjectMetadataRepository;
 import com.kra.api.infrastructure.web.dto.ProjectMetadataResponse;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +18,13 @@ public class ProjectMetadataService {
         this.repository = repository;
     }
 
+    @Cacheable(value = "projectMetadata", key = "#owner + '/' + #repo")
     public ProjectMetadataResponse getMetadata(String owner, String repo) {
         ProjectMetadata m = repository.findByOwnerAndRepo(owner, repo);
         return new ProjectMetadataResponse(m.role(), m.year(), m.kind(), m.mainBranch(), m.stack());
     }
 
+    @CacheEvict(value = "projectMetadata", key = "#owner + '/' + #repo")
     public ProjectMetadataResponse upsertMetadata(String owner, String repo, String role, String year,
                                                    String kind, String mainBranch, List<String> stack) {
         ProjectMetadata updated = new ProjectMetadata(role, year, kind, mainBranch, stack);

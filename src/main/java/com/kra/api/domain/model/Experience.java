@@ -1,6 +1,12 @@
 package com.kra.api.domain.model;
 
+import java.io.Serial;
+
 public class Experience extends TimelineEntity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String company;
 
     public Experience(String id, String title, String company, String location,

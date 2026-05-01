@@ -1,8 +1,13 @@
 package com.kra.api.domain.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Project {
+public class Project implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final ProjectId id;
     private String title;

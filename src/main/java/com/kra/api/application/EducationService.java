@@ -2,6 +2,8 @@ package com.kra.api.application;
 
 import com.kra.api.domain.model.Education;
 import com.kra.api.domain.repository.EducationRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,7 @@ public class EducationService {
         this.educationRepository = educationRepository;
     }
 
+    @CacheEvict(value = "education", allEntries = true)
     public Education create(String title, String institution, String location,
                             String years, String description, int sortOrder) {
         Education education = new Education(
@@ -24,10 +27,12 @@ public class EducationService {
         return education;
     }
 
+    @Cacheable("education")
     public List<Education> findAll() {
         return educationRepository.findAll();
     }
 
+    @CacheEvict(value = "education", allEntries = true)
     public Education update(String id, String title, String institution, String location,
                             String years, String description, Integer sortOrder) {
         Education existing = educationRepository.findById(id)
@@ -42,6 +47,7 @@ public class EducationService {
         return existing;
     }
 
+    @CacheEvict(value = "education", allEntries = true)
     public void delete(String id) {
         educationRepository.findById(id)
                 .orElseThrow(() -> new EducationNotFoundException(id));

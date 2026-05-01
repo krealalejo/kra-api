@@ -1,9 +1,14 @@
 package com.kra.api.domain.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public class SkillCategory {
+public class SkillCategory implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private String name;

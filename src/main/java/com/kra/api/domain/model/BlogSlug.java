@@ -1,9 +1,14 @@
 package com.kra.api.domain.model;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public final class BlogSlug {
+public final class BlogSlug implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private static final Pattern PATTERN = Pattern.compile("^[a-z0-9-]{1,128}$");
 

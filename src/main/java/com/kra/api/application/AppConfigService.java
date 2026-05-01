@@ -3,6 +3,8 @@ package com.kra.api.application;
 import com.kra.api.domain.model.AppConfig;
 import com.kra.api.domain.repository.AppConfigRepository;
 import com.kra.api.infrastructure.web.dto.ProfileConfigResponse;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,11 +16,13 @@ public class AppConfigService {
         this.repository = repository;
     }
 
+    @Cacheable("profile")
     public ProfileConfigResponse getProfile() {
         AppConfig config = repository.findProfile();
         return new ProfileConfigResponse(config.getHomePortraitUrl(), config.getCvPortraitUrl(), config.getCvPdfUrl());
     }
 
+    @CacheEvict(value = "profile", allEntries = true)
     public ProfileConfigResponse updateProfile(String homePortraitUrl, String cvPortraitUrl, String cvPdfUrl) {
         AppConfig config = repository.findProfile();
         config.setHomePortraitUrl(homePortraitUrl);
