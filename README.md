@@ -74,7 +74,7 @@ Any other path (including other Actuator endpoints) requires authentication per 
 flowchart LR
   subgraph clients [Clients]
     FE[Frontend]
-    CLI[Tools / admin]
+    CLI["Tools / admin"]
   end
 
   subgraph kra [kra-api]
