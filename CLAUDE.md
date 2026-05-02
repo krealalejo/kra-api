@@ -18,7 +18,7 @@
 
 ## Repository Context
 
-Spring Boot 3.5 / Java 21 REST API with DDD-style layering:
+Spring Boot 3.5 / Java 25 REST API with DDD-style layering:
 - **Domain layer** (`com.kra.api.domain`): Project, BlogPost, Lead aggregates + value objects + repository port interfaces — pure Java, zero framework coupling
 - **Application layer** (`com.kra.api.application`): ProjectService, BlogPostService, ContactService — orchestrates domain logic
 - **Infrastructure layer** (`com.kra.api.infrastructure`):

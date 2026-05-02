@@ -1,6 +1,6 @@
-# Stage 1: Build the JAR (Maven + JDK 21 bundled — no mvnw wrapper in this repo)
-# maven:3.9-eclipse-temurin-21-alpine includes Maven 3.9 and JDK 21 in a single image.
-FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+# Stage 1: Build the JAR (Maven + JDK 25 bundled — no mvnw wrapper in this repo)
+# maven:3.9-eclipse-temurin-25-alpine includes Maven 3.9 and JDK 25 in a single image.
+FROM maven:3.9-eclipse-temurin-25-alpine AS builder
 WORKDIR /app
 
 # Copy only pom.xml first to cache the dependency download layer.
@@ -13,8 +13,8 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B -q
 
 # Stage 2: Minimal JRE runtime (~200 MB vs ~400 MB with JDK).
-# eclipse-temurin:21-jre-alpine supports linux/arm64 natively.
-FROM eclipse-temurin:21-jre-alpine
+# eclipse-temurin:25-jre-alpine supports linux/arm64 natively.
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
