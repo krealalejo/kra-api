@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+  </appender>
+
+  <!-- Production: console (for docker logs) + CloudWatch Logs (ec2 IAM role provides credentials) -->
+  <springProfile name="prod">
+    <springProperty scope="local" name="awsRegion" source="aws.region" defaultValue="eu-west-1"/>
+    <appender name="CLOUDWATCH" class="ca.pjer.logback.AwsLogsAppender">
+      <logGroupName>/kra/api</logGroupName>
+      <logStreamName>kra-api</logStreamName>
+      <logRegion>${awsRegion}</logRegion>
+      <maxBatchLogEvents>50</maxBatchLogEvents>
+      <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+      <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+      <retentionTimeDays>30</retentionTimeDays>
+    </appender>
+    <root level="ERROR">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="CLOUDWATCH"/>
+    </root>
+  </springProfile>
+
+  <!-- Non-prod: console only -->
+  <springProfile name="!prod">
+    <root level="ERROR">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+</configuration>

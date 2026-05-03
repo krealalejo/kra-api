@@ -220,6 +220,7 @@ jobs:
                 expose:
                   - "8080"
                 environment:
+                  - SPRING_PROFILES_ACTIVE=prod
                   - COGNITO_ISSUER_URI=${COGNITO_ISSUER_URI}
                   - AWS_REGION=${AWS_REGION}
                   - AWS_DYNAMODB_TABLE_NAME=${AWS_DYNAMODB_TABLE_NAME}
