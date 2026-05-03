@@ -2,24 +2,19 @@
 
 REST API for the **KRA** portfolio: projects and blog backed by **DynamoDB**, contact form (leads), public GitHub repo listing and repo detail. **Write** operations on projects and posts require a **JWT** (Spring OAuth2 resource server, Cognito issuer). Public reads and `POST /contact` do not require a token.
 
-**Stack:** Spring Boot **3.5**, Java **21**, **DDD**-style layering (domain free of Spring/AWS), AWS SDK **v2** (DynamoDB Enhanced Client), GitHub via **WebClient**, **Actuator** for health.
-
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-api&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=krealalejo_kra-api)
-![Java](https://img.shields.io/badge/Java_21-ED8B00?style=flat&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.5-6DB33F?style=flat&logo=springboot&logoColor=white)
-![DynamoDB](https://img.shields.io/badge/DynamoDB-4053D6?style=flat&logo=amazondynamodb&logoColor=white)
+**Stack:** Spring Boot **3.5**, Java **25**, **DDD**-style layering (domain free of Spring/AWS), AWS SDK **v2** (DynamoDB Enhanced Client), GitHub via **WebClient**, **Actuator** for health.
 
 ---
 
 ## Prerequisites
 
-- **Java 21** and **Maven**
+- **Java 25** and **Maven**
 - **AWS credentials** when talking to real DynamoDB (default credential chain)
 - Environment variables — see [Configuration](#configuration). Optional **`.env`** at the module root: keys are applied as **system properties** only if they are **not** already set in the process environment (existing OS env wins).
 
 ---
 
-## Quick start
+## Quick Start
 
 1. Copy `.env.example` to `.env` and set at least `AWS_DYNAMODB_TABLE_NAME`, `GITHUB_TOKEN`, `GITHUB_PORTFOLIO_USER`, and `COGNITO_ISSUER_URI` when exercising secured routes locally.
 2. Run: `mvn spring-boot:run`
@@ -71,7 +66,7 @@ Any other path (including other Actuator endpoints) requires authentication per 
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
   subgraph clients [Clients]
     FE[Frontend]
     CLI["Tools / admin"]
@@ -152,3 +147,11 @@ Variables used in deployment and local `.env` (see `.env.example`):
 Spring binds the same settings as `aws.region`, `aws.dynamodb.table-name`, `spring.security.oauth2.resourceserver.jwt.issuer-uri`, `github.*`, etc.
 
 > **Note:** `.env.example` includes `AWS_DYNAMODB_ENDPOINT_OVERRIDE`; the current `DynamoDbClient` builder does **not** read it. Use the regional endpoint unless you extend `DynamoDbConfig` for a custom endpoint (for example LocalStack).
+
+---
+
+## Deployment
+
+Managed by **Terraform** (`kra-infra`) and deployed via **GitHub Actions**. On every push to `main`, the CI/CD pipeline builds a Docker image, pushes it to ECR, and SSH-deploys it to the EC2 instance running Docker Compose.
+
+> Run `kra-start` to start the EC2 instance before triggering a deploy pipeline run.
