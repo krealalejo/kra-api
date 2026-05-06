@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -42,18 +40,12 @@ public class S3Service {
         }
         String key = prefix + "/" + UUID.randomUUID() + "." + ext;
 
-        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .contentType(contentType)
-                .build();
-
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+        PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(r -> r
                 .signatureDuration(Duration.ofMinutes(5))
-                .putObjectRequest(objectRequest)
-                .build();
-
-        PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(presignRequest);
+                .putObjectRequest(o -> o
+                        .bucket(bucketName)
+                        .key(key)
+                        .contentType(contentType)));
         return new PresignResult(presigned.url().toString(), key);
     }
 

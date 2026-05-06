@@ -19,12 +19,11 @@ public class AdminCacheController {
 
     @PostMapping("/admin/cache/flush")
     public ResponseEntity<Map<String, Object>> flushAll() {
-        List<String> flushed = cacheManager.getCacheNames().stream()
-                .peek(name -> {
-                    var cache = cacheManager.getCache(name);
-                    if (cache != null) cache.clear();
-                })
-                .toList();
-        return ResponseEntity.ok(Map.of("flushed", flushed));
+        List<String> names = List.copyOf(cacheManager.getCacheNames());
+        names.forEach(name -> {
+            var cache = cacheManager.getCache(name);
+            if (cache != null) cache.clear();
+        });
+        return ResponseEntity.ok(Map.of("flushed", names));
     }
 }

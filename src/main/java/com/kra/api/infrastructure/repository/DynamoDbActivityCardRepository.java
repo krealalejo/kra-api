@@ -16,9 +16,10 @@ import java.util.Optional;
 public class DynamoDbActivityCardRepository implements ActivityCardRepository {
 
     private static final String PK = "CONFIG";
-    private static final String SK_SHIPPING = "ACTIVITY#SHIPPING";
-    private static final String SK_READING  = "ACTIVITY#READING";
-    private static final String SK_PLAYING  = "ACTIVITY#PLAYING";
+    private static final String ACTIVITY_PREFIX = "ACTIVITY#";
+    private static final String SK_SHIPPING = ACTIVITY_PREFIX + "SHIPPING";
+    private static final String SK_READING  = ACTIVITY_PREFIX + "READING";
+    private static final String SK_PLAYING  = ACTIVITY_PREFIX + "PLAYING";
 
     private final DynamoDbTable<ActivityCardDynamoDbItem> table;
 
@@ -34,7 +35,7 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
         for (String sk : List.of(SK_SHIPPING, SK_READING, SK_PLAYING)) {
             Key key = Key.builder().partitionValue(PK).sortValue(sk).build();
             ActivityCardDynamoDbItem item = table.getItem(key);
-            String type = sk.substring("ACTIVITY#".length());
+            String type = sk.substring(ACTIVITY_PREFIX.length());
             if (item == null) {
                 cards.add(new ActivityCard(type, null, null, null));
             } else {
@@ -46,7 +47,7 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
 
     @Override
     public Optional<ActivityCard> findByType(String type) {
-        String sk = "ACTIVITY#" + type.toUpperCase();
+        String sk = ACTIVITY_PREFIX + type.toUpperCase();
         Key key = Key.builder().partitionValue(PK).sortValue(sk).build();
         ActivityCardDynamoDbItem item = table.getItem(key);
         if (item == null) return Optional.empty();
@@ -55,7 +56,7 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
 
     @Override
     public void save(ActivityCard card) {
-        String sk = "ACTIVITY#" + card.type();
+        String sk = ACTIVITY_PREFIX + card.type();
         ActivityCardDynamoDbItem item = new ActivityCardDynamoDbItem();
         item.setPk(PK);
         item.setSk(sk);

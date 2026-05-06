@@ -15,6 +15,10 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final String PROJECTS_API = "/projects/**";
+    private static final String POSTS_API = "/posts/**";
+    private static final String CV_API = "/cv/**";
+
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
@@ -30,34 +34,34 @@ public class SecurityConfig {
             .cors(withDefaults())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-            .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers(HttpMethod.GET, "/projects/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/posts", "/posts/**").permitAll()
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.GET, PROJECTS_API).permitAll()
+                .requestMatchers(HttpMethod.GET, "/posts", POSTS_API).permitAll()
                 .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/config/profile").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/config/profile").authenticated()
                 .requestMatchers(HttpMethod.GET, "/activity").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/activity/**").authenticated()
-                .requestMatchers(HttpMethod.GET, "/cv/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/cv/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/cv/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/cv/**").authenticated()
+                .requestMatchers(HttpMethod.GET, CV_API).permitAll()
+                .requestMatchers(HttpMethod.POST, CV_API).authenticated()
+                .requestMatchers(HttpMethod.PUT, CV_API).authenticated()
+                .requestMatchers(HttpMethod.DELETE, CV_API).authenticated()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/contact").permitAll()
-                .requestMatchers(HttpMethod.POST, "/projects/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/projects/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/projects/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/posts", "/posts/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/posts/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/posts/**").authenticated()
+                .requestMatchers(HttpMethod.POST, PROJECTS_API).authenticated()
+                .requestMatchers(HttpMethod.PUT, PROJECTS_API).authenticated()
+                .requestMatchers(HttpMethod.DELETE, PROJECTS_API).authenticated()
+                .requestMatchers(HttpMethod.POST, "/posts", POSTS_API).authenticated()
+                .requestMatchers(HttpMethod.PUT, POSTS_API).authenticated()
+                .requestMatchers(HttpMethod.DELETE, POSTS_API).authenticated()
                 .requestMatchers(HttpMethod.POST, "/admin/upload").authenticated()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer((oauth2) -> oauth2
+            .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(withDefaults())
                 .authenticationEntryPoint(authenticationEntryPoint)
             )
-            .exceptionHandling((exceptions) -> exceptions
+            .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
             );

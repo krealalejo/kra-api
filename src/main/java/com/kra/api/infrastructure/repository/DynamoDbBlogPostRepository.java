@@ -22,6 +22,7 @@ public class DynamoDbBlogPostRepository implements BlogPostRepository {
 
     private static final String GSI1_NAME = "GSI1";
     private static final String TYPE_POST = "TYPE#POST";
+    private static final String METADATA_SK = "METADATA";
 
     private final DynamoDbTable<PostDynamoDbItem> table;
 
@@ -40,7 +41,7 @@ public class DynamoDbBlogPostRepository implements BlogPostRepository {
     public Optional<BlogPost> findBySlug(BlogSlug slug) {
         Key key = Key.builder()
                 .partitionValue("POST#" + slug.getValue())
-                .sortValue("METADATA")
+                .sortValue(METADATA_SK)
                 .build();
         PostDynamoDbItem item = table.getItem(key);
         return Optional.ofNullable(item).map(PostDynamoDbItem::toDomain);
@@ -50,20 +51,19 @@ public class DynamoDbBlogPostRepository implements BlogPostRepository {
     public List<BlogPost> findAllByNewestFirst() {
         DynamoDbIndex<PostDynamoDbItem> gsi1 = table.index(GSI1_NAME);
         QueryConditional condition = QueryConditional.keyEqualTo(k -> k.partitionValue(TYPE_POST));
-        List<BlogPost> posts = StreamSupport.stream(gsi1.query(condition).spliterator(), false)
+        return StreamSupport.stream(gsi1.query(condition).spliterator(), false)
                 .flatMap(page -> page.items().stream())
-                .filter(item -> "METADATA".equals(item.getSk()))
+                .filter(item -> METADATA_SK.equals(item.getSk()))
                 .map(PostDynamoDbItem::toDomain)
                 .sorted(Comparator.comparing(BlogPost::getCreatedAt).reversed())
                 .toList();
-        return posts;
     }
 
     @Override
     public void deleteBySlug(BlogSlug slug) {
         Key key = Key.builder()
                 .partitionValue("POST#" + slug.getValue())
-                .sortValue("METADATA")
+                .sortValue(METADATA_SK)
                 .build();
         table.deleteItem(key);
     }

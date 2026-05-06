@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final String BAD_REQUEST = "BAD_REQUEST";
 
     record ErrorResponse(String error, String message) {}
 
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleBadArgument(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("BAD_REQUEST", ex.getMessage()));
+                .body(new ErrorResponse(BAD_REQUEST, ex.getMessage()));
     }
 
     @ExceptionHandler(GitHubApiException.class)
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse("BAD_REQUEST", "Malformed or missing request body"));
+                .body(new ErrorResponse(BAD_REQUEST, "Malformed or missing request body"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -52,13 +53,13 @@ public class GlobalExceptionHandler {
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("BAD_REQUEST", message));
+                .body(new ErrorResponse(BAD_REQUEST, message));
     }
 
     @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatus(org.springframework.web.server.ResponseStatusException ex) {
         return ResponseEntity.status(ex.getStatusCode())
-                .body(new ErrorResponse("BAD_REQUEST", ex.getReason()));
+                .body(new ErrorResponse(BAD_REQUEST, ex.getReason()));
     }
 
     @ExceptionHandler(Exception.class)
