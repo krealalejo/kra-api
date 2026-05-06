@@ -21,56 +21,65 @@ class LeadTest {
 
     @Test
     void constructor_nullId_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead(null, "email@test.com", "Message", Instant.now()));
+            () -> new Lead(null, "email@test.com", "Message", now));
     }
 
     @Test
     void constructor_emptyId_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("", "email@test.com", "Message", Instant.now()));
+            () -> new Lead("", "email@test.com", "Message", now));
     }
 
     @Test
     void constructor_blankId_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("   ", "email@test.com", "Message", Instant.now()));
+            () -> new Lead("   ", "email@test.com", "Message", now));
     }
 
     @Test
     void constructor_nullEmail_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("id-1", null, "Message", Instant.now()));
+            () -> new Lead("id-1", null, "Message", now));
     }
 
     @Test
     void constructor_emptyEmail_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("id-1", "", "Message", Instant.now()));
+            () -> new Lead("id-1", "", "Message", now));
     }
 
     @Test
     void constructor_blankEmail_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("id-1", "   ", "Message", Instant.now()));
+            () -> new Lead("id-1", "   ", "Message", now));
     }
 
     @Test
     void constructor_nullMessage_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("id-1", "email@test.com", null, Instant.now()));
+            () -> new Lead("id-1", "email@test.com", null, now));
     }
 
     @Test
     void constructor_emptyMessage_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("id-1", "email@test.com", "", Instant.now()));
+            () -> new Lead("id-1", "email@test.com", "", now));
     }
 
     @Test
     void constructor_blankMessage_throwsIllegalArgumentException() {
+        var now = Instant.now();
         assertThrows(IllegalArgumentException.class,
-            () -> new Lead("id-1", "email@test.com", "   ", Instant.now()));
+            () -> new Lead("id-1", "email@test.com", "   ", now));
     }
 
     @Test

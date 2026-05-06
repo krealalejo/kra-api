@@ -130,6 +130,8 @@ class MemcachedCacheTest {
         doThrow(new RuntimeException("conn error")).when(client).set(anyString(), anyInt(), any());
 
         cache.put("key", "value");
+
+        verify(client).set(anyString(), anyInt(), any());
     }
 
     @Test
@@ -144,6 +146,8 @@ class MemcachedCacheTest {
         doThrow(new RuntimeException("err")).when(client).delete(anyString());
 
         cache.evict("key");
+
+        verify(client).delete(anyString());
     }
 
     @Test

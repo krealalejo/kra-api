@@ -221,7 +221,7 @@ class GitHubPortfolioClientTest {
     }
 
     @Test
-    void getRepoDetail_longReadme_truncatesContent() throws InterruptedException {
+    void getRepoDetail_longReadme_truncatesContent() {
         String repoBody = """
                 {
                   "owner": { "login": "o" },

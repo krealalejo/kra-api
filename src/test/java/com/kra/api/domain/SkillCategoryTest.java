@@ -25,14 +25,16 @@ class SkillCategoryTest extends AbstractIdentifiableEntityTest {
 
     @Test
     void constructor_nullId_throws() {
+        List<String> emptySkills = List.of();
         assertThrows(NullPointerException.class,
-                () -> new SkillCategory(null, "Backend", List.of(), 0));
+                () -> new SkillCategory(null, "Backend", emptySkills, 0));
     }
 
     @Test
     void constructor_nullName_throws() {
+        List<String> emptyList = List.of();
         assertThrows(NullPointerException.class,
-                () -> new SkillCategory("id", null, List.of(), 0));
+                () -> new SkillCategory("id", null, emptyList, 0));
     }
 
     @Test
@@ -71,7 +73,8 @@ class SkillCategoryTest extends AbstractIdentifiableEntityTest {
     @Test
     void skills_returnedListIsUnmodifiable() {
         SkillCategory cat = build("1");
-        assertThrows(UnsupportedOperationException.class, () -> cat.getSkills().add("extra"));
+        var catSkills = cat.getSkills();
+        assertThrows(UnsupportedOperationException.class, () -> catSkills.add("extra"));
     }
 
     @Test

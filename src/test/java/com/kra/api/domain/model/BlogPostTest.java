@@ -37,15 +37,19 @@ class BlogPostTest {
 
     @Test
     void constructor_nullSlug_throwsNullPointerException() {
+        var now = Instant.now();
+        List<Reference> refs = List.of();
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(null, "Title", "Content", Instant.now(), Instant.now(), List.of(), null));
+            () -> new BlogPost(null, "Title", "Content", now, now, refs, null));
     }
 
     @Test
     void constructor_nullTitle_throwsNullPointerException() {
         BlogSlug slug = BlogSlug.of("test");
+        var now = Instant.now();
+        List<Reference> refs = List.of();
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(slug, null, "Content", Instant.now(), Instant.now(), List.of(), null));
+            () -> new BlogPost(slug, null, "Content", now, now, refs, null));
     }
 
     @Test
@@ -58,15 +62,19 @@ class BlogPostTest {
     @Test
     void constructor_nullCreatedAt_throwsNullPointerException() {
         BlogSlug slug = BlogSlug.of("test");
+        var now = Instant.now();
+        List<Reference> refs = List.of();
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(slug, "Title", "Content", null, Instant.now(), List.of(), null));
+            () -> new BlogPost(slug, "Title", "Content", null, now, refs, null));
     }
 
     @Test
     void constructor_nullUpdatedAt_throwsNullPointerException() {
         BlogSlug slug = BlogSlug.of("test");
+        var now = Instant.now();
+        List<Reference> refs = List.of();
         assertThrows(NullPointerException.class,
-            () -> new BlogPost(slug, "Title", "Content", Instant.now(), null, List.of(), null));
+            () -> new BlogPost(slug, "Title", "Content", now, null, refs, null));
     }
 
     @Test
@@ -84,8 +92,10 @@ class BlogPostTest {
         BlogPost post = new BlogPost(slug, "Title", "Content", Instant.now(), Instant.now(), List.of(ref), null);
         assertEquals(1, post.getReferences().size());
         assertEquals("MDN", post.getReferences().get(0).label());
+        var postRefs = post.getReferences();
+        var extraRef = new Reference("x", "https://x.com");
         assertThrows(UnsupportedOperationException.class,
-            () -> post.getReferences().add(new Reference("x", "https://x.com")));
+            () -> postRefs.add(extraRef));
     }
 
     @Test

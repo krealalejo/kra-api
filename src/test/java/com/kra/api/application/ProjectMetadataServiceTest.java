@@ -52,6 +52,6 @@ class ProjectMetadataServiceTest {
         assertEquals("develop", response.mainBranch());
         assertEquals(stack, response.stack());
 
-        verify(repository).save(eq("owner"), eq("repo"), eq(new ProjectMetadata("Lead", "2025", "Frontend", "develop", stack)));
+        verify(repository).save("owner", "repo", new ProjectMetadata("Lead", "2025", "Frontend", "develop", stack));
     }
 }

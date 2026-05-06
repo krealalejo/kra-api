@@ -7,6 +7,7 @@ import com.kra.api.infrastructure.s3.S3Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.kra.api.domain.model.Reference;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +42,9 @@ class BlogPostServiceTest {
         BlogSlug slug = BlogSlug.of("existing-slug");
         BlogPost existing = new BlogPost(slug, "Existing", "", Instant.now(), Instant.now(), List.of(), null);
         when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+        List<Reference> refs = List.of();
         assertThrows(IllegalArgumentException.class,
-            () -> service.createPost("existing-slug", "New Title", "Content", List.of()));
+            () -> service.createPost("existing-slug", "New Title", "Content", refs));
     }
 
     @Test
@@ -109,8 +111,9 @@ class BlogPostServiceTest {
     @Test
     void updatePost_notFound_throwsBlogPostNotFoundException() {
         when(repository.findBySlug(any())).thenReturn(Optional.empty());
+        List<Reference> emptyRefs = List.of();
         assertThrows(BlogPostNotFoundException.class,
-            () -> service.updatePost("nonexistent", "Title", "Content", List.of()));
+            () -> service.updatePost("nonexistent", "Title", "Content", emptyRefs));
     }
 
     @Test

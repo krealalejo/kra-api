@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,21 +44,21 @@ class S3ServiceTest {
     void generateUploadUrl_withExtension() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
+        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
 
         S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png", null);
 
         assertNotNull(result.uploadUrl());
         assertTrue(result.s3Key().startsWith("images/"));
         assertTrue(result.s3Key().endsWith(".png"));
-        verify(s3Presigner).presignPutObject(any(PutObjectPresignRequest.class));
+        verify(s3Presigner).presignPutObject(any(Consumer.class));
     }
 
     @Test
     void generateUploadUrl_noExtension() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
+        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
 
         S3Service.PresignResult result = s3Service.generateUploadUrl("filename", "application/octet-stream", null);
 
@@ -68,7 +69,7 @@ class S3ServiceTest {
     void generateUploadUrl_portraitType_usesPortraitsPrefix() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        when(s3Presigner.presignPutObject(any(PutObjectPresignRequest.class))).thenReturn(presigned);
+        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
 
         S3Service.PresignResult result = s3Service.generateUploadUrl("photo.jpg", "image/jpeg", "portrait");
 
