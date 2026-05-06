@@ -9,7 +9,9 @@ public class ExperienceDynamoDbItem extends AbstractTimelineDynamoDbItem {
 
     private String company;
 
-    public ExperienceDynamoDbItem() {}
+    public ExperienceDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     @DynamoDbAttribute("company")
     public String getCompany() { return company; }

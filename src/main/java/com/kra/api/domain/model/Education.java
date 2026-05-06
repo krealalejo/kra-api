@@ -2,6 +2,7 @@ package com.kra.api.domain.model;
 
 import java.io.Serial;
 
+@SuppressWarnings("java:S2160")
 public class Education extends TimelineEntity {
 
     @Serial

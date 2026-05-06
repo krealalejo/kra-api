@@ -13,7 +13,9 @@ public class SkillCategoryDynamoDbItem extends AbstractDynamoDbItem {
     private List<String> skills;
     private Integer sortOrder;
 
-    public SkillCategoryDynamoDbItem() {}
+    public SkillCategoryDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     @DynamoDbAttribute("name")
     public String getName() { return name; }

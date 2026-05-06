@@ -18,7 +18,9 @@ public class PostDynamoDbItem extends AbstractDynamoDbItem {
     private List<ReferenceItem> references;
     private String imageUrl;
 
-    public PostDynamoDbItem() {}
+    public PostDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     public String getTitle() {
         return title;

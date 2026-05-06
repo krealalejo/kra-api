@@ -9,7 +9,9 @@ public class EducationDynamoDbItem extends AbstractTimelineDynamoDbItem {
 
     private String institution;
 
-    public EducationDynamoDbItem() {}
+    public EducationDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     @DynamoDbAttribute("institution")
     public String getInstitution() { return institution; }

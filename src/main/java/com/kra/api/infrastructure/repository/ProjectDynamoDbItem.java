@@ -12,7 +12,9 @@ public class ProjectDynamoDbItem extends AbstractDynamoDbItem {
     private String url;
     private String content;
 
-    public ProjectDynamoDbItem() {}
+    public ProjectDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

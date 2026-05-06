@@ -12,7 +12,9 @@ public class LeadDynamoDbItem extends AbstractDynamoDbItem {
     private String message;
     private Long createdAtMillis;
 
-    public LeadDynamoDbItem() {}
+    public LeadDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     public String getEmail() {
         return email;

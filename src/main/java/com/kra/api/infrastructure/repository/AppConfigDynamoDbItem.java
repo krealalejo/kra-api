@@ -9,7 +9,9 @@ public class AppConfigDynamoDbItem extends AbstractDynamoDbItem {
     private String cvPortraitUrl;
     private String cvPdfUrl;
 
-    public AppConfigDynamoDbItem() {}
+    public AppConfigDynamoDbItem() {
+        // required by DynamoDB Enhanced Client
+    }
 
     public String getHomePortraitUrl() {
         return homePortraitUrl;
