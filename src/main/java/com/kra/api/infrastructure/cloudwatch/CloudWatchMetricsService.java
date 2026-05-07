@@ -27,7 +27,7 @@ public class CloudWatchMetricsService {
     public CloudWatchMetricsService() {
         this.cloudWatchClient = CloudWatchClient.builder()
                 .region(Region.EU_WEST_1)
-                .credentialsProvider(DefaultCredentialsProvider.create())
+                .credentialsProvider(DefaultCredentialsProvider.builder().build())
                 .build();
     }
 
