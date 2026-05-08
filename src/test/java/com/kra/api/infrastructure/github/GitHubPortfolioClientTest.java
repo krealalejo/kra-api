@@ -9,9 +9,12 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -392,6 +395,68 @@ class GitHubPortfolioClientTest {
         var result = client.listPublicRepos();
 
         assertEquals("Backend", result.get(0).kind());
+    }
+
+    @Test
+    void listPublicRepos_emptyBody_returnsEmptyList() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
+        var result = client.listPublicRepos();
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getRepoDetail_emptyBody_throwsGitHubApiException() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
+        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("o", "n"));
+    }
+
+    @Test
+    void getRepoDetail_readmeBodyIsEmpty_returnsNullReadme() {
+        String repoBody = "{\"full_name\": \"o/n\", \"default_branch\": \"main\"}";
+
+        mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
+        var result = client.getRepoDetail("o", "n");
+
+        assertNull(result.readmeExcerpt());
+    }
+
+    @Test
+    void getRepoDetail_readmeIsJsonNull_returnsNullReadme() {
+        String repoBody = "{\"full_name\": \"o/n\", \"default_branch\": \"main\"}";
+
+        mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setBody("null").addHeader("Content-Type", "application/json"));
+
+        var result = client.getRepoDetail("o", "n");
+
+        assertNull(result.readmeExcerpt());
+    }
+
+    @Test
+    void getContributionCalendar_emptyBody_returnsEmpty() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
+        GitHubContributionResponse result = client.getContributionCalendar();
+
+        assertEquals(0, result.totalContributions());
+        assertTrue(result.weeks().isEmpty());
+    }
+
+    @Test
+    void mapUpstream_statusAbove599_returns502() throws Exception {
+        WebClientResponseException ex = WebClientResponseException.create(
+                600, "Custom", HttpHeaders.EMPTY, new byte[0], null);
+
+        Method method = GitHubPortfolioClient.class.getDeclaredMethod("mapUpstream", WebClientResponseException.class);
+        method.setAccessible(true);
+        GitHubApiException result = (GitHubApiException) method.invoke(null, ex);
+
+        assertEquals(502, result.getHttpStatus());
     }
 
     @Test

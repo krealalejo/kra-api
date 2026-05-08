@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.function.Consumer;
@@ -114,6 +116,22 @@ class S3ServiceTest {
 
         assertTrue(result.s3Key().startsWith("documents/"));
         assertTrue(result.s3Key().endsWith(".pdf"));
+    }
+
+    @Test
+    void generateUploadUrl_invokesPresignConsumerBody() throws MalformedURLException {
+        PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
+        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
+        doAnswer(inv -> {
+            Consumer<PutObjectPresignRequest.Builder> consumer = inv.getArgument(0);
+            consumer.accept(PutObjectPresignRequest.builder());
+            return presigned;
+        }).when(s3Presigner).presignPutObject(any(Consumer.class));
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("file.jpg", "image/jpeg", null);
+
+        assertNotNull(result.uploadUrl());
+        assertTrue(result.s3Key().startsWith("images/"));
     }
 
     @Test

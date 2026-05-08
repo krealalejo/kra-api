@@ -13,7 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -31,6 +35,9 @@ class ProjectMetadataControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ProjectMetadataController controller;
 
     @MockitoBean
     private ProjectMetadataService service;
@@ -119,6 +126,12 @@ class ProjectMetadataControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void validatePathVariable_null_throwsResponseStatusException() {
+        assertThrows(ResponseStatusException.class,
+                () -> ReflectionTestUtils.invokeMethod(controller, "validatePathVariable", (Object) null));
     }
 
     @Test
