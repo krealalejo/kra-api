@@ -87,7 +87,7 @@ class SkillCategoryTest extends AbstractIdentifiableEntityTest {
     @Test
     void equals_withNull_returnsFalse() {
         SkillCategory c = build("1");
-        assertFalse(c.equals(null));
+        assertNotEquals(c, null);
     }
 
 }

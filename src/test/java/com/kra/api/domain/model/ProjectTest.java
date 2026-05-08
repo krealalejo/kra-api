@@ -106,6 +106,6 @@ class ProjectTest {
     @Test
     void equals_withNull_returnsFalse() {
         Project p = buildProject("1");
-        assertFalse(p.equals(null));
+        assertNotEquals(p, null);
     }
 }

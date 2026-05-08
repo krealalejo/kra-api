@@ -114,6 +114,6 @@ class BlogSlugTest {
     @Test
     void equals_withNull_returnsFalse() {
         BlogSlug slug = BlogSlug.of("my-post");
-        assertFalse(slug.equals(null));
+        assertNotEquals(slug, null);
     }
 }

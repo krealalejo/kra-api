@@ -63,6 +63,6 @@ class ProjectIdTest {
     @Test
     void equals_withNull_returnsFalse() {
         ProjectId id = ProjectId.of("abc");
-        assertFalse(id.equals(null));
+        assertNotEquals(id, null);
     }
 }

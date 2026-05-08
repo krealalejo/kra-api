@@ -52,13 +52,11 @@ class CloudWatchMetricsServiceTest {
 
         Map<String, Object> result = service.getSystemMetrics();
 
-        assertThat(result).containsKey("thumb_invocations");
-        assertThat(result).containsKey("email_errors");
+        assertThat(result).containsKey("thumb_invocations").containsKey("email_errors");
 
         @SuppressWarnings("unchecked")
         Map<String, Object> thumbData = (Map<String, Object>) result.get("thumb_invocations");
-        assertThat(thumbData).containsKey("timestamps");
-        assertThat(thumbData).containsKey("values");
+        assertThat(thumbData).containsKey("timestamps").containsKey("values");
     }
 
     @Test

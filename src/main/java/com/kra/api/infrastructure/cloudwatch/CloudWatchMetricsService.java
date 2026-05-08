@@ -1,5 +1,6 @@
 package com.kra.api.infrastructure.cloudwatch;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -24,6 +25,7 @@ public class CloudWatchMetricsService {
 
     private final CloudWatchClient cloudWatchClient;
 
+    @Autowired
     public CloudWatchMetricsService() {
         this.cloudWatchClient = CloudWatchClient.builder()
                 .region(Region.EU_WEST_1)
