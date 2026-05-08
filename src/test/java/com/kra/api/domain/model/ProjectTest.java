@@ -2,6 +2,7 @@ package com.kra.api.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProjectTest {
@@ -106,6 +107,6 @@ class ProjectTest {
     @Test
     void equals_withNull_returnsFalse() {
         Project p = buildProject("1");
-        assertNotEquals(p, null);
+        assertThat(p).isNotEqualTo(null);
     }
 }

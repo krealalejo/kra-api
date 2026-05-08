@@ -2,6 +2,7 @@ package com.kra.api.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProjectIdTest {
@@ -63,6 +64,6 @@ class ProjectIdTest {
     @Test
     void equals_withNull_returnsFalse() {
         ProjectId id = ProjectId.of("abc");
-        assertNotEquals(id, null);
+        assertThat(id).isNotEqualTo(null);
     }
 }

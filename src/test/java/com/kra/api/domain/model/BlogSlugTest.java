@@ -2,6 +2,7 @@ package com.kra.api.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BlogSlugTest {
@@ -114,6 +115,6 @@ class BlogSlugTest {
     @Test
     void equals_withNull_returnsFalse() {
         BlogSlug slug = BlogSlug.of("my-post");
-        assertNotEquals(slug, null);
+        assertThat(slug).isNotEqualTo(null);
     }
 }

@@ -3,6 +3,7 @@ package com.kra.api.domain;
 import com.kra.api.domain.model.Education;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EducationTest extends AbstractIdentifiableEntityTest {
@@ -79,13 +80,13 @@ class EducationTest extends AbstractIdentifiableEntityTest {
     @Test
     void equals_withNull_returnsFalse() {
         Education e = build("1");
-        assertNotEquals(e, null);
+        assertThat(e).isNotEqualTo(null);
     }
 
     @Test
     void equals_withDifferentType_returnsFalse() {
         Education e = build("1");
-        assertNotEquals(e, "not an Education");
+        assertThat(e).isNotEqualTo("not an Education");
     }
 
 }
