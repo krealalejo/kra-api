@@ -31,6 +31,10 @@ public class CloudWatchMetricsService {
                 .build();
     }
 
+    CloudWatchMetricsService(CloudWatchClient cloudWatchClient) {
+        this.cloudWatchClient = cloudWatchClient;
+    }
+
     public Map<String, Object> getSystemMetrics() {
         Instant endTime = Instant.now();
         Instant startTime = endTime.minus(24, ChronoUnit.HOURS);
