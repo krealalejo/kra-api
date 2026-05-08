@@ -110,4 +110,10 @@ class BlogSlugTest {
         BlogSlug slug = BlogSlug.of("my-post");
         assertTrue(slug.toString().contains("my-post"));
     }
+
+    @Test
+    void equals_withNull_returnsFalse() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        assertFalse(slug.equals(null));
+    }
 }

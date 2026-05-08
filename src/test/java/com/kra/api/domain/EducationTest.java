@@ -76,4 +76,16 @@ class EducationTest extends AbstractIdentifiableEntityTest {
         assertEquals(e1, e2);
     }
 
+    @Test
+    void equals_withNull_returnsFalse() {
+        Education e = build("1");
+        assertFalse(e.equals(null));
+    }
+
+    @Test
+    void equals_withDifferentType_returnsFalse() {
+        Education e = build("1");
+        assertFalse(e.equals("not an Education"));
+    }
+
 }

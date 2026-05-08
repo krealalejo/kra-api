@@ -103,4 +103,29 @@ class S3ServiceTest {
         s3Service.deleteObject("  ");
         verifyNoInteractions(s3Client);
     }
+
+    @Test
+    void generateUploadUrl_pdfContentType_usesDocumentsPrefix() throws MalformedURLException {
+        PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
+        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
+        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("cv.pdf", "application/pdf", null);
+
+        assertTrue(result.s3Key().startsWith("documents/"));
+        assertTrue(result.s3Key().endsWith(".pdf"));
+    }
+
+    @Test
+    void deleteObject_nonImagesKey_deletesOriginalAndThumbVariant() {
+        String key = "documents/uuid.pdf";
+
+        s3Service.deleteObject(key);
+
+        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3Client, times(2)).deleteObject(captor.capture());
+
+        assertEquals("documents/uuid.pdf", captor.getAllValues().get(0).key());
+        assertEquals("documents/uuid-thumb.webp", captor.getAllValues().get(1).key());
+    }
 }

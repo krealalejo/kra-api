@@ -90,4 +90,45 @@ class ProjectMetadataControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void upsertMetadata_withNullKind_shouldReturnOk() throws Exception {
+        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest("Dev", "2025", null, "main", java.util.List.of());
+
+        ProjectMetadataResponse response = new ProjectMetadataResponse("Dev", "2025", null, "main", java.util.List.of());
+        when(service.upsertMetadata(anyString(), anyString(), anyString(), anyString(), org.mockito.ArgumentMatchers.isNull(), anyString(), anyList()))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/projects/metadata/owner/repo")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void upsertMetadata_withBlankKind_shouldReturnOk() throws Exception {
+        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest("Dev", "2025", "  ", "main", java.util.List.of());
+
+        ProjectMetadataResponse response = new ProjectMetadataResponse("Dev", "2025", "  ", "main", java.util.List.of());
+        when(service.upsertMetadata(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyList()))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/projects/metadata/owner/repo")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void upsertMetadata_withInvalidOwner_shouldReturnBadRequest() throws Exception {
+        UpsertProjectMetadataRequest request = new UpsertProjectMetadataRequest(null, null, null, null, null);
+
+        mockMvc.perform(put("/projects/metadata/invalid!owner/repo")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
 }

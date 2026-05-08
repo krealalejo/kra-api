@@ -96,4 +96,16 @@ class ProjectTest {
         Project p2 = buildProject("1");
         assertEquals(p1.hashCode(), p2.hashCode());
     }
+
+    @Test
+    void equals_sameReference_returnsTrue() {
+        Project p = buildProject("1");
+        assertEquals(p, p);
+    }
+
+    @Test
+    void equals_withNull_returnsFalse() {
+        Project p = buildProject("1");
+        assertFalse(p.equals(null));
+    }
 }

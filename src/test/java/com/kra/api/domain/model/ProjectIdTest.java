@@ -59,4 +59,10 @@ class ProjectIdTest {
         ProjectId id = ProjectId.of("xyz");
         assertEquals("ProjectId{xyz}", id.toString());
     }
+
+    @Test
+    void equals_withNull_returnsFalse() {
+        ProjectId id = ProjectId.of("abc");
+        assertFalse(id.equals(null));
+    }
 }

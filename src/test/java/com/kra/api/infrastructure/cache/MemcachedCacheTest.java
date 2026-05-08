@@ -160,4 +160,35 @@ class MemcachedCacheTest {
         when(client.get(anyString())).thenReturn(null);
         assertThat(cache.get("k")).isNull();
     }
+
+    @Test
+    void get_interruptedException_restoresInterruptFlag() throws Exception {
+        when(client.get(anyString())).thenThrow(new InterruptedException("interrupted"));
+
+        Cache.ValueWrapper result = cache.get("key");
+
+        assertThat(result).isNull();
+        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        Thread.interrupted(); // clear flag
+    }
+
+    @Test
+    void put_interruptedException_restoresInterruptFlag() throws Exception {
+        doThrow(new InterruptedException("interrupted")).when(client).set(anyString(), anyInt(), any());
+
+        cache.put("key", "value");
+
+        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        Thread.interrupted(); // clear flag
+    }
+
+    @Test
+    void evict_interruptedException_restoresInterruptFlag() throws Exception {
+        doThrow(new InterruptedException("interrupted")).when(client).delete(anyString());
+
+        cache.evict("key");
+
+        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        Thread.interrupted(); // clear flag
+    }
 }

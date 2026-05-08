@@ -299,4 +299,112 @@ class GitHubPortfolioClientTest {
 
         assertThrows(GitHubApiException.class, () -> client.getRepoDetail("o", "n"));
     }
+
+    @Test
+    void listPublicRepos_nullUser_throwsIllegalArgumentException() {
+        GitHubProperties nullUserProps = new GitHubProperties("token", null, mockWebServer.url("/").toString());
+        GitHubPortfolioClient nullUserClient = new GitHubPortfolioClient(
+                WebClient.builder().baseUrl(mockWebServer.url("/").toString()).build(),
+                nullUserProps,
+                projectMetadataRepository);
+
+        assertThrows(IllegalArgumentException.class, nullUserClient::listPublicRepos);
+    }
+
+    @Test
+    void listPublicRepos_descriptionNull_handlesNullDescription() {
+        String body = """
+                [
+                  {
+                    "owner": { "login": "test-user" },
+                    "name": "repo1",
+                    "description": null,
+                    "topics": []
+                  }
+                ]
+                """;
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(body)
+                .addHeader("Content-Type", "application/json"));
+
+        var result = client.listPublicRepos();
+
+        assertNull(result.get(0).description());
+    }
+
+    @Test
+    void listPublicRepos_topicsFieldAbsent_returnsEmptyTopics() {
+        String body = """
+                [
+                  {
+                    "owner": { "login": "test-user" },
+                    "name": "repo1"
+                  }
+                ]
+                """;
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(body)
+                .addHeader("Content-Type", "application/json"));
+
+        var result = client.listPublicRepos();
+
+        assertTrue(result.get(0).topics().isEmpty());
+    }
+
+    @Test
+    void listPublicRepos_topicsNotArray_returnsEmptyTopics() {
+        String body = """
+                [
+                  {
+                    "owner": { "login": "test-user" },
+                    "name": "repo1",
+                    "topics": "not-an-array"
+                  }
+                ]
+                """;
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(body)
+                .addHeader("Content-Type", "application/json"));
+
+        var result = client.listPublicRepos();
+
+        assertTrue(result.get(0).topics().isEmpty());
+    }
+
+    @Test
+    void listPublicRepos_withMetadata_includesKind() {
+        String body = """
+                [
+                  {
+                    "owner": { "login": "test-user" },
+                    "name": "repo1",
+                    "topics": []
+                  }
+                ]
+                """;
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(body)
+                .addHeader("Content-Type", "application/json"));
+
+        com.kra.api.domain.model.ProjectMetadata meta = new com.kra.api.domain.model.ProjectMetadata("Lead", "2024", "Backend", "main", java.util.List.of("Java"));
+        org.mockito.Mockito.when(projectMetadataRepository.findByOwnerAndRepo("test-user", "repo1")).thenReturn(meta);
+
+        var result = client.listPublicRepos();
+
+        assertEquals("Backend", result.get(0).kind());
+    }
+
+    @Test
+    void getRepoDetail_readmeErrorNonFourOhFour_returnsNullReadme() {
+        String repoBody = "{\"owner\":{\"login\":\"o\"},\"name\":\"n\",\"full_name\":\"o/n\",\"topics\":[],\"default_branch\":\"main\"}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(repoBody)
+                .addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
+
+        var result = client.getRepoDetail("o", "n");
+
+        assertNull(result.readmeExcerpt());
+    }
 }
