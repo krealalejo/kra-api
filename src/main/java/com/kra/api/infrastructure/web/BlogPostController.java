@@ -31,6 +31,14 @@ public class BlogPostController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/admin/posts")
+    public ResponseEntity<List<BlogPostResponse>> listAdmin() {
+        List<BlogPostResponse> list = blogPostService.listPosts().stream()
+                .map(BlogPostResponse::from)
+                .toList();
+        return ResponseEntity.ok(list);
+    }
+
     @GetMapping("/posts/{slug}")
     public ResponseEntity<BlogPostResponse> get(@PathVariable String slug) {
         BlogPost post = blogPostService.getPost(slug);

@@ -75,6 +75,21 @@ class BlogPostControllerTest {
         }
 
         @Test
+        void listAdminPosts_withJwt_returns200() throws Exception {
+                when(blogPostService.listPosts()).thenReturn(List.of());
+
+                mockMvc.perform(get("/admin/posts").with(jwt()))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$").isArray());
+        }
+
+        @Test
+        void listAdminPosts_withoutJwt_returns401() throws Exception {
+                mockMvc.perform(get("/admin/posts"))
+                                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
         void createPost_withoutJwt_returns401() throws Exception {
                 mockMvc.perform(post("/posts")
                                 .contentType(MediaType.APPLICATION_JSON)
