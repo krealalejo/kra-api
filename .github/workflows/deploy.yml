@@ -118,6 +118,7 @@ jobs:
           envs: ECR_REGISTRY,DOCKER_PASSWORD,AWS_REGION,IMAGE_TAG,COGNITO_ISSUER_URI,AWS_DYNAMODB_TABLE_NAME,AWS_S3_BUCKET_NAME,GITHUB_TOKEN,GITHUB_PORTFOLIO_USER,EC2_ORIGIN,ALLOWED_SSH_CIDR
           script: |
             set -e
+            export PATH=$PATH:/usr/local/bin:/usr/bin
 
             # 1. Authenticate Docker to ECR using the token generated on the runner.
             echo "${DOCKER_PASSWORD}" | docker login \
