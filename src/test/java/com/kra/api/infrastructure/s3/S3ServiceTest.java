@@ -7,13 +7,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.function.Consumer;
@@ -145,5 +149,23 @@ class S3ServiceTest {
 
         assertEquals("documents/uuid.pdf", captor.getAllValues().get(0).key());
         assertEquals("documents/uuid-thumb.webp", captor.getAllValues().get(1).key());
+    }
+
+    @Test
+    void streamObject_callsGetObjectWithCorrectBucketAndKey() {
+        String key = "thumbnails/photo-thumb.webp";
+        GetObjectResponse response = GetObjectResponse.builder().contentType("image/webp").build();
+        ResponseInputStream<GetObjectResponse> stream =
+                new ResponseInputStream<>(response, AbortableInputStream.create(new ByteArrayInputStream(new byte[0])));
+
+        when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(stream);
+
+        ResponseInputStream<GetObjectResponse> result = s3Service.streamObject(key);
+
+        ArgumentCaptor<GetObjectRequest> captor = ArgumentCaptor.forClass(GetObjectRequest.class);
+        verify(s3Client).getObject(captor.capture());
+        assertEquals(BUCKET, captor.getValue().bucket());
+        assertEquals(key, captor.getValue().key());
+        assertSame(stream, result);
     }
 }

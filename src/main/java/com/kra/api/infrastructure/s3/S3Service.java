@@ -2,8 +2,11 @@ package com.kra.api.infrastructure.s3;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
@@ -47,6 +50,13 @@ public class S3Service {
                         .key(key)
                         .contentType(contentType)));
         return new PresignResult(presigned.url().toString(), key);
+    }
+
+    public ResponseInputStream<GetObjectResponse> streamObject(String key) {
+        return s3Client.getObject(GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build());
     }
 
     public void deleteObject(String key) {

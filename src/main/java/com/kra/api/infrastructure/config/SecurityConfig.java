@@ -35,6 +35,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, PROJECTS_API).permitAll()
                 .requestMatchers(HttpMethod.GET, "/posts", POSTS_API).permitAll()
                 .requestMatchers(HttpMethod.GET, "/portfolio/**").permitAll()
