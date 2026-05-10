@@ -126,16 +126,11 @@ jobs:
               --password-stdin \
               $(echo "${ECR_REGISTRY}" | cut -d/ -f1)
 
-            # 2. Stop running containers so their images are no longer in use,
-            # then prune — allows old image layers to be reclaimed on t4g.micro.
-            cd /opt/kra && docker compose down || true
-            docker system prune -af
-
-            # 3. Ensure the app directory exists and is owned by ec2-user.
+            # 2. Ensure the app directory exists and is owned by ec2-user.
             sudo mkdir -p /opt/kra
             sudo chown ec2-user:ec2-user /opt/kra
 
-            # 4. Write .env file (idempotent — overwritten on every deploy).
+            # 3. Write .env file (idempotent — overwritten on every deploy).
             #    Secrets are never stored in git; they arrive via SSH env vars.
             cat > /opt/kra/.env <<EOF
             # kra-api runtime environment
@@ -153,7 +148,7 @@ jobs:
             KRA_API_TAG=kra-api-${IMAGE_TAG}
             EOF
 
-            # 5. Write Nginx configuration template (reverse proxy + TLS termination).
+            # 4. Write Nginx configuration template (reverse proxy + TLS termination).
             #    HTTP (80): serves ACME challenge path for Let's Encrypt webroot renewal,
             #               redirects everything else to HTTPS.
             #    HTTPS (443): terminates TLS using Let's Encrypt certs, proxies to kra-api:8080.
@@ -195,7 +190,7 @@ jobs:
             }
             NGINX
 
-            # 6. Write docker-compose.yml.
+            # 5. Write docker-compose.yml.
             #    nginx mounts three host paths:
             #      /etc/letsencrypt  — Let's Encrypt certs (read-only; certbot writes here on the host)
             #      /var/www/certbot  — ACME webroot for renewal challenges (read-only in container)
@@ -233,11 +228,17 @@ jobs:
                 restart: unless-stopped
             COMPOSE
 
-            # 7. Pull the new kra-api image.
+            # 6. Pull the new kra-api image BEFORE stopping running containers.
+            #    If pull fails, old containers stay running and set -e aborts the script.
             cd /opt/kra
             docker compose pull kra-api
 
-            # 8. Restart all containers, removing any orphaned services.
+            # 7. Swap: stop old containers, remove dangling layers, start fresh.
+            #    image prune -f removes only untagged (dangling) layers — not the image just pulled.
+            docker compose down || true
+            docker image prune -f
+
+            # 8. Start all containers, removing any orphaned services.
             docker compose up -d --remove-orphans
 
             # 9. Verify both containers are running.
