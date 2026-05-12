@@ -45,57 +45,121 @@ class S3ServiceTest {
         ReflectionTestUtils.setField(s3Service, "bucketName", BUCKET);
     }
 
-    @Test
-    void generateUploadUrl_withExtension() throws MalformedURLException {
+    private PresignedPutObjectRequest mockPresigned() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
         when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
+        return presigned;
+    }
 
-        S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png", null);
+    @Test
+    void generateUploadUrl_blogImageWithSlug_returnsFinalCoverKey() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png", "blog", "my-post");
 
         assertNotNull(result.uploadUrl());
-        assertTrue(result.s3Key().startsWith("images/"));
-        assertTrue(result.s3Key().endsWith(".png"));
-        verify(s3Presigner).presignPutObject(any(Consumer.class));
+        assertEquals("blog/my-post-cover.webp", result.s3Key());
     }
 
     @Test
-    void generateUploadUrl_noExtension() throws MalformedURLException {
+    void generateUploadUrl_blogImageNoSlug_usesUuidInFinalKey() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("image.png", "image/png", null, null);
+
+        assertNotNull(result.uploadUrl());
+        assertTrue(result.s3Key().startsWith("blog/"));
+        assertTrue(result.s3Key().endsWith("-cover.webp"));
+    }
+
+    @Test
+    void generateUploadUrl_portraitHomeType_returnsPortraitsHomeKey() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("photo.jpg", "image/jpeg", "portrait", "home");
+
+        assertEquals("portraits/home.webp", result.s3Key());
+    }
+
+    @Test
+    void generateUploadUrl_portraitCvType_returnsPortraitsCvKey() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("photo.jpg", "image/jpeg", "portrait", "cv");
+
+        assertEquals("portraits/cv.webp", result.s3Key());
+    }
+
+    @Test
+    void generateUploadUrl_portraitWithNullSlug_defaultsToHome() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("photo.jpg", "image/jpeg", "portrait", null);
+
+        assertEquals("portraits/home.webp", result.s3Key());
+    }
+
+    @Test
+    void generateUploadUrl_pdfContentType_returnsDocumentsCvPdfKey() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("cv.pdf", "application/pdf", null, null);
+
+        assertEquals("documents/cv.pdf", result.s3Key());
+    }
+
+    @Test
+    void generateUploadUrl_noExtension_producesValidFinalKey() throws MalformedURLException {
+        mockPresigned();
+
+        S3Service.PresignResult result = s3Service.generateUploadUrl("filename", "image/jpeg", "blog", "my-post");
+
+        assertEquals("blog/my-post-cover.webp", result.s3Key());
+    }
+
+    @Test
+    void generateUploadUrl_invokesPresignConsumerBody() throws MalformedURLException {
         PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
         when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
+        doAnswer(inv -> {
+            Consumer<PutObjectPresignRequest.Builder> consumer = inv.getArgument(0);
+            consumer.accept(PutObjectPresignRequest.builder());
+            return presigned;
+        }).when(s3Presigner).presignPutObject(any(Consumer.class));
 
-        S3Service.PresignResult result = s3Service.generateUploadUrl("filename", "application/octet-stream", null);
+        S3Service.PresignResult result = s3Service.generateUploadUrl("file.jpg", "image/jpeg", "blog", "test-slug");
 
-        assertTrue(result.s3Key().endsWith(".bin"));
+        assertNotNull(result.uploadUrl());
+        assertEquals("blog/test-slug-cover.webp", result.s3Key());
     }
 
     @Test
-    void generateUploadUrl_portraitType_usesPortraitsPrefix() throws MalformedURLException {
-        PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
-        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
-
-        S3Service.PresignResult result = s3Service.generateUploadUrl("photo.jpg", "image/jpeg", "portrait");
-
-        assertTrue(result.s3Key().startsWith("images/portraits/"));
-        assertTrue(result.s3Key().endsWith(".jpg"));
-    }
-
-    @Test
-    void deleteObject_validKey() {
-        String key = "images/uuid.jpg";
-
-        s3Service.deleteObject(key);
+    void deleteObject_validKey_callsS3DeleteOnce() {
+        s3Service.deleteObject("blog/my-post-cover.webp");
 
         ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
-        verify(s3Client, times(2)).deleteObject(captor.capture());
+        verify(s3Client, times(1)).deleteObject(captor.capture());
+        assertEquals(BUCKET, captor.getValue().bucket());
+        assertEquals("blog/my-post-cover.webp", captor.getValue().key());
+    }
 
-        assertEquals(BUCKET, captor.getAllValues().get(0).bucket());
-        assertEquals("images/uuid.jpg", captor.getAllValues().get(0).key());
+    @Test
+    void deleteObject_portraitKey_callsS3DeleteOnce() {
+        s3Service.deleteObject("portraits/home.webp");
 
-        assertEquals(BUCKET, captor.getAllValues().get(1).bucket());
-        assertEquals("thumbnails/uuid-thumb.webp", captor.getAllValues().get(1).key());
+        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3Client, times(1)).deleteObject(captor.capture());
+        assertEquals("portraits/home.webp", captor.getValue().key());
+    }
+
+    @Test
+    void deleteObject_pdfKey_callsS3DeleteOnce() {
+        s3Service.deleteObject("documents/cv.pdf");
+
+        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
+        verify(s3Client, times(1)).deleteObject(captor.capture());
+        assertEquals("documents/cv.pdf", captor.getValue().key());
     }
 
     @Test
@@ -111,49 +175,8 @@ class S3ServiceTest {
     }
 
     @Test
-    void generateUploadUrl_pdfContentType_usesDocumentsPrefix() throws MalformedURLException {
-        PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
-        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        when(s3Presigner.presignPutObject(any(Consumer.class))).thenReturn(presigned);
-
-        S3Service.PresignResult result = s3Service.generateUploadUrl("cv.pdf", "application/pdf", null);
-
-        assertTrue(result.s3Key().startsWith("documents/"));
-        assertTrue(result.s3Key().endsWith(".pdf"));
-    }
-
-    @Test
-    void generateUploadUrl_invokesPresignConsumerBody() throws MalformedURLException {
-        PresignedPutObjectRequest presigned = mock(PresignedPutObjectRequest.class);
-        when(presigned.url()).thenReturn(URI.create("https://test-url.com").toURL());
-        doAnswer(inv -> {
-            Consumer<PutObjectPresignRequest.Builder> consumer = inv.getArgument(0);
-            consumer.accept(PutObjectPresignRequest.builder());
-            return presigned;
-        }).when(s3Presigner).presignPutObject(any(Consumer.class));
-
-        S3Service.PresignResult result = s3Service.generateUploadUrl("file.jpg", "image/jpeg", null);
-
-        assertNotNull(result.uploadUrl());
-        assertTrue(result.s3Key().startsWith("images/"));
-    }
-
-    @Test
-    void deleteObject_nonImagesKey_deletesOriginalAndThumbVariant() {
-        String key = "documents/uuid.pdf";
-
-        s3Service.deleteObject(key);
-
-        ArgumentCaptor<DeleteObjectRequest> captor = ArgumentCaptor.forClass(DeleteObjectRequest.class);
-        verify(s3Client, times(2)).deleteObject(captor.capture());
-
-        assertEquals("documents/uuid.pdf", captor.getAllValues().get(0).key());
-        assertEquals("documents/uuid-thumb.webp", captor.getAllValues().get(1).key());
-    }
-
-    @Test
     void streamObject_callsGetObjectWithCorrectBucketAndKey() {
-        String key = "thumbnails/photo-thumb.webp";
+        String key = "blog/my-post-cover.webp";
         GetObjectResponse response = GetObjectResponse.builder().contentType("image/webp").build();
         ResponseInputStream<GetObjectResponse> stream =
                 new ResponseInputStream<>(response, AbortableInputStream.create(new ByteArrayInputStream(new byte[0])));
