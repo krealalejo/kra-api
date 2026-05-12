@@ -21,6 +21,12 @@ public class UploadRequest {
     )
     private String uploadType;
 
+    @Pattern(
+        regexp = "^[a-z0-9-]{1,128}$",
+        message = "entitySlug must be lowercase alphanumeric + hyphens (1-128 chars)"
+    )
+    private String entitySlug;
+
     public String getFilename() { return filename; }
     public void setFilename(String filename) { this.filename = filename; }
 
@@ -29,4 +35,7 @@ public class UploadRequest {
 
     public String getUploadType() { return uploadType; }
     public void setUploadType(String uploadType) { this.uploadType = uploadType; }
+
+    public String getEntitySlug() { return entitySlug; }
+    public void setEntitySlug(String entitySlug) { this.entitySlug = entitySlug; }
 }
