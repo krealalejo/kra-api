@@ -13,8 +13,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,18 +33,18 @@ class UploadControllerTest {
 
     @Test
     void generateUploadUrl_withValidJwt_returns200WithUrlAndKey() throws Exception {
-        when(s3Service.generateUploadUrl(any(), any(), any()))
+        when(s3Service.generateUploadUrl(any(), any(), any(), any()))
                 .thenReturn(new S3Service.PresignResult(
-                        "https://kra-assets.s3.eu-west-1.amazonaws.com/images/abc-123.jpg?X-Amz-Signature=...",
-                        "images/abc-123.jpg"));
+                        "https://kra-assets.s3.eu-west-1.amazonaws.com/uploads/blog/my-post.jpg?X-Amz-Signature=...",
+                        "blog/my-post-cover.webp"));
 
         mockMvc.perform(post("/admin/upload")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"filename\":\"photo.jpg\",\"contentType\":\"image/jpeg\"}"))
+                        .content("{\"filename\":\"photo.jpg\",\"contentType\":\"image/jpeg\",\"entitySlug\":\"my-post\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uploadUrl").isString())
-                .andExpect(jsonPath("$.s3Key").value("images/abc-123.jpg"));
+                .andExpect(jsonPath("$.s3Key").value("blog/my-post-cover.webp"));
     }
 
     @Test
@@ -66,17 +68,17 @@ class UploadControllerTest {
 
     @Test
     void generateUploadUrl_withPdfContentType_returns200() throws Exception {
-        when(s3Service.generateUploadUrl(any(), any(), any()))
+        when(s3Service.generateUploadUrl(any(), any(), any(), any()))
                 .thenReturn(new S3Service.PresignResult(
-                        "https://kra-assets.s3.eu-west-1.amazonaws.com/documents/abc-123.pdf?X-Amz-Signature=...",
-                        "documents/abc-123.pdf"));
+                        "https://kra-assets.s3.eu-west-1.amazonaws.com/documents/cv.pdf?X-Amz-Signature=...",
+                        "documents/cv.pdf"));
 
         mockMvc.perform(post("/admin/upload")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"filename\":\"cv.pdf\",\"contentType\":\"application/pdf\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.s3Key").value("documents/abc-123.pdf"));
+                .andExpect(jsonPath("$.s3Key").value("documents/cv.pdf"));
     }
 
     @Test
@@ -87,5 +89,30 @@ class UploadControllerTest {
                         .content("{\"contentType\":\"image/jpeg\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void deleteS3Object_withValidJwt_returns204() throws Exception {
+        mockMvc.perform(delete("/admin/s3")
+                        .with(jwt())
+                        .param("key", "blog/my-post-cover.webp"))
+                .andExpect(status().isNoContent());
+
+        verify(s3Service).deleteObject("blog/my-post-cover.webp");
+    }
+
+    @Test
+    void deleteS3Object_withoutJwt_returns401() throws Exception {
+        mockMvc.perform(delete("/admin/s3")
+                        .param("key", "blog/my-post-cover.webp"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deleteS3Object_withPathTraversal_returns400() throws Exception {
+        mockMvc.perform(delete("/admin/s3")
+                        .with(jwt())
+                        .param("key", "../secrets/key"))
+                .andExpect(status().isBadRequest());
     }
 }

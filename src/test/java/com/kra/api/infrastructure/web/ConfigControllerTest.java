@@ -34,12 +34,12 @@ class ConfigControllerTest {
     @Test
     void getProfile_public_returns200WithUrls() throws Exception {
         when(appConfigService.getProfile())
-                .thenReturn(new ProfileConfigResponse("images/home.jpg", "images/cv.jpg", "documents/cv.pdf"));
+                .thenReturn(new ProfileConfigResponse("portraits/home.webp", "portraits/cv.webp", "documents/cv.pdf"));
 
         mockMvc.perform(get("/config/profile").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.homePortraitUrl").value("images/home.jpg"))
-                .andExpect(jsonPath("$.cvPortraitUrl").value("images/cv.jpg"))
+                .andExpect(jsonPath("$.homePortraitUrl").value("portraits/home.webp"))
+                .andExpect(jsonPath("$.cvPortraitUrl").value("portraits/cv.webp"))
                 .andExpect(jsonPath("$.cvPdfUrl").value("documents/cv.pdf"));
     }
 
@@ -55,22 +55,22 @@ class ConfigControllerTest {
 
     @Test
     void updateProfile_withJwt_returns200() throws Exception {
-        when(appConfigService.updateProfile("images/home.jpg", "images/cv.jpg", null))
-                .thenReturn(new ProfileConfigResponse("images/home.jpg", "images/cv.jpg", null));
+        when(appConfigService.updateProfile("portraits/home.webp", "portraits/cv.webp", null))
+                .thenReturn(new ProfileConfigResponse("portraits/home.webp", "portraits/cv.webp", null));
 
         mockMvc.perform(put("/config/profile")
                         .with(jwt())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"homePortraitUrl\":\"images/home.jpg\",\"cvPortraitUrl\":\"images/cv.jpg\"}"))
+                        .content("{\"homePortraitUrl\":\"portraits/home.webp\",\"cvPortraitUrl\":\"portraits/cv.webp\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.homePortraitUrl").value("images/home.jpg"));
+                .andExpect(jsonPath("$.homePortraitUrl").value("portraits/home.webp"));
     }
 
     @Test
     void updateProfile_withoutJwt_returns401() throws Exception {
         mockMvc.perform(put("/config/profile")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"homePortraitUrl\":\"images/home.jpg\"}"))
+                        .content("{\"homePortraitUrl\":\"portraits/home.webp\"}"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("UNAUTHORIZED"));
     }
@@ -86,14 +86,24 @@ class ConfigControllerTest {
     }
 
     @Test
+    void updateProfile_invalidKeyFormat_returns400() throws Exception {
+        mockMvc.perform(put("/config/profile")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"homePortraitUrl\":\"images/uuid-legacy.jpg\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
+
+    @Test
     void updateProfile_withJwtAndNoAuthorities_returns200() throws Exception {
-        when(appConfigService.updateProfile("images/home.jpg", null, null))
-                .thenReturn(new ProfileConfigResponse("images/home.jpg", null, null));
+        when(appConfigService.updateProfile("portraits/home.webp", null, null))
+                .thenReturn(new ProfileConfigResponse("portraits/home.webp", null, null));
 
         mockMvc.perform(put("/config/profile")
                         .with(jwt().authorities())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"homePortraitUrl\":\"images/home.jpg\"}"))
+                        .content("{\"homePortraitUrl\":\"portraits/home.webp\"}"))
                 .andExpect(status().isOk());
     }
 }
