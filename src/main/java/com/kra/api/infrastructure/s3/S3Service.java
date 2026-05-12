@@ -29,27 +29,46 @@ public class S3Service {
 
     public record PresignResult(String uploadUrl, String s3Key) {}
 
-    public PresignResult generateUploadUrl(String filename, String contentType, String uploadType) {
+    /**
+     * Generates a presigned PUT URL for the staging area and returns the final processed key.
+     *
+     * S3 layout:
+     *   uploads/blog/{slug}.{ext}       — staging (Lambda deletes after processing)
+     *   uploads/portraits/{type}.{ext}  — staging (Lambda deletes after processing)
+     *   blog/{slug}-cover.webp          — final processed blog cover
+     *   portraits/{type}.webp           — final processed portrait
+     *   documents/cv.pdf                — CV PDF (direct upload, no Lambda)
+     *
+     * @param entitySlug blog slug for blog images; "home" or "cv" for portraits; ignored for PDF
+     */
+    public PresignResult generateUploadUrl(String filename, String contentType, String uploadType, String entitySlug) {
         String ext = filename.contains(".")
-                ? filename.substring(filename.lastIndexOf('.') + 1)
+                ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase()
                 : "bin";
-        String prefix;
+
+        String stagingKey;
+        String finalKey;
+
         if ("application/pdf".equals(contentType)) {
-            prefix = "documents";
+            stagingKey = "documents/cv.pdf";
+            finalKey = "documents/cv.pdf";
         } else if ("portrait".equals(uploadType)) {
-            prefix = "images/portraits";
+            String type = "cv".equals(entitySlug) ? "cv" : "home";
+            stagingKey = "uploads/portraits/" + type + "." + ext;
+            finalKey = "portraits/" + type + ".webp";
         } else {
-            prefix = "images";
+            String slug = (entitySlug != null && !entitySlug.isBlank()) ? entitySlug : UUID.randomUUID().toString();
+            stagingKey = "uploads/blog/" + slug + "." + ext;
+            finalKey = "blog/" + slug + "-cover.webp";
         }
-        String key = prefix + "/" + UUID.randomUUID() + "." + ext;
 
         PresignedPutObjectRequest presigned = s3Presigner.presignPutObject(r -> r
                 .signatureDuration(Duration.ofMinutes(5))
                 .putObjectRequest(o -> o
                         .bucket(bucketName)
-                        .key(key)
+                        .key(stagingKey)
                         .contentType(contentType)));
-        return new PresignResult(presigned.url().toString(), key);
+        return new PresignResult(presigned.url().toString(), finalKey);
     }
 
     public ResponseInputStream<GetObjectResponse> streamObject(String key) {
@@ -61,18 +80,9 @@ public class S3Service {
 
     public void deleteObject(String key) {
         if (key == null || key.isBlank()) return;
-
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
-                .build());
-
-        String thumbKey = key.replaceFirst("^images/", "thumbnails/")
-                           .replaceFirst("\\.[^.]+$", "-thumb.webp");
-
-        s3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(thumbKey)
                 .build());
     }
 }
