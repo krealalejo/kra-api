@@ -48,6 +48,10 @@ public class BlogPostService {
         return blogPostRepository.findAllByNewestFirst();
     }
 
+    public List<BlogPost> listAllPostsUncached() {
+        return blogPostRepository.findAllByNewestFirst();
+    }
+
     @Cacheable(value = "post", key = "#slug")
     public BlogPost getPost(String slug) {
         BlogSlug blogSlug = BlogSlug.of(slug);

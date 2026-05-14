@@ -33,7 +33,7 @@ public class BlogPostController {
 
     @GetMapping("/admin/posts")
     public ResponseEntity<List<BlogPostResponse>> listAdmin() {
-        List<BlogPostResponse> list = blogPostService.listPosts().stream()
+        List<BlogPostResponse> list = blogPostService.listAllPostsUncached().stream()
                 .map(BlogPostResponse::from)
                 .toList();
         return ResponseEntity.ok(list);
