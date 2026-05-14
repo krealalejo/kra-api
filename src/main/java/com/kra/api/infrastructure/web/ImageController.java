@@ -1,7 +1,6 @@
 package com.kra.api.infrastructure.web;
 
 import com.kra.api.infrastructure.s3.S3Service;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +41,7 @@ public class ImageController {
                     .contentType(mediaType)
                     .header("Cache-Control", "public, max-age=86400")
                     .body(bytes);
-        } catch (NoSuchKeyException e) {
+        } catch (NoSuchKeyException _) {
             return ResponseEntity.notFound().build();
         }
     }
