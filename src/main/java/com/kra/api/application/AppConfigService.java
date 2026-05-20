@@ -4,12 +4,16 @@ import com.kra.api.domain.model.AppConfig;
 import com.kra.api.domain.repository.AppConfigRepository;
 import com.kra.api.infrastructure.s3.S3Service;
 import com.kra.api.infrastructure.web.dto.ProfileConfigResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AppConfigService {
+
+    private static final Logger log = LoggerFactory.getLogger(AppConfigService.class);
 
     private final AppConfigRepository repository;
     private final S3Service s3Service;
@@ -42,7 +46,11 @@ public class AppConfigService {
 
     private void deleteIfRemoved(String oldKey, String newKey) {
         if (oldKey != null && !oldKey.equals(newKey)) {
-            s3Service.deleteObject(oldKey);
+            try {
+                s3Service.deleteObject(oldKey);
+            } catch (Exception e) {
+                log.warn("S3 delete failed for key '{}': {}", oldKey, e.getMessage());
+            }
         }
     }
 }
