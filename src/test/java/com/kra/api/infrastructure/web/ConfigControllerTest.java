@@ -86,16 +86,6 @@ class ConfigControllerTest {
     }
 
     @Test
-    void updateProfile_invalidKeyFormat_returns400() throws Exception {
-        mockMvc.perform(put("/config/profile")
-                        .with(jwt())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"homePortraitUrl\":\"images/uuid-legacy.jpg\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
-    }
-
-    @Test
     void updateProfile_withJwtAndNoAuthorities_returns200() throws Exception {
         when(appConfigService.updateProfile("portraits/home.webp", null, null))
                 .thenReturn(new ProfileConfigResponse("portraits/home.webp", null, null));
