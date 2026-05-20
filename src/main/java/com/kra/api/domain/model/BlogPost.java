@@ -14,7 +14,7 @@ public class BlogPost implements Serializable {
     private final BlogSlug slug;
     private String title;
     private String content;
-    private final Instant createdAt;
+    private Instant createdAt;
     private Instant updatedAt;
     private List<Reference> references;
     private String imageUrl;
@@ -73,6 +73,10 @@ public class BlogPost implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
     }
 
     public void touchUpdatedAt(Instant now) {
