@@ -39,7 +39,7 @@ public class ImageController {
             byte[] bytes = s3Stream.readAllBytes();
             return ResponseEntity.ok()
                     .contentType(mediaType)
-                    .header("Cache-Control", "public, max-age=86400")
+                    .header("Cache-Control", "public, max-age=604800")
                     .body(bytes);
         } catch (NoSuchKeyException _) {
             return ResponseEntity.notFound().build();

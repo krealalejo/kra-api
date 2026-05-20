@@ -44,7 +44,7 @@ class ImageControllerTest {
         mockMvc.perform(get("/images/thumbnails/photo-thumb.webp"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", "image/webp"))
-                .andExpect(header().string("Cache-Control", "public, max-age=86400"));
+                .andExpect(header().string("Cache-Control", "public, max-age=604800"));
     }
 
     @Test
