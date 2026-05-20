@@ -27,7 +27,7 @@ REST API for the **KRA** portfolio: projects and blog backed by **DynamoDB**, co
 | Action | Command |
 |--------|---------|
 | Compile | `mvn compile` |
-| Run (default port **8080**) | `mvn spring-boot:run` |
+| Run (default port **8080**) | `mvn spring-boot:run -Dspring-boot.run.profiles=local` |
 | Unit / slice tests | `mvn test` |
 | Tests + **JaCoCo** report (`target/site/jacoco/index.html`) + **branch coverage gate** (80% on the measured bundle) | `mvn verify` |
 | Fast domain checks (example) | `mvn test -Dtest="ProjectTest,ProjectIdTest"` |
