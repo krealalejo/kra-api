@@ -192,6 +192,39 @@ class BlogPostServiceTest {
     }
 
     @Test
+    void createPost_withPublishedAt_usesProvidedInstantAsCreatedAt() {
+        when(repository.findBySlug(any())).thenReturn(Optional.empty());
+        Instant past = Instant.parse("2023-06-15T12:00:00Z");
+        BlogPost created = service.createPost("my-slug", "Title", "Content", List.of(), null, past);
+        assertEquals(past, created.getCreatedAt());
+    }
+
+    @Test
+    void updatePost_withPublishedAt_updatesCreatedAt() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        Instant original = Instant.parse("2023-01-01T00:00:00Z");
+        BlogPost existing = new BlogPost(slug, "Title", "Content", original, original, List.of(), null);
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+
+        Instant newDate = Instant.parse("2022-06-01T09:00:00Z");
+        service.updatePost("my-post", "Title", "Content", List.of(), null, newDate);
+
+        assertEquals(newDate, existing.getCreatedAt());
+    }
+
+    @Test
+    void updatePost_withoutPublishedAt_keepsExistingCreatedAt() {
+        BlogSlug slug = BlogSlug.of("my-post");
+        Instant original = Instant.parse("2023-01-01T00:00:00Z");
+        BlogPost existing = new BlogPost(slug, "Title", "Content", original, original, List.of(), null);
+        when(repository.findBySlug(slug)).thenReturn(Optional.of(existing));
+
+        service.updatePost("my-post", "Title", "New Content", List.of(), null, null);
+
+        assertEquals(original, existing.getCreatedAt());
+    }
+
+    @Test
     void deletePost_withImage_deletesFromS3() {
         BlogSlug slug = BlogSlug.of("my-post");
         BlogPost existing = new BlogPost(slug, "Title", "", Instant.now(), Instant.now(), List.of(), "images/image.jpg");
