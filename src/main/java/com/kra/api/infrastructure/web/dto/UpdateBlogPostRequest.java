@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
 import java.util.List;
 
 public class UpdateBlogPostRequest {
@@ -18,6 +19,8 @@ public class UpdateBlogPostRequest {
     private List<ReferenceRequest> references;
 
     private String imageUrl;
+
+    private Instant publishedAt;
 
     public String getTitle() {
         return title;
@@ -40,4 +43,7 @@ public class UpdateBlogPostRequest {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public Instant getPublishedAt() { return publishedAt; }
+    public void setPublishedAt(Instant publishedAt) { this.publishedAt = publishedAt; }
 }
