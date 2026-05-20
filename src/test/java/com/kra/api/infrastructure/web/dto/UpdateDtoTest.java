@@ -2,6 +2,7 @@ package com.kra.api.infrastructure.web.dto;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +21,20 @@ class UpdateDtoTest {
         assertThat(req.getContent()).isEqualTo("My Content");
         assertThat(req.getReferences()).isEmpty();
         assertThat(req.getImageUrl()).isEqualTo("https://example.com/img.png");
+    }
+
+    @Test
+    void updateBlogPostRequest_publishedAt_getterAndSetter() {
+        UpdateBlogPostRequest req = new UpdateBlogPostRequest();
+        Instant ts = Instant.parse("2024-03-01T10:00:00Z");
+        req.setPublishedAt(ts);
+        assertThat(req.getPublishedAt()).isEqualTo(ts);
+    }
+
+    @Test
+    void updateBlogPostRequest_publishedAt_defaultsToNull() {
+        UpdateBlogPostRequest req = new UpdateBlogPostRequest();
+        assertThat(req.getPublishedAt()).isNull();
     }
 
     @Test
