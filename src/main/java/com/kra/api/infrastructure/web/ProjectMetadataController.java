@@ -21,7 +21,7 @@ import java.util.Set;
 public class ProjectMetadataController {
 
     private static final Set<String> ALLOWED_KINDS = Set.of(
-            "Backend", "Frontend", "Fullstack", "Infrastructure", "Library", "CLI", "Serverless"
+            "Backend", "Frontend", "Serverless", "AI", "Other"
     );
 
     private static final String PATH_VARIABLE_PATTERN = "^[a-zA-Z0-9_.\\-]+$";
