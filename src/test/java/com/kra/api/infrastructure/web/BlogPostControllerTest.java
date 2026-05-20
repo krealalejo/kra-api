@@ -107,7 +107,7 @@ class BlogPostControllerTest {
                                 Instant.now(),
                                 List.of(),
                                 null);
-                when(blogPostService.createPost(eq("new-post"), eq("Title"), eq("Content"), anyList(), any()))
+                when(blogPostService.createPost(eq("new-post"), eq("Title"), eq("Content"), anyList(), any(), any()))
                                 .thenReturn(created);
 
                 mockMvc.perform(post("/posts")
@@ -128,7 +128,7 @@ class BlogPostControllerTest {
                                 Instant.now(),
                                 List.of(),
                                 null);
-                when(blogPostService.createPost(eq("no-content"), eq("Title"), eq(""), anyList(), any()))
+                when(blogPostService.createPost(eq("no-content"), eq("Title"), eq(""), anyList(), any(), any()))
                                 .thenReturn(created);
 
                 mockMvc.perform(post("/posts")
@@ -147,7 +147,7 @@ class BlogPostControllerTest {
                                 Instant.parse("2026-01-01T00:00:00Z"),
                                 List.of(new Reference("MDN", "https://developer.mozilla.org")),
                                 null);
-                when(blogPostService.createPost(eq("my-post"), eq("My Title"), eq("Content"), anyList(), any()))
+                when(blogPostService.createPost(eq("my-post"), eq("My Title"), eq("Content"), anyList(), any(), any()))
                                 .thenReturn(post);
 
                 mockMvc.perform(post("/posts")
@@ -172,7 +172,7 @@ class BlogPostControllerTest {
                                 Instant.now(),
                                 List.of(),
                                 null);
-                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq("New content"), anyList(), any()))
+                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq("New content"), anyList(), any(), any()))
                                 .thenReturn(updated);
 
                 mockMvc.perform(put("/posts/hello-world")
@@ -193,7 +193,7 @@ class BlogPostControllerTest {
                                 Instant.now(),
                                 List.of(),
                                 null);
-                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq(""), anyList(), any()))
+                when(blogPostService.updatePost(eq("hello-world"), eq("Updated"), eq(""), anyList(), any(), any()))
                                 .thenReturn(updated);
 
                 mockMvc.perform(put("/posts/hello-world")
@@ -206,7 +206,7 @@ class BlogPostControllerTest {
 
         @Test
         void updatePost_notFound_returns404() throws Exception {
-                when(blogPostService.updatePost(eq("nope"), any(), any(), anyList(), any()))
+                when(blogPostService.updatePost(eq("nope"), any(), any(), anyList(), any(), any()))
                                 .thenThrow(new BlogPostNotFoundException("nope"));
 
                 mockMvc.perform(put("/posts/nope")
