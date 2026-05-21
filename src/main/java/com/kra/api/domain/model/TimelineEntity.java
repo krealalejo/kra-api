@@ -14,6 +14,7 @@ public abstract class TimelineEntity implements Serializable {
     protected String years;
     protected String description;
     protected int sortOrder;
+    protected String logoUrl;
 
     protected TimelineEntity(String id, String title, String location, String years, String description, int sortOrder) {
         this.id = Objects.requireNonNull(id, "id must not be null");
@@ -37,6 +38,8 @@ public abstract class TimelineEntity implements Serializable {
     public void setDescription(String description) { this.description = description; }
     public int getSortOrder() { return sortOrder; }
     public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
     @Override
     public boolean equals(Object o) {
