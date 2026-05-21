@@ -20,9 +20,10 @@ public class ExperienceService {
 
     @CacheEvict(value = "experience", allEntries = true)
     public Experience create(String title, String company, String location,
-                             String years, String description, int sortOrder) {
+                             String years, String description, int sortOrder, String logoUrl) {
         Experience experience = new Experience(
                 UUID.randomUUID().toString(), title, company, location, years, description, sortOrder);
+        experience.setLogoUrl(logoUrl);
         experienceRepository.save(experience);
         return experience;
     }
@@ -34,7 +35,7 @@ public class ExperienceService {
 
     @CacheEvict(value = "experience", allEntries = true)
     public Experience update(String id, String title, String company, String location,
-                             String years, String description, Integer sortOrder) {
+                             String years, String description, Integer sortOrder, String logoUrl, boolean updateLogoUrl) {
         Experience existing = experienceRepository.findById(id)
                 .orElseThrow(() -> new ExperienceNotFoundException(id));
         if (title != null) existing.setTitle(title);
@@ -43,6 +44,7 @@ public class ExperienceService {
         if (years != null) existing.setYears(years);
         if (description != null) existing.setDescription(description);
         if (sortOrder != null) existing.setSortOrder(sortOrder);
+        if (updateLogoUrl) existing.setLogoUrl(logoUrl);
         experienceRepository.save(existing);
         return existing;
     }

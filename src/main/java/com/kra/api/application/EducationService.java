@@ -20,9 +20,10 @@ public class EducationService {
 
     @CacheEvict(value = "education", allEntries = true)
     public Education create(String title, String institution, String location,
-                            String years, String description, int sortOrder) {
+                            String years, String description, int sortOrder, String logoUrl) {
         Education education = new Education(
                 UUID.randomUUID().toString(), title, institution, location, years, description, sortOrder);
+        education.setLogoUrl(logoUrl);
         educationRepository.save(education);
         return education;
     }
@@ -34,7 +35,7 @@ public class EducationService {
 
     @CacheEvict(value = "education", allEntries = true)
     public Education update(String id, String title, String institution, String location,
-                            String years, String description, Integer sortOrder) {
+                            String years, String description, Integer sortOrder, String logoUrl, boolean updateLogoUrl) {
         Education existing = educationRepository.findById(id)
                 .orElseThrow(() -> new EducationNotFoundException(id));
         if (title != null) existing.setTitle(title);
@@ -43,6 +44,7 @@ public class EducationService {
         if (years != null) existing.setYears(years);
         if (description != null) existing.setDescription(description);
         if (sortOrder != null) existing.setSortOrder(sortOrder);
+        if (updateLogoUrl) existing.setLogoUrl(logoUrl);
         educationRepository.save(existing);
         return existing;
     }
