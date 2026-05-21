@@ -56,6 +56,10 @@ public class S3Service {
             String type = "cv".equals(entitySlug) ? "cv" : "home";
             stagingKey = "uploads/portraits/" + type + "." + ext;
             finalKey = "portraits/" + type + ".webp";
+        } else if ("logo".equals(uploadType)) {
+            String slug = (entitySlug != null && !entitySlug.isBlank()) ? entitySlug : UUID.randomUUID().toString();
+            stagingKey = "uploads/logos/" + slug + "." + ext;
+            finalKey = "logos/" + slug + ".webp";
         } else {
             String slug = (entitySlug != null && !entitySlug.isBlank()) ? entitySlug : UUID.randomUUID().toString();
             stagingKey = "uploads/blog/" + slug + "." + ext;
