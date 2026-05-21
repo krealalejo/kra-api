@@ -28,12 +28,15 @@ public class ExperienceDynamoDbItem extends AbstractTimelineDynamoDbItem {
         item.setYears(exp.getYears());
         item.setDescription(exp.getDescription());
         item.setSortOrder(exp.getSortOrder());
+        item.setLogoUrl(exp.getLogoUrl());
         return item;
     }
 
     public Experience toDomain() {
         String id = pk.replace("EXPERIENCE#", "");
-        return new Experience(id, title, company, location, years, description,
+        Experience exp = new Experience(id, title, company, location, years, description,
                 sortOrder != null ? sortOrder : 0);
+        exp.setLogoUrl(logoUrl);
+        return exp;
     }
 }

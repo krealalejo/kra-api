@@ -8,6 +8,7 @@ public abstract class AbstractTimelineDynamoDbItem extends AbstractDynamoDbItem 
     protected String years;
     protected String description;
     protected Integer sortOrder;
+    protected String logoUrl;
 
     @DynamoDbAttribute("title")
     public String getTitle() { return title; }
@@ -28,4 +29,8 @@ public abstract class AbstractTimelineDynamoDbItem extends AbstractDynamoDbItem 
     @DynamoDbAttribute("sortOrder")
     public Integer getSortOrder() { return sortOrder; }
     public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+
+    @DynamoDbAttribute("logoUrl")
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 }

@@ -28,12 +28,15 @@ public class EducationDynamoDbItem extends AbstractTimelineDynamoDbItem {
         item.setYears(edu.getYears());
         item.setDescription(edu.getDescription());
         item.setSortOrder(edu.getSortOrder());
+        item.setLogoUrl(edu.getLogoUrl());
         return item;
     }
 
     public Education toDomain() {
         String id = pk.replace("EDUCATION#", "");
-        return new Education(id, title, institution, location, years, description,
+        Education edu = new Education(id, title, institution, location, years, description,
                 sortOrder != null ? sortOrder : 0);
+        edu.setLogoUrl(logoUrl);
+        return edu;
     }
 }
