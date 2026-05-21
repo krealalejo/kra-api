@@ -14,6 +14,7 @@ public class EducationResponse extends AbstractTimelineResponse {
         r.setYears(edu.getYears());
         r.setDescription(edu.getDescription());
         r.setSortOrder(edu.getSortOrder());
+        r.setLogoUrl(edu.getLogoUrl());
         return r;
     }
 

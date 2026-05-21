@@ -14,6 +14,7 @@ public class ExperienceResponse extends AbstractTimelineResponse {
         r.setYears(exp.getYears());
         r.setDescription(exp.getDescription());
         r.setSortOrder(exp.getSortOrder());
+        r.setLogoUrl(exp.getLogoUrl());
         return r;
     }
 

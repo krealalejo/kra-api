@@ -16,8 +16,8 @@ public class UploadRequest {
     private String contentType;
 
     @Pattern(
-        regexp = "^(portrait|blog|pdf)$",
-        message = "uploadType must be one of: portrait, blog, pdf"
+        regexp = "^(portrait|blog|pdf|logo)$",
+        message = "uploadType must be one of: portrait, blog, pdf, logo"
     )
     private String uploadType;
 

@@ -8,6 +8,8 @@ public abstract class AbstractTimelineRequest {
     protected String years;
     protected String description;
     protected int sortOrder;
+    protected String logoUrl;
+    private boolean logoUrlPresent = false;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -23,4 +25,8 @@ public abstract class AbstractTimelineRequest {
 
     public int getSortOrder() { return sortOrder; }
     public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
+
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; this.logoUrlPresent = true; }
+    public boolean isLogoUrlPresent() { return logoUrlPresent; }
 }
