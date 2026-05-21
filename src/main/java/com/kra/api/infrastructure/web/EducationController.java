@@ -34,7 +34,7 @@ public class EducationController {
     public ResponseEntity<EducationResponse> create(@Valid @RequestBody CreateEducationRequest req) {
         Education edu = educationService.create(
                 req.getTitle(), req.getInstitution(), req.getLocation(),
-                req.getYears(), req.getDescription(), req.getSortOrder());
+                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl());
         return ResponseEntity.status(HttpStatus.CREATED).body(EducationResponse.from(edu));
     }
 
@@ -43,7 +43,7 @@ public class EducationController {
             @RequestBody UpdateEducationRequest req) {
         Education edu = educationService.update(
                 id, req.getTitle(), req.getInstitution(), req.getLocation(),
-                req.getYears(), req.getDescription(), req.getSortOrder());
+                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent());
         return ResponseEntity.ok(EducationResponse.from(edu));
     }
 

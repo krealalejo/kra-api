@@ -34,7 +34,7 @@ public class ExperienceController {
     public ResponseEntity<ExperienceResponse> create(@Valid @RequestBody CreateExperienceRequest req) {
         Experience exp = experienceService.create(
                 req.getTitle(), req.getCompany(), req.getLocation(),
-                req.getYears(), req.getDescription(), req.getSortOrder());
+                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl());
         return ResponseEntity.status(HttpStatus.CREATED).body(ExperienceResponse.from(exp));
     }
 
@@ -43,7 +43,7 @@ public class ExperienceController {
             @RequestBody UpdateExperienceRequest req) {
         Experience exp = experienceService.update(
                 id, req.getTitle(), req.getCompany(), req.getLocation(),
-                req.getYears(), req.getDescription(), req.getSortOrder());
+                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent());
         return ResponseEntity.ok(ExperienceResponse.from(exp));
     }
 
