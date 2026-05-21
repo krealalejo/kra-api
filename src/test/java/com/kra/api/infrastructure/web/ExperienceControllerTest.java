@@ -58,7 +58,7 @@ class ExperienceControllerTest extends AbstractControllerTest {
 
     @Test
     void create_validRequest_returns201() throws Exception {
-        when(experienceService.create(any(), any(), any(), any(), any(), anyInt()))
+        when(experienceService.create(any(), any(), any(), any(), any(), anyInt(), any()))
                 .thenReturn(sample());
 
         mockMvc.perform(post("/cv/experience")
@@ -90,7 +90,7 @@ class ExperienceControllerTest extends AbstractControllerTest {
 
     @Test
     void update_found_returns200() throws Exception {
-        when(experienceService.update(eq("exp-1"), any(), any(), any(), any(), any(), any()))
+        when(experienceService.update(eq("exp-1"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                 .thenReturn(sample());
 
         mockMvc.perform(put("/cv/experience/exp-1")
@@ -103,7 +103,7 @@ class ExperienceControllerTest extends AbstractControllerTest {
 
     @Test
     void update_notFound_returns404() throws Exception {
-        when(experienceService.update(eq("missing"), any(), any(), any(), any(), any(), any()))
+        when(experienceService.update(eq("missing"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                 .thenThrow(new ExperienceNotFoundException("missing"));
 
         mockMvc.perform(put("/cv/experience/missing")

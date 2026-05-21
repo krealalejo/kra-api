@@ -58,7 +58,7 @@ class EducationControllerTest extends AbstractControllerTest {
 
     @Test
     void create_validRequest_returns201() throws Exception {
-        when(educationService.create(any(), any(), any(), any(), any(), anyInt()))
+        when(educationService.create(any(), any(), any(), any(), any(), anyInt(), any()))
                 .thenReturn(sample());
 
         mockMvc.perform(post("/cv/education")
@@ -90,7 +90,7 @@ class EducationControllerTest extends AbstractControllerTest {
 
     @Test
     void update_found_returns200() throws Exception {
-        when(educationService.update(eq("edu-1"), any(), any(), any(), any(), any(), any()))
+        when(educationService.update(eq("edu-1"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                 .thenReturn(sample());
 
         mockMvc.perform(put("/cv/education/edu-1")
@@ -103,7 +103,7 @@ class EducationControllerTest extends AbstractControllerTest {
 
     @Test
     void update_notFound_returns404() throws Exception {
-        when(educationService.update(eq("missing"), any(), any(), any(), any(), any(), any()))
+        when(educationService.update(eq("missing"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                 .thenThrow(new EducationNotFoundException("missing"));
 
         mockMvc.perform(put("/cv/education/missing")

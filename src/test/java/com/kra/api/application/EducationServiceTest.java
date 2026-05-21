@@ -26,7 +26,7 @@ class EducationServiceTest {
 
     @Test
     void create_shouldSaveAndReturnEducation() {
-        Education result = service.create("Title", "Inst", "Loc", "2020", "Desc", 1);
+        Education result = service.create("Title", "Inst", "Loc", "2020", "Desc", 1, null);
 
         assertNotNull(result);
         assertNotNull(result.getId());
@@ -50,7 +50,7 @@ class EducationServiceTest {
         Education existing = new Education("1", "Old T", "Old I", "Old L", "Old Y", "Old D", 0);
         when(repository.findById("1")).thenReturn(Optional.of(existing));
 
-        Education result = service.update("1", "New T", "New I", "New L", "New Y", "New D", 10);
+        Education result = service.update("1", "New T", "New I", "New L", "New Y", "New D", 10, null, false);
 
         assertEquals("New T", result.getTitle());
         assertEquals("New I", result.getInstitution());
@@ -66,7 +66,7 @@ class EducationServiceTest {
         Education existing = new Education("1", "Old T", "Old I", "Old L", "Old Y", "Old D", 5);
         when(repository.findById("1")).thenReturn(Optional.of(existing));
 
-        Education result = service.update("1", null, null, null, null, null, null);
+        Education result = service.update("1", null, null, null, null, null, null, null, false);
 
         assertEquals("Old T", result.getTitle());
         assertEquals("Old I", result.getInstitution());
@@ -78,11 +78,23 @@ class EducationServiceTest {
     }
 
     @Test
+    void update_shouldClearLogoUrlWhenRemoved() {
+        Education existing = new Education("1", "T", "I", "L", "Y", "D", 1);
+        existing.setLogoUrl("logos/old-logo.png");
+        when(repository.findById("1")).thenReturn(Optional.of(existing));
+
+        Education result = service.update("1", null, null, null, null, null, null, null, true);
+
+        assertNull(result.getLogoUrl());
+        verify(repository).save(existing);
+    }
+
+    @Test
     void update_shouldThrowIfNotFound() {
         when(repository.findById("1")).thenReturn(Optional.empty());
 
         assertThrows(EducationNotFoundException.class, () ->
-            service.update("1", "T", "I", "L", "Y", "D", 1));
+            service.update("1", "T", "I", "L", "Y", "D", 1, null, false));
     }
 
     @Test
