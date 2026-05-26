@@ -5,7 +5,7 @@ import com.kra.api.application.ProjectService;
 import com.kra.api.domain.model.Project;
 import com.kra.api.domain.model.ProjectId;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
