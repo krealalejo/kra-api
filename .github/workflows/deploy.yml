@@ -48,7 +48,7 @@ jobs:
       # QEMU provides ARM64 emulation on the x86-64 GitHub runner.
       # Required for cross-platform builds targeting linux/arm64.
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4
 
       # Docker Buildx is the multi-platform build driver; required alongside QEMU.
       - name: Set up Docker Buildx
