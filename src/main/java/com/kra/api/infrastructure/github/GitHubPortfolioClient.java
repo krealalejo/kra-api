@@ -102,7 +102,7 @@ public class GitHubPortfolioClient {
             byte[] raw = Base64.getMimeDecoder().decode(b64);
             String text = new String(raw, StandardCharsets.UTF_8);
             if (text.length() > README_PREVIEW_MAX) {
-                return text.substring(0, README_PREVIEW_MAX) + "…";
+                return truncatePreservingFences(text);
             }
             return text;
         } catch (WebClientResponseException e) {
@@ -111,6 +111,39 @@ public class GitHubPortfolioClient {
             }
             return null;
         }
+    }
+
+    /**
+     * Truncates README text to {@link #README_PREVIEW_MAX} without breaking a fenced code block.
+     * If the cut lands inside an open ``` fence (odd fence count), the excerpt is extended to the
+     * block's closing fence so client-side renderers (e.g. Mermaid diagrams) receive valid source.
+     * If no closing fence exists, the dangling open fence is dropped instead.
+     */
+    private String truncatePreservingFences(String text) {
+        int end = README_PREVIEW_MAX;
+        String head = text.substring(0, end);
+        if (countFences(head) % 2 != 0) {
+            int closing = text.indexOf("```", end);
+            if (closing >= 0) {
+                end = closing + 3;
+            } else {
+                return head.substring(0, head.lastIndexOf("```")).stripTrailing() + "…";
+            }
+        }
+        if (end >= text.length()) {
+            return text;
+        }
+        return text.substring(0, end) + "\n\n…";
+    }
+
+    private int countFences(String text) {
+        int count = 0;
+        int idx = text.indexOf("```");
+        while (idx >= 0) {
+            count++;
+            idx = text.indexOf("```", idx + 3);
+        }
+        return count;
     }
 
     public GitHubContributionResponse getContributionCalendar() {

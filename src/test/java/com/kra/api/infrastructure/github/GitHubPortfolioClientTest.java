@@ -253,6 +253,42 @@ class GitHubPortfolioClientTest {
     }
 
     @Test
+    void getRepoDetail_longReadme_keepsFencedCodeBlockIntact() {
+        String repoBody = """
+                {
+                  "owner": { "login": "o" },
+                  "name": "n",
+                  "full_name": "o/n",
+                  "description": "d",
+                  "html_url": "u",
+                  "topics": [],
+                  "stargazers_count": 1,
+                  "updated_at": "2024",
+                  "default_branch": "main"
+                }
+                """;
+        // Fence opens just before the 4000-char cut and closes after it.
+        String longText = "A".repeat(3990) + "\n```mermaid\ngraph TD\n  X --> Y\n```\n" + "Z".repeat(100);
+        String encoded = java.util.Base64.getEncoder().encodeToString(longText.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String readmeBody = "{\"content\": \"" + encoded + "\"}";
+
+        mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
+
+        var result = client.getRepoDetail("o", "n");
+
+        String excerpt = result.readmeExcerpt();
+        assertNotNull(excerpt);
+        // The whole fenced block must survive: opening fence, body, and closing fence.
+        assertTrue(excerpt.contains("```mermaid"));
+        assertTrue(excerpt.contains("X --> Y"));
+        // Balanced fences — no dangling open block that would break the client renderer.
+        int fenceCount = excerpt.split("```", -1).length - 1;
+        assertEquals(0, fenceCount % 2);
+        assertTrue(excerpt.endsWith("…"));
+    }
+
+    @Test
     void getRepoDetail_readmeContentEmpty() {
         String repoBody = "{\"full_name\": \"o/n\", \"default_branch\": \"main\"}";
         String readmeBody = "{\"content\": \"\"}";
