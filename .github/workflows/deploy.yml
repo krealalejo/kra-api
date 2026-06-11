@@ -25,10 +25,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -36,7 +36,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: ecr-login
-        uses: aws-actions/amazon-ecr-login@19d944daaa35f0fa1d3f7f8af1d3f2e5de25c5b7 # v2
+        uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2
 
       # Compute 7-char short SHA for deterministic image tagging
       - name: Compute image tag
@@ -48,7 +48,7 @@ jobs:
       # QEMU provides ARM64 emulation on the x86-64 GitHub runner.
       # Required for cross-platform builds targeting linux/arm64.
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4
 
       # Docker Buildx is the multi-platform build driver; required alongside QEMU.
       - name: Set up Docker Buildx
@@ -58,7 +58,7 @@ jobs:
       # and push to ECR with two tags: kra-api-latest and kra-api-<sha>.
       # The kra-api- prefix distinguishes this image from the Nginx image in the same ECR repo.
       - name: Build and push kra-api image (linux/arm64)
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
         with:
           context: .
           file: ./Dockerfile
@@ -80,7 +80,7 @@ jobs:
 
     steps:
       - name: Configure AWS credentials (needed to generate ECR token on runner)
-        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
