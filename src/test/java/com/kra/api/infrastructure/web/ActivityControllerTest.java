@@ -42,7 +42,7 @@ class ActivityControllerTest {
     @Test
     void getAll_shouldReturnList() throws Exception {
         when(service.getAll()).thenReturn(List.of(
-                new ActivityCardResponse("SHIPPING", "Title", "Desc", List.of("tag"))
+                new ActivityCardResponse("SHIPPING", "Title", "Desc", List.of("tag"), null)
         ));
 
         mockMvc.perform(get("/activity"))
@@ -52,10 +52,10 @@ class ActivityControllerTest {
 
     @Test
     void update_withValidType_shouldReturnUpdated() throws Exception {
-        UpdateActivityCardRequest request = new UpdateActivityCardRequest("New Title", null, null);
+        UpdateActivityCardRequest request = new UpdateActivityCardRequest("New Title", null, null, null);
 
-        ActivityCardResponse response = new ActivityCardResponse("SHIPPING", "New Title", "Desc", null);
-        when(service.update(eq("shipping"), eq("New Title"), any(), any())).thenReturn(response);
+        ActivityCardResponse response = new ActivityCardResponse("SHIPPING", "New Title", "Desc", null, null);
+        when(service.update(eq("shipping"), eq("New Title"), any(), any(), any())).thenReturn(response);
 
         mockMvc.perform(put("/activity/shipping")
                         .with(jwt())
@@ -67,7 +67,7 @@ class ActivityControllerTest {
 
     @Test
     void update_withInvalidType_shouldReturnBadRequest() throws Exception {
-        UpdateActivityCardRequest request = new UpdateActivityCardRequest("Title", null, null);
+        UpdateActivityCardRequest request = new UpdateActivityCardRequest("Title", null, null, null);
 
         mockMvc.perform(put("/activity/invalid")
                         .with(jwt())
@@ -78,7 +78,7 @@ class ActivityControllerTest {
 
     @Test
     void update_withoutAuth_shouldReturnUnauthorized() throws Exception {
-        UpdateActivityCardRequest request = new UpdateActivityCardRequest(null, null, null);
+        UpdateActivityCardRequest request = new UpdateActivityCardRequest(null, null, null, null);
 
         mockMvc.perform(put("/activity/shipping")
                         .contentType(MediaType.APPLICATION_JSON)
