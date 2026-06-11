@@ -37,9 +37,9 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
             ActivityCardDynamoDbItem item = table.getItem(key);
             String type = sk.substring(ACTIVITY_PREFIX.length());
             if (item == null) {
-                cards.add(new ActivityCard(type, null, null, null));
+                cards.add(new ActivityCard(type, null, null, null, null));
             } else {
-                cards.add(new ActivityCard(type, item.getTitle(), item.getDescription(), item.getTags()));
+                cards.add(new ActivityCard(type, item.getTitle(), item.getDescription(), item.getTags(), item.getUrl()));
             }
         }
         return cards;
@@ -51,7 +51,7 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
         Key key = Key.builder().partitionValue(PK).sortValue(sk).build();
         ActivityCardDynamoDbItem item = table.getItem(key);
         if (item == null) return Optional.empty();
-        return Optional.of(new ActivityCard(type.toUpperCase(), item.getTitle(), item.getDescription(), item.getTags()));
+        return Optional.of(new ActivityCard(type.toUpperCase(), item.getTitle(), item.getDescription(), item.getTags(), item.getUrl()));
     }
 
     @Override
@@ -63,6 +63,7 @@ public class DynamoDbActivityCardRepository implements ActivityCardRepository {
         item.setTitle(card.title());
         item.setDescription(card.description());
         item.setTags(card.tags());
+        item.setUrl(card.url());
         table.putItem(item);
     }
 }

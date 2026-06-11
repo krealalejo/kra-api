@@ -25,9 +25,9 @@ class ActivityCardServiceTest {
     @Test
     void getAll_returnsAllThreeCards() {
         List<ActivityCard> cards = List.of(
-                new ActivityCard("SHIPPING", "Ship title", "Ship desc", null),
-                new ActivityCard("READING", "Read title", "Read desc", null),
-                new ActivityCard("PLAYING", "Play title", "Play desc", List.of("tag1", "tag2"))
+                new ActivityCard("SHIPPING", "Ship title", "Ship desc", null, null),
+                new ActivityCard("READING", "Read title", "Read desc", null, "https://example.com/book"),
+                new ActivityCard("PLAYING", "Play title", "Play desc", List.of("tag1", "tag2"), null)
         );
         when(repository.findAll()).thenReturn(cards);
 
@@ -38,14 +38,15 @@ class ActivityCardServiceTest {
         assertEquals("Ship title", result.get(0).title());
         assertEquals("PLAYING", result.get(2).type());
         assertEquals(List.of("tag1", "tag2"), result.get(2).tags());
+        assertEquals("https://example.com/book", result.get(1).url());
     }
 
     @Test
     void update_existingCard_updatesFieldsAndSaves() {
-        ActivityCard existingCard = new ActivityCard("SHIPPING", "Old title", "Old desc", null);
+        ActivityCard existingCard = new ActivityCard("SHIPPING", "Old title", "Old desc", null, null);
         when(repository.findByType("SHIPPING")).thenReturn(java.util.Optional.of(existingCard));
 
-        ActivityCardResponse result = service.update("SHIPPING", "New title", "New desc", null);
+        ActivityCardResponse result = service.update("SHIPPING", "New title", "New desc", null, null);
 
         assertEquals("SHIPPING", result.type());
         assertEquals("New title", result.title());
@@ -57,20 +58,21 @@ class ActivityCardServiceTest {
     void update_cardNotFound_createsNewWithUppercaseType() {
         when(repository.findByType("reading")).thenReturn(java.util.Optional.empty());
 
-        ActivityCardResponse result = service.update("reading", "A title", null, null);
+        ActivityCardResponse result = service.update("reading", "A title", null, null, "https://example.com/book");
 
         assertEquals("READING", result.type());
         assertEquals("A title", result.title());
         assertNull(result.description());
+        assertEquals("https://example.com/book", result.url());
         verify(repository).save(any(ActivityCard.class));
     }
 
     @Test
     void update_withNullFields_doesNotOverwriteExistingValues() {
-        ActivityCard existingCard = new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"));
+        ActivityCard existingCard = new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"), null);
         when(repository.findByType("PLAYING")).thenReturn(java.util.Optional.of(existingCard));
 
-        ActivityCardResponse result = service.update("PLAYING", null, null, null);
+        ActivityCardResponse result = service.update("PLAYING", null, null, null, null);
 
         assertEquals("Existing title", result.title());
         assertEquals("Existing desc", result.description());
@@ -83,7 +85,7 @@ class ActivityCardServiceTest {
         when(repository.findByType("PLAYING")).thenReturn(java.util.Optional.empty());
         List<String> tags = List.of("chess", "poker");
 
-        ActivityCardResponse result = service.update("PLAYING", "Play title", "Play desc", tags);
+        ActivityCardResponse result = service.update("PLAYING", "Play title", "Play desc", tags, null);
 
         assertEquals(List.of("chess", "poker"), result.tags());
         verify(repository).save(any(ActivityCard.class));
@@ -91,10 +93,10 @@ class ActivityCardServiceTest {
 
     @Test
     void update_withBlankStrings_doesNotOverwriteExistingValues() {
-        ActivityCard existingCard = new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"));
+        ActivityCard existingCard = new ActivityCard("PLAYING", "Existing title", "Existing desc", List.of("chess"), null);
         when(repository.findByType("PLAYING")).thenReturn(java.util.Optional.of(existingCard));
 
-        ActivityCardResponse result = service.update("PLAYING", "  ", "\t", null);
+        ActivityCardResponse result = service.update("PLAYING", "  ", "\t", null, null);
 
         assertEquals("Existing title", result.title());
         assertEquals("Existing desc", result.description());

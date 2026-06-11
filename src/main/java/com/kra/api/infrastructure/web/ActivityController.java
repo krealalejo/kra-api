@@ -44,7 +44,8 @@ public class ActivityController {
                 type,
                 request.title(),
                 request.description(),
-                request.tags()
+                request.tags(),
+                request.url()
         );
         return ResponseEntity.ok(updated);
     }

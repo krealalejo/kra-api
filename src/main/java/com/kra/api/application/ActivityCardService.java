@@ -20,22 +20,23 @@ public class ActivityCardService {
     @Cacheable("activity")
     public List<ActivityCardResponse> getAll() {
         return repository.findAll().stream()
-                .map(c -> new ActivityCardResponse(c.type(), c.title(), c.description(), c.tags()))
+                .map(c -> new ActivityCardResponse(c.type(), c.title(), c.description(), c.tags(), c.url()))
                 .toList();
     }
 
     @CacheEvict(value = "activity", allEntries = true)
-    public ActivityCardResponse update(String type, String title, String description, List<String> tags) {
+    public ActivityCardResponse update(String type, String title, String description, List<String> tags, String url) {
         ActivityCard existing = repository.findByType(type)
-                .orElse(new ActivityCard(type.toUpperCase(), null, null, null));
+                .orElse(new ActivityCard(type.toUpperCase(), null, null, null, null));
 
         ActivityCard updated = new ActivityCard(
                 existing.type(),
                 title != null && !title.isBlank() ? title : existing.title(),
                 description != null && !description.isBlank() ? description : existing.description(),
-                tags != null ? tags : existing.tags()
+                tags != null ? tags : existing.tags(),
+                url != null ? (url.isBlank() ? null : url) : existing.url()
         );
         repository.save(updated);
-        return new ActivityCardResponse(updated.type(), updated.title(), updated.description(), updated.tags());
+        return new ActivityCardResponse(updated.type(), updated.title(), updated.description(), updated.tags(), updated.url());
     }
 }

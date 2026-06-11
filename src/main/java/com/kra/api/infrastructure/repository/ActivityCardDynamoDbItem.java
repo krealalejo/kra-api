@@ -11,6 +11,7 @@ public class ActivityCardDynamoDbItem extends AbstractDynamoDbItem {
     private String title;
     private String description;
     private List<String> tags;
+    private String url;
 
     @DynamoDbAttribute("title")
     public String getTitle() { return title; }
@@ -23,4 +24,8 @@ public class ActivityCardDynamoDbItem extends AbstractDynamoDbItem {
     @DynamoDbAttribute("tags")
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }
+
+    @DynamoDbAttribute("url")
+    public String getUrl() { return url; }
+    public void setUrl(String url) { this.url = url; }
 }
