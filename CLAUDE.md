@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=local   # port 8080 (override with SERVER_PORT)
-mvn test                                                # unit + slice tests (lefthook runs this on pre-push)
+mvn test                                                # unit + slice tests
 mvn verify                                              # tests + JaCoCo report + 80% branch coverage gate
 mvn test -Dtest="BlogPostServiceTest,ProjectTest"       # run specific test classes
 mvn package -DskipTests                                 # build runnable JAR
