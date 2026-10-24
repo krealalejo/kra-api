@@ -2,6 +2,7 @@ package com.kra.api.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -14,6 +15,11 @@ import java.util.logging.Logger;
 public class WebCorsConfiguration {
 
     private static final Logger logger = Logger.getLogger(WebCorsConfiguration.class.getName());
+    private static final String LOCAL_PROFILE = "local";
+    private static final List<String> LOCAL_DEV_ORIGINS = List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*"
+    );
 
     /**
      * Returns the EC2_ORIGIN OS environment variable value.
@@ -26,12 +32,12 @@ public class WebCorsConfiguration {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(Environment environment) {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = new ArrayList<>(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*"
-        ));
+        List<String> origins = new ArrayList<>();
+        if (environment.matchesProfiles(LOCAL_PROFILE)) {
+            origins.addAll(LOCAL_DEV_ORIGINS);
+        }
         String ec2Origin = readEc2OriginEnv();
         if (ec2Origin != null && !ec2Origin.isBlank()) {
             origins.add(ec2Origin);

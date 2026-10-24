@@ -1,9 +1,12 @@
 package com.kra.api.infrastructure.config;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -47,7 +50,7 @@ class WebCorsConfigurationTest {
     @Test
     void corsConfigurationSource_noEc2Origin_doesNotThrow() {
         TestableCorsConfig config = new TestableCorsConfig(null);
-        assertThatCode(config::corsConfigurationSource).doesNotThrowAnyException();
+        assertThatCode(() -> config.corsConfigurationSource(new MockEnvironment())).doesNotThrowAnyException();
     }
 
     /**
@@ -60,7 +63,7 @@ class WebCorsConfigurationTest {
     @Test
     void corsConfigurationSource_ec2OriginSet_appearsInAllowlist() {
         TestableCorsConfig config = new TestableCorsConfig("https://kra.example.com");
-        CorsConfigurationSource source = config.corsConfigurationSource();
+        CorsConfigurationSource source = config.corsConfigurationSource(new MockEnvironment());
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects");
 
@@ -77,7 +80,7 @@ class WebCorsConfigurationTest {
     @Test
     void corsConfigurationSource_blankEc2Origin_notAddedToAllowlist() {
         TestableCorsConfig config = new TestableCorsConfig("   ");
-        CorsConfigurationSource source = config.corsConfigurationSource();
+        CorsConfigurationSource source = config.corsConfigurationSource(new MockEnvironment());
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/projects");
 
@@ -85,5 +88,37 @@ class WebCorsConfigurationTest {
         assertThat(corsConfig).isNotNull();
         assertThat(corsConfig.getAllowedOriginPatterns())
             .doesNotContain("   ");
+    }
+
+    @Test
+    void corsConfigurationSource_noActiveProfile_excludesLocalhostOrigins() {
+        assertThat(allowedOriginPatterns(new MockEnvironment()))
+            .doesNotContain("http://localhost:*", "http://127.0.0.1:*");
+    }
+
+    @Test
+    void corsConfigurationSource_prodProfile_excludesLocalhostOrigins() {
+        MockEnvironment environment = new MockEnvironment();
+        environment.setActiveProfiles("prod");
+
+        assertThat(allowedOriginPatterns(environment))
+            .doesNotContain("http://localhost:*", "http://127.0.0.1:*")
+            .contains("https://kra.example.com");
+    }
+
+    @Test
+    void corsConfigurationSource_localProfile_includesLocalhostOrigins() {
+        MockEnvironment environment = new MockEnvironment();
+        environment.setActiveProfiles("local");
+
+        assertThat(allowedOriginPatterns(environment))
+            .contains("http://localhost:*", "http://127.0.0.1:*", "https://kra.example.com");
+    }
+
+    private List<String> allowedOriginPatterns(MockEnvironment environment) {
+        CorsConfigurationSource source = new TestableCorsConfig("https://kra.example.com").corsConfigurationSource(environment);
+        CorsConfiguration corsConfig = source.getCorsConfiguration(new MockHttpServletRequest("GET", "/projects"));
+        assertThat(corsConfig).isNotNull();
+        return corsConfig.getAllowedOriginPatterns();
     }
 }
