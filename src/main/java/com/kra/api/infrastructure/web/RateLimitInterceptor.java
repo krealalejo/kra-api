@@ -45,9 +45,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     String resolveClientIp(HttpServletRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
+        if (forwarded == null || forwarded.isBlank()) {
+            return request.getRemoteAddr();
         }
-        return request.getRemoteAddr();
+        String[] hops = forwarded.split(",", -1);
+        String addressSeenByTrustedProxy = hops[hops.length - 1].trim();
+        return addressSeenByTrustedProxy.isEmpty() ? request.getRemoteAddr() : addressSeenByTrustedProxy;
     }
 }

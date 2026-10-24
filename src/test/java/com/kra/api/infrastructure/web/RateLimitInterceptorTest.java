@@ -66,18 +66,58 @@ class RateLimitInterceptorTest {
     }
 
     @Test
-    void usesFirstIpFromXForwardedForHeader() throws Exception {
+    void usesRightMostIpFromXForwardedForHeader() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("X-Forwarded-For", "203.0.113.1, 10.0.0.1");
-        request.setRemoteAddr("127.0.0.1");
+        request.addHeader("X-Forwarded-For", "203.0.113.1, 198.51.100.7");
+        request.setRemoteAddr("172.18.0.2");
 
-        assertEquals("203.0.113.1", interceptor.resolveClientIp(request));
+        assertEquals("198.51.100.7", interceptor.resolveClientIp(request));
+    }
+
+    @Test
+    void spoofedLeftMostXForwardedForDoesNotChangeKey() {
+        MockHttpServletRequest honest = new MockHttpServletRequest();
+        honest.addHeader("X-Forwarded-For", "198.51.100.7");
+        honest.setRemoteAddr("172.18.0.2");
+
+        MockHttpServletRequest spoofed = new MockHttpServletRequest();
+        spoofed.addHeader("X-Forwarded-For", "1.1.1.1, 198.51.100.7");
+        spoofed.setRemoteAddr("172.18.0.2");
+
+        assertEquals(interceptor.resolveClientIp(honest), interceptor.resolveClientIp(spoofed));
+    }
+
+    @Test
+    void rotatingSpoofedXForwardedForStillHitsLimit() throws Exception {
+        for (int i = 0; i < RateLimitInterceptor.CAPACITY; i++) {
+            assertTrue(interceptor.preHandle(forwardedRequest("10.9.9." + i + ", 198.51.100.7"), new MockHttpServletResponse(), handler));
+        }
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        assertFalse(interceptor.preHandle(forwardedRequest("10.9.9.99, 198.51.100.7"), response, handler));
+        assertEquals(429, response.getStatus());
+    }
+
+    @Test
+    void fallsBackToRemoteAddrWhenRightMostXForwardedForIsEmpty() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("X-Forwarded-For", "203.0.113.1,");
+        request.setRemoteAddr("172.18.0.2");
+
+        assertEquals("172.18.0.2", interceptor.resolveClientIp(request));
     }
 
     @Test
     void fallsBackToRemoteAddrWhenNoXForwardedFor() {
         MockHttpServletRequest request = requestFrom("192.168.1.1");
         assertEquals("192.168.1.1", interceptor.resolveClientIp(request));
+    }
+
+    private MockHttpServletRequest forwardedRequest(String forwardedFor) {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("X-Forwarded-For", forwardedFor);
+        request.setRemoteAddr("172.18.0.2");
+        return request;
     }
 
     private MockHttpServletRequest requestFrom(String ip) {
