@@ -1,9 +1,12 @@
 package com.kra.api.infrastructure.web.dto;
 
+import jakarta.validation.constraints.Pattern;
+
 import java.util.List;
 
 public class UpdateSkillCategoryRequest {
 
+    @Pattern(regexp = "(?s).*\\S.*", message = "name must not be blank")
     private String name;
     private List<String> skills;
     private Integer sortOrder;

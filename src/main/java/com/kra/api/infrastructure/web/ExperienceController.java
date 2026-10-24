@@ -40,7 +40,7 @@ public class ExperienceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ExperienceResponse> update(@PathVariable String id,
-            @RequestBody UpdateExperienceRequest req) {
+            @Valid @RequestBody UpdateExperienceRequest req) {
         Experience exp = experienceService.update(
                 id, req.getTitle(), req.getCompany(), req.getLocation(),
                 req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent());

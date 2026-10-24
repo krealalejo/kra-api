@@ -39,7 +39,7 @@ public class SkillCategoryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SkillCategoryResponse> update(@PathVariable String id,
-            @RequestBody UpdateSkillCategoryRequest req) {
+            @Valid @RequestBody UpdateSkillCategoryRequest req) {
         SkillCategory cat = skillCategoryService.update(
                 id, req.getName(), req.getSkills(), req.getSortOrder());
         return ResponseEntity.ok(SkillCategoryResponse.from(cat));

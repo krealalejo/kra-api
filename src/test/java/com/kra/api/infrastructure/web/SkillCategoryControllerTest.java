@@ -12,6 +12,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -113,6 +115,30 @@ class SkillCategoryControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Skill category not found: missing"));
+    }
+
+    @Test
+    void update_blankName_returns400() throws Exception {
+        mockMvc.perform(put("/cv/skills/categories/cat-1")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"   \"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+
+        verify(skillCategoryService, never()).update(any(), any(), any(), any());
+    }
+
+    @Test
+    void update_withoutName_returns200() throws Exception {
+        when(skillCategoryService.update(eq("cat-1"), any(), any(), any()))
+                .thenReturn(sample());
+
+        mockMvc.perform(put("/cv/skills/categories/cat-1")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"skills\":[\"Java\"]}"))
+                .andExpect(status().isOk());
     }
 
     @Test

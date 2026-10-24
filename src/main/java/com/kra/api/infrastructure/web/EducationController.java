@@ -40,7 +40,7 @@ public class EducationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EducationResponse> update(@PathVariable String id,
-            @RequestBody UpdateEducationRequest req) {
+            @Valid @RequestBody UpdateEducationRequest req) {
         Education edu = educationService.update(
                 id, req.getTitle(), req.getInstitution(), req.getLocation(),
                 req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent());

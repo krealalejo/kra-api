@@ -12,6 +12,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -113,6 +115,30 @@ class EducationControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Education not found: missing"));
+    }
+
+    @Test
+    void update_blankTitle_returns400() throws Exception {
+        mockMvc.perform(put("/cv/education/edu-1")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"   \"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+
+        verify(educationService, never()).update(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean());
+    }
+
+    @Test
+    void update_withoutTitle_returns200() throws Exception {
+        when(educationService.update(eq("edu-1"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+                .thenReturn(sample());
+
+        mockMvc.perform(put("/cv/education/edu-1")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"institution\":\"MIT\"}"))
+                .andExpect(status().isOk());
     }
 
     @Test
