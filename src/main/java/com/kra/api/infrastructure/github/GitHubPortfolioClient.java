@@ -18,11 +18,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 public class GitHubPortfolioClient {
 
-    private static final int README_PREVIEW_MAX = 4000;
+    private static final int README_PREVIEW_MAX = 30000;
+    private static final Pattern MARKDOWN_HEADING = Pattern.compile("^#{1,6}\\s");
 
     private final WebClient githubWebClient;
     private final GitHubProperties properties;
@@ -129,11 +131,33 @@ public class GitHubPortfolioClient {
             } else {
                 return head.substring(0, head.lastIndexOf("```")).stripTrailing() + "…";
             }
+        } else {
+            end = lastHeadingStartBefore(text, end);
         }
         if (end >= text.length()) {
             return text;
         }
-        return text.substring(0, end) + "\n\n…";
+        return text.substring(0, end).stripTrailing() + "\n\n…";
+    }
+
+    private int lastHeadingStartBefore(String text, int end) {
+        int lastHeadingStart = -1;
+        boolean insideFence = false;
+        int lineStart = 0;
+        while (lineStart < end) {
+            int lineEnd = text.indexOf('\n', lineStart);
+            if (lineEnd < 0) {
+                lineEnd = text.length();
+            }
+            String line = text.substring(lineStart, lineEnd);
+            if (countFences(line) % 2 != 0) {
+                insideFence = !insideFence;
+            } else if (!insideFence && MARKDOWN_HEADING.matcher(line).lookingAt()) {
+                lastHeadingStart = lineStart;
+            }
+            lineStart = lineEnd + 1;
+        }
+        return lastHeadingStart >= README_PREVIEW_MAX / 2 ? lastHeadingStart : end;
     }
 
     private int countFences(String text) {
