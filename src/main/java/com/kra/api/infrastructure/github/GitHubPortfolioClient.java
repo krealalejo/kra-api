@@ -66,6 +66,9 @@ public class GitHubPortfolioClient {
 
     @Cacheable(value = "portfolioRepoDetail", key = "#owner + '/' + #repo")
     public PortfolioRepoDetailResponse getRepoDetail(String owner, String repo) {
+        if (!owner.equalsIgnoreCase(properties.portfolioUser())) {
+            throw new GitHubApiException(404, "Repository not found");
+        }
         try {
             JsonNode n = githubWebClient.get()
                     .uri("/repos/{owner}/{repo}", owner, repo)

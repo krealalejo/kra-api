@@ -146,7 +146,7 @@ class GitHubPortfolioClientTest {
                 .setBody(readmeBody)
                 .addHeader("Content-Type", "application/json"));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertEquals("o/n", result.fullName());
         assertEquals("main", result.defaultBranch());
@@ -155,7 +155,7 @@ class GitHubPortfolioClientTest {
         assertEquals(2, mockWebServer.getRequestCount());
         mockWebServer.takeRequest();
         RecordedRequest readmeReq = mockWebServer.takeRequest();
-        assertTrue(readmeReq.getPath().contains("/repos/o/n/readme"));
+        assertTrue(readmeReq.getPath().contains("/repos/test-user/n/readme"));
     }
 
     @Test
@@ -194,7 +194,7 @@ class GitHubPortfolioClientTest {
                 .addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setResponseCode(404));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertEquals("o/n", result.fullName());
         assertNull(result.readmeExcerpt());
@@ -245,7 +245,7 @@ class GitHubPortfolioClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertNotNull(result.readmeExcerpt());
         assertTrue(result.readmeExcerpt().endsWith("…"));
@@ -275,7 +275,7 @@ class GitHubPortfolioClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         String excerpt = result.readmeExcerpt();
         assertNotNull(excerpt);
@@ -341,7 +341,7 @@ class GitHubPortfolioClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
 
-        String excerpt = client.getRepoDetail("o", "n").readmeExcerpt();
+        String excerpt = client.getRepoDetail("test-user", "n").readmeExcerpt();
         assertNotNull(excerpt);
         return excerpt;
     }
@@ -354,7 +354,7 @@ class GitHubPortfolioClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setBody(readmeBody).addHeader("Content-Type", "application/json"));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertNull(result.readmeExcerpt());
     }
@@ -394,7 +394,7 @@ class GitHubPortfolioClientTest {
     void getRepoDetail_repoNotFound_throwsException() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(404));
 
-        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("o", "n"));
+        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("test-user", "n"));
     }
 
     @Test
@@ -501,10 +501,28 @@ class GitHubPortfolioClientTest {
     }
 
     @Test
+    void getRepoDetail_ownerOtherThanPortfolioUser_throwsNotFoundWithoutCallingGitHub() {
+        GitHubApiException ex = assertThrows(GitHubApiException.class, () -> client.getRepoDetail("someone-else", "n"));
+
+        assertEquals(404, ex.getHttpStatus());
+        assertEquals(0, mockWebServer.getRequestCount());
+    }
+
+    @Test
+    void getRepoDetail_ownerMatchesPortfolioUserIgnoringCase() {
+        mockWebServer.enqueue(new MockResponse().setBody("{\"full_name\": \"Test-User/n\"}").addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse().setResponseCode(404));
+
+        var result = client.getRepoDetail("Test-User", "n");
+
+        assertEquals("Test-User/n", result.fullName());
+    }
+
+    @Test
     void getRepoDetail_emptyBody_throwsGitHubApiException() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("o", "n"));
+        assertThrows(GitHubApiException.class, () -> client.getRepoDetail("test-user", "n"));
     }
 
     @Test
@@ -514,7 +532,7 @@ class GitHubPortfolioClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertNull(result.readmeExcerpt());
     }
@@ -526,7 +544,7 @@ class GitHubPortfolioClientTest {
         mockWebServer.enqueue(new MockResponse().setBody(repoBody).addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setBody("null").addHeader("Content-Type", "application/json"));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertNull(result.readmeExcerpt());
     }
@@ -562,7 +580,7 @@ class GitHubPortfolioClientTest {
                 .addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
 
-        var result = client.getRepoDetail("o", "n");
+        var result = client.getRepoDetail("test-user", "n");
 
         assertNull(result.readmeExcerpt());
     }
