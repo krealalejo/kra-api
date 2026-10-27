@@ -1,5 +1,6 @@
 package com.kra.api.infrastructure.web;
 
+import com.kra.api.application.ExperienceChanges;
 import com.kra.api.application.ExperienceService;
 import com.kra.api.domain.model.Experience;
 import com.kra.api.infrastructure.web.dto.CreateExperienceRequest;
@@ -41,9 +42,9 @@ public class ExperienceController {
     @PutMapping("/{id}")
     public ResponseEntity<ExperienceResponse> update(@PathVariable String id,
             @Valid @RequestBody UpdateExperienceRequest req) {
-        Experience exp = experienceService.update(
-                id, req.getTitle(), req.getCompany(), req.getLocation(),
-                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent());
+        Experience exp = experienceService.update(id, new ExperienceChanges(
+                req.getTitle(), req.getCompany(), req.getLocation(),
+                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent()));
         return ResponseEntity.ok(ExperienceResponse.from(exp));
     }
 

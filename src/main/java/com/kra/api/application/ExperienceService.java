@@ -34,17 +34,16 @@ public class ExperienceService {
     }
 
     @CacheEvict(value = "experience", allEntries = true)
-    public Experience update(String id, String title, String company, String location,
-                             String years, String description, Integer sortOrder, String logoUrl, boolean updateLogoUrl) {
+    public Experience update(String id, ExperienceChanges changes) {
         Experience existing = experienceRepository.findById(id)
                 .orElseThrow(() -> new ExperienceNotFoundException(id));
-        if (title != null) existing.setTitle(title);
-        if (company != null) existing.setCompany(company);
-        if (location != null) existing.setLocation(location);
-        if (years != null) existing.setYears(years);
-        if (description != null) existing.setDescription(description);
-        if (sortOrder != null) existing.setSortOrder(sortOrder);
-        if (updateLogoUrl) existing.setLogoUrl(logoUrl);
+        if (changes.title() != null) existing.setTitle(changes.title());
+        if (changes.company() != null) existing.setCompany(changes.company());
+        if (changes.location() != null) existing.setLocation(changes.location());
+        if (changes.years() != null) existing.setYears(changes.years());
+        if (changes.description() != null) existing.setDescription(changes.description());
+        if (changes.sortOrder() != null) existing.setSortOrder(changes.sortOrder());
+        if (changes.updateLogoUrl()) existing.setLogoUrl(changes.logoUrl());
         experienceRepository.save(existing);
         return existing;
     }

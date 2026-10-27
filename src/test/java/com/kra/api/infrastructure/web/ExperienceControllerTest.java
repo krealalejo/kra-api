@@ -92,7 +92,7 @@ class ExperienceControllerTest extends AbstractControllerTest {
 
     @Test
     void update_found_returns200() throws Exception {
-        when(experienceService.update(eq("exp-1"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+        when(experienceService.update(eq("exp-1"), any()))
                 .thenReturn(sample());
 
         mockMvc.perform(put("/cv/experience/exp-1")
@@ -105,7 +105,7 @@ class ExperienceControllerTest extends AbstractControllerTest {
 
     @Test
     void update_notFound_returns404() throws Exception {
-        when(experienceService.update(eq("missing"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+        when(experienceService.update(eq("missing"), any()))
                 .thenThrow(new ExperienceNotFoundException("missing"));
 
         mockMvc.perform(put("/cv/experience/missing")
@@ -126,12 +126,12 @@ class ExperienceControllerTest extends AbstractControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
 
-        verify(experienceService, never()).update(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean());
+        verify(experienceService, never()).update(any(), any());
     }
 
     @Test
     void update_withoutTitle_returns200() throws Exception {
-        when(experienceService.update(eq("exp-1"), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+        when(experienceService.update(eq("exp-1"), any()))
                 .thenReturn(sample());
 
         mockMvc.perform(put("/cv/experience/exp-1")

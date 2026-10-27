@@ -1,5 +1,6 @@
 package com.kra.api.infrastructure.web;
 
+import com.kra.api.application.EducationChanges;
 import com.kra.api.application.EducationService;
 import com.kra.api.domain.model.Education;
 import com.kra.api.infrastructure.web.dto.CreateEducationRequest;
@@ -41,9 +42,9 @@ public class EducationController {
     @PutMapping("/{id}")
     public ResponseEntity<EducationResponse> update(@PathVariable String id,
             @Valid @RequestBody UpdateEducationRequest req) {
-        Education edu = educationService.update(
-                id, req.getTitle(), req.getInstitution(), req.getLocation(),
-                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent());
+        Education edu = educationService.update(id, new EducationChanges(
+                req.getTitle(), req.getInstitution(), req.getLocation(),
+                req.getYears(), req.getDescription(), req.getSortOrder(), req.getLogoUrl(), req.isLogoUrlPresent()));
         return ResponseEntity.ok(EducationResponse.from(edu));
     }
 

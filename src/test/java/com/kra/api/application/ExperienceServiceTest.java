@@ -50,7 +50,7 @@ class ExperienceServiceTest {
         Experience existing = new Experience("1", "Old T", "Old C", "Old L", "Old Y", "Old D", 0);
         when(repository.findById("1")).thenReturn(Optional.of(existing));
 
-        Experience result = service.update("1", "New T", "New C", "New L", "New Y", "New D", 10, null, false);
+        Experience result = service.update("1", new ExperienceChanges("New T", "New C", "New L", "New Y", "New D", 10, null, false));
 
         assertEquals("New T", result.getTitle());
         assertEquals("New C", result.getCompany());
@@ -66,7 +66,7 @@ class ExperienceServiceTest {
         Experience existing = new Experience("1", "Old T", "Old C", "Old L", "Old Y", "Old D", 5);
         when(repository.findById("1")).thenReturn(Optional.of(existing));
 
-        Experience result = service.update("1", null, null, null, null, null, null, null, false);
+        Experience result = service.update("1", new ExperienceChanges(null, null, null, null, null, null, null, false));
 
         assertEquals("Old T", result.getTitle());
         assertEquals("Old C", result.getCompany());
@@ -83,7 +83,7 @@ class ExperienceServiceTest {
         existing.setLogoUrl("logos/old-logo.png");
         when(repository.findById("1")).thenReturn(Optional.of(existing));
 
-        Experience result = service.update("1", null, null, null, null, null, null, null, true);
+        Experience result = service.update("1", new ExperienceChanges(null, null, null, null, null, null, null, true));
 
         assertNull(result.getLogoUrl());
         verify(repository).save(existing);
@@ -94,7 +94,7 @@ class ExperienceServiceTest {
         when(repository.findById("1")).thenReturn(Optional.empty());
 
         assertThrows(ExperienceNotFoundException.class, () ->
-            service.update("1", "T", "C", "L", "Y", "D", 1, null, false));
+            service.update("1", new ExperienceChanges("T", "C", "L", "Y", "D", 1, null, false)));
     }
 
     @Test

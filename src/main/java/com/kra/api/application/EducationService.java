@@ -34,17 +34,16 @@ public class EducationService {
     }
 
     @CacheEvict(value = "education", allEntries = true)
-    public Education update(String id, String title, String institution, String location,
-                            String years, String description, Integer sortOrder, String logoUrl, boolean updateLogoUrl) {
+    public Education update(String id, EducationChanges changes) {
         Education existing = educationRepository.findById(id)
                 .orElseThrow(() -> new EducationNotFoundException(id));
-        if (title != null) existing.setTitle(title);
-        if (institution != null) existing.setInstitution(institution);
-        if (location != null) existing.setLocation(location);
-        if (years != null) existing.setYears(years);
-        if (description != null) existing.setDescription(description);
-        if (sortOrder != null) existing.setSortOrder(sortOrder);
-        if (updateLogoUrl) existing.setLogoUrl(logoUrl);
+        if (changes.title() != null) existing.setTitle(changes.title());
+        if (changes.institution() != null) existing.setInstitution(changes.institution());
+        if (changes.location() != null) existing.setLocation(changes.location());
+        if (changes.years() != null) existing.setYears(changes.years());
+        if (changes.description() != null) existing.setDescription(changes.description());
+        if (changes.sortOrder() != null) existing.setSortOrder(changes.sortOrder());
+        if (changes.updateLogoUrl()) existing.setLogoUrl(changes.logoUrl());
         educationRepository.save(existing);
         return existing;
     }
