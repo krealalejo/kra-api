@@ -34,9 +34,16 @@ public class ActivityCardService {
                 title != null && !title.isBlank() ? title : existing.title(),
                 description != null && !description.isBlank() ? description : existing.description(),
                 tags != null ? tags : existing.tags(),
-                url != null ? (url.isBlank() ? null : url) : existing.url()
+                resolveUrl(url, existing.url())
         );
         repository.save(updated);
         return new ActivityCardResponse(updated.type(), updated.title(), updated.description(), updated.tags(), updated.url());
+    }
+
+    private static String resolveUrl(String requestedUrl, String currentUrl) {
+        if (requestedUrl == null) {
+            return currentUrl;
+        }
+        return requestedUrl.isBlank() ? null : requestedUrl;
     }
 }
