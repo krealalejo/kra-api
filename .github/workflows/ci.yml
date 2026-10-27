@@ -37,7 +37,12 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      - name: Build and test
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        run: mvn -B -ntp verify
+
       - name: Build, test, and analyze
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
