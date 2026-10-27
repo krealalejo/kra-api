@@ -22,6 +22,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -234,7 +235,7 @@ class BlogPostControllerTest {
 
         @Test
         void deletePost_notFound_returns404() throws Exception {
-                org.mockito.Mockito.doThrow(new BlogPostNotFoundException("nope"))
+                doThrow(new BlogPostNotFoundException("nope"))
                                 .when(blogPostService).deletePost("nope");
 
                 mockMvc.perform(delete("/posts/nope")

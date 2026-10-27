@@ -34,7 +34,7 @@ class ImageControllerTest {
 
     @Test
     void streamImage_existingKey_returns200WithBytes() throws Exception {
-        byte[] imageBytes = new byte[]{1, 2, 3};
+        byte[] imageBytes = {1, 2, 3};
         GetObjectResponse response = GetObjectResponse.builder().contentType("image/webp").build();
         ResponseInputStream<GetObjectResponse> stream =
                 new ResponseInputStream<>(response, AbortableInputStream.create(new ByteArrayInputStream(imageBytes)));
@@ -64,7 +64,7 @@ class ImageControllerTest {
 
     @Test
     void streamImage_noAuth_returns200() throws Exception {
-        byte[] imageBytes = new byte[]{1};
+        byte[] imageBytes = {1};
         GetObjectResponse response = GetObjectResponse.builder().contentType("image/jpeg").build();
         ResponseInputStream<GetObjectResponse> stream =
                 new ResponseInputStream<>(response, AbortableInputStream.create(new ByteArrayInputStream(imageBytes)));

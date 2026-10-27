@@ -484,7 +484,7 @@ class GitHubPortfolioClientTest {
                 .addHeader("Content-Type", "application/json"));
 
         com.kra.api.domain.model.ProjectMetadata meta = new com.kra.api.domain.model.ProjectMetadata("Lead", "2024", "Backend", "main", java.util.List.of("Java"));
-        org.mockito.Mockito.when(projectMetadataRepository.findByOwnerAndRepo("test-user", "repo1")).thenReturn(meta);
+        when(projectMetadataRepository.findByOwnerAndRepo("test-user", "repo1")).thenReturn(meta);
 
         var result = client.listPublicRepos();
 
